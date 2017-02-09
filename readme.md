@@ -18,13 +18,13 @@ Every method takes the targeted entity class as a parameter.
 ## Listing query parameter
 To control the listing there is a listing query parameter object `ListingFilterParams`. 
 
-...TODO
+...
 
 ### Pagination
  * page
  * limit
  * index
-...TDOD
+...
 
 ### Filter
 Filter attributes are stored in a map by attribute and value. A filter attribute corresponds to a entity attribute and it provides a string representation of the value.
@@ -41,7 +41,7 @@ To put one filter on all the attributes of the entity there is the `filter` attr
 To exclude attributes from this filter the entity attributs needs to get annotated with `@ListingFilterIgnore`.
 
 ## The usage with Jax-RS
-...TODO
+...
 
 
 ## coodoo

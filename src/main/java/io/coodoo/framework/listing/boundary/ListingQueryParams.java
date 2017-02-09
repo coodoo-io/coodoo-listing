@@ -12,10 +12,26 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Listing query parameters and settings
+ * 
+ * @author coodoo
+ */
 public class ListingQueryParams {
 
+    /**
+     * Default index for pagination
+     */
     public static final int DEFAULT_INDEX = 0;
+
+    /**
+     * Default current page number for pagination
+     */
     public static final int DEFAULT_PAGE = 1;
+
+    /**
+     * Default limit of results per page for pagination
+     */
     public static final int DEFAULT_LIMIT = 10;
 
     /**
@@ -42,9 +58,6 @@ public class ListingQueryParams {
 
     @QueryParam("index")
     private Integer index;
-
-    @QueryParam("show-my-page")
-    private boolean showMyPage;
 
     private Map<String, String> filterAttributes = new HashMap<>();
 
@@ -128,7 +141,7 @@ public class ListingQueryParams {
 
     public Integer getIndex() {
         if (index == null && page != null) {
-            // Index aus der Page berechnen
+            // calculate index from page
             return (page - 1) * limit;
         } else if (index == null) {
             return ListingQueryParams.DEFAULT_INDEX;
@@ -138,14 +151,6 @@ public class ListingQueryParams {
 
     public void setIndex(Integer index) {
         this.index = index;
-    }
-
-    public boolean isShowMyPage() {
-        return showMyPage;
-    }
-
-    public void setShowMyPage(boolean showMyPage) {
-        this.showMyPage = showMyPage;
     }
 
     public void addFilterAttributes(String filter, String value) {
