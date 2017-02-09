@@ -42,8 +42,3 @@ To exclude attributes from this filter the entity attributs needs to get annotat
 
 ## The usage with Jax-RS
 ...
-
-
-## coodoo
-
-[coodoo](http://coodoo.io/) is a German technology company developing next generation web applications by using Java EE and AngularJS.
