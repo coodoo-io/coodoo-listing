@@ -142,8 +142,19 @@ public class ListingFilterQuery<T> {
 
     private Predicate createPredicate(String filter, Field field) {
 
+        if (filter.startsWith("!")) {
+            return createPredicate(filter.replaceFirst("!", ""), field, true);
+        }
+        return createPredicate(filter, field, false);
+    }
+
+    private Predicate createPredicate(String filter, Field field, boolean negation) {
+
         // String
         if (field.getType().equals(String.class)) {
+            if (negation) {
+                return criteriaBuilder.notLike(root.get(field.getName()), "%" + filter.toLowerCase() + "%");
+            }
             return criteriaBuilder.like(root.get(field.getName()), "%" + filter.toLowerCase() + "%");
         }
 
@@ -173,6 +184,9 @@ public class ListingFilterQuery<T> {
                     dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
                     dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
                 }
+                if (negation) {
+                    return criteriaBuilder.not(dateConjunction);
+                }
                 return criteriaBuilder.and(dateConjunction);
             }
         }
@@ -188,35 +202,34 @@ public class ListingFilterQuery<T> {
                     possibleEnumValues = criteriaBuilder.or(possibleEnumValues, possibleEnumValue);
                 }
             }
+            if (negation) {
+                return criteriaBuilder.not(possibleEnumValues);
+            }
             return criteriaBuilder.and(possibleEnumValues);
         }
 
         // Long
         if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && filter.matches("^-?\\d{1,37}$")) {
+            if (negation) {
+                return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
+            }
             return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
         }
 
         // Integer
         if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && filter.matches("^-?\\d{1,10}$")) {
+            if (negation) {
+                return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+            }
             return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
         }
 
         // Short
         if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && filter.matches("^-?\\d{1,5}$")) {
-            return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
-        }
-
-        // Boolean
-        if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
-            // TODO: implement me?!
-            return null; // return here to avoid a casting error in the following primitive type case
-        }
-
-        // Primitive types
-        if (field.getType().isPrimitive()) {
-
-            // FIXME: Da Da Da Dangerous!
-            return criteriaBuilder.equal(root.get(field.getName()), filter);
+            if (negation) {
+                return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
+            }
+            return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
         }
 
         return null;
