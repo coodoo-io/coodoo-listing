@@ -2,6 +2,12 @@ package io.coodoo.framework.listing.boundary.dto;
 
 import java.util.List;
 
+/**
+ * Listing data transfer object. It contains the listing result and its meta data.
+ * 
+ * @author coodoo
+ * @param <T>
+ */
 public class ListingDTO<T> {
 
     private ListingMetadataDTO metadata;

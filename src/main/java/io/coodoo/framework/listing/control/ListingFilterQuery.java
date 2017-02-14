@@ -2,8 +2,10 @@ package io.coodoo.framework.listing.control;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +23,9 @@ import io.coodoo.framework.listing.boundary.ListingQueryParams;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
 
 /**
- * Erstellt dynamisch eine JPA Query mit der Criteria API mit optionalen Feldern wie z.B. einem Filter auf mehreren Attriubten, Sortierung inkl. limit.
+ * Creates a dynamic JPA query using Criteria API considering optional fields, e.g. a filter for attributes, sorting and result limit.
  * 
- * @param <T> Die betreffende Entity auf der die JPA Query ausgeführt werden soll.
+ * @param <T> The target entity
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ListingFilterQuery<T> {
@@ -145,8 +147,7 @@ public class ListingFilterQuery<T> {
             return criteriaBuilder.like(root.get(field.getName()), "%" + filter.toLowerCase() + "%");
         }
 
-        // Date // TODO: java.util.Date ?!
-        if (field.getType().equals(LocalDateTime.class)) {
+        if (field.getType().equals(LocalDateTime.class) || field.getType().equals(Date.class)) {
             LocalDateTime startDate = null;
             LocalDateTime endDate = null;
 
@@ -163,8 +164,15 @@ public class ListingFilterQuery<T> {
             if (startDate != null && endDate != null) {
 
                 Predicate dateConjunction = criteriaBuilder.conjunction();
-                dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
-                dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
+                if (field.getType().equals(Date.class)) {
+                    dateConjunction = criteriaBuilder.and(dateConjunction,
+                                    criteriaBuilder.greaterThan(root.get(field.getName()), Date.from(startDate.toInstant(ZoneOffset.UTC))));
+                    dateConjunction = criteriaBuilder.and(dateConjunction,
+                                    criteriaBuilder.lessThan(root.get(field.getName()), Date.from(endDate.toInstant(ZoneOffset.UTC))));
+                } else {
+                    dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
+                    dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
+                }
                 return criteriaBuilder.and(dateConjunction);
             }
         }
@@ -190,6 +198,11 @@ public class ListingFilterQuery<T> {
 
         // Integer
         if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && filter.matches("^-?\\d{1,10}$")) {
+            return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+        }
+
+        // Short
+        if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && filter.matches("^-?\\d{1,5}$")) {
             return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
         }
 
