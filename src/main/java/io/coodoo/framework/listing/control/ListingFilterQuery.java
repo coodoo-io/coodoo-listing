@@ -68,7 +68,7 @@ public class ListingFilterQuery<T> {
             for (Field field : getFields()) {
                 if (field.isAnnotationPresent(Column.class) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
 
-                    Predicate predicate = createPredicate(filter, field);
+                    Predicate predicate = createPredicateByFilter(filter, field);
 
                     if (predicate != null) {
                         predicates.add(predicate);
@@ -134,43 +134,59 @@ public class ListingFilterQuery<T> {
 
         for (Field field : fields) {
             if (field.getName().equals(filterAttribute)) {
-                return createPredicate(filter, field);
+                return createPredicateByFilter(filter, field);
             }
         }
         return null;
     }
 
-    private Predicate createPredicate(String filter, Field field) {
+    private Predicate createPredicateByFilter(String filter, Field field) {
 
-        if (filter.startsWith("!")) {
-            return createPredicate(filter.replaceFirst("!", ""), field, true);
+        if (StringUtils.contains(filter, "|")) {
+
+            Predicate orPredicate = criteriaBuilder.disjunction();
+            for (String orfilter : filter.split("\\|", -1)) {
+
+                Predicate predicate = createPredicate(orfilter, field);
+                if (predicate != null) {
+                    orPredicate = criteriaBuilder.or(orPredicate, predicate);
+                }
+            }
+            return orPredicate;
         }
-        return createPredicate(filter, field, false);
+        return createPredicate(filter, field);
     }
 
-    private Predicate createPredicate(String filter, Field field, boolean negation) {
+    private Predicate createPredicate(String filter, Field field) {
+
+        String value = filter;
+        boolean negation = filter.startsWith("!");
+
+        if (negation) {
+            value = value.replaceFirst("!", "");
+        }
 
         // String
         if (field.getType().equals(String.class)) {
             if (negation) {
-                return criteriaBuilder.notLike(root.get(field.getName()), "%" + filter.toLowerCase() + "%");
+                return criteriaBuilder.notLike(root.get(field.getName()), "%" + value.toLowerCase() + "%");
             }
-            return criteriaBuilder.like(root.get(field.getName()), "%" + filter.toLowerCase() + "%");
+            return criteriaBuilder.like(root.get(field.getName()), "%" + value.toLowerCase() + "%");
         }
 
         if (field.getType().equals(LocalDateTime.class) || field.getType().equals(Date.class)) {
             LocalDateTime startDate = null;
             LocalDateTime endDate = null;
 
-            if (filter.contains("-")) { // Datum von-bis
-                String[] dateRange = filter.split("-");
+            if (value.contains("-")) { // Datum von-bis
+                String[] dateRange = value.split("-");
                 if (dateRange.length == 2) {
                     startDate = parseFilterDate(dateRange[0], true);
                     endDate = parseFilterDate(dateRange[1], false);
                 }
             } else { // genau ein Datum (Jahr, Monat oder Tag)
-                startDate = parseFilterDate(filter, true);
-                endDate = parseFilterDate(filter, false);
+                startDate = parseFilterDate(value, true);
+                endDate = parseFilterDate(value, false);
             }
             if (startDate != null && endDate != null) {
 
@@ -197,7 +213,7 @@ public class ListingFilterQuery<T> {
             Predicate possibleEnumValues = criteriaBuilder.disjunction();
 
             for (Object enumValue : field.getType().getEnumConstants()) {
-                if (enumValue.toString().toUpperCase().contains(((String) filter).toUpperCase())) {
+                if (enumValue.toString().toUpperCase().contains(((String) value).toUpperCase())) {
                     Predicate possibleEnumValue = criteriaBuilder.equal(root.get(field.getName()), enumValue);
                     possibleEnumValues = criteriaBuilder.or(possibleEnumValues, possibleEnumValue);
                 }
@@ -209,27 +225,27 @@ public class ListingFilterQuery<T> {
         }
 
         // Long
-        if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && filter.matches("^-?\\d{1,37}$")) {
+        if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}$")) {
             if (negation) {
-                return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
+                return criteriaBuilder.notEqual(root.get(field.getName()), Long.valueOf(value));
             }
-            return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
+            return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(value));
         }
 
         // Integer
-        if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && filter.matches("^-?\\d{1,10}$")) {
+        if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && value.matches("^-?\\d{1,10}$")) {
             if (negation) {
-                return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+                return criteriaBuilder.notEqual(root.get(field.getName()), Integer.valueOf(value));
             }
-            return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+            return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(value));
         }
 
         // Short
-        if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && filter.matches("^-?\\d{1,5}$")) {
+        if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && value.matches("^-?\\d{1,5}$")) {
             if (negation) {
-                return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
+                return criteriaBuilder.notEqual(root.get(field.getName()), Short.valueOf(value));
             }
-            return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
+            return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(value));
         }
 
         return null;
