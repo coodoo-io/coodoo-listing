@@ -48,7 +48,7 @@ public class ListingFilterQuery<T> {
 
     public ListingFilterQuery<T> filter(String filter, String... attributes) {
         if (!StringUtils.isBlank(filter)) {
-            filter = "%" + filter.toLowerCase() + "%";
+            filter = likeValue(filter);
             List<Predicate> predicates = new ArrayList<>();
             for (String attribute : attributes) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(attribute)), filter));
@@ -102,7 +102,7 @@ public class ListingFilterQuery<T> {
                 Predicate orPredicate = criteriaBuilder.disjunction();
                 for (String orAttribute : filterAttribute.split("\\|", -1)) {
 
-                    Predicate predicate = filterByAttribute(fields, orAttribute, filter);
+                    Predicate predicate = filterByAttribute(fields, orAttribute.trim(), filter);
                     if (predicate != null) {
                         orPredicate = criteriaBuilder.or(orPredicate, predicate);
                     }
@@ -143,12 +143,16 @@ public class ListingFilterQuery<T> {
 
     private Predicate createPredicateByFilter(String filter, Field field) {
 
-        if (StringUtils.contains(filter, "|")) {
+        // FEATURE: null empty ...
+
+        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, ",") || StringUtils.contains(filter, " OR ")) {
+
+            String value = filter.replaceAll(" OR ", "|").replaceAll(",", "|").trim();
 
             Predicate orPredicate = criteriaBuilder.disjunction();
-            for (String orfilter : filter.split("\\|", -1)) {
+            for (String orfilter : value.split("\\|", -1)) {
 
-                Predicate predicate = createPredicate(orfilter, field);
+                Predicate predicate = createPredicate(orfilter.trim(), field);
                 if (predicate != null) {
                     orPredicate = criteriaBuilder.or(orPredicate, predicate);
                 }
@@ -160,19 +164,28 @@ public class ListingFilterQuery<T> {
 
     private Predicate createPredicate(String filter, Field field) {
 
-        String value = filter;
-        boolean negation = filter.startsWith("!");
+        String value = filter.trim();
+        boolean negation = false;
 
-        if (negation) {
+        if (value.startsWith("!")) {
             value = value.replaceFirst("!", "");
+            negation = true;
+        }
+        if (value.startsWith("-")) {
+            value = value.replaceFirst("-", "");
+            negation = true;
+        }
+        if (value.startsWith("NOT ")) {
+            value = value.replaceFirst("NOT ", "");
+            negation = true;
         }
 
         // String
         if (field.getType().equals(String.class)) {
             if (negation) {
-                return criteriaBuilder.notLike(root.get(field.getName()), "%" + value.toLowerCase() + "%");
+                return criteriaBuilder.notLike(root.get(field.getName()), likeValue(value));
             }
-            return criteriaBuilder.like(root.get(field.getName()), "%" + value.toLowerCase() + "%");
+            return criteriaBuilder.like(root.get(field.getName()), likeValue(value));
         }
 
         if (field.getType().equals(LocalDateTime.class) || field.getType().equals(Date.class)) {
@@ -227,49 +240,38 @@ public class ListingFilterQuery<T> {
 
         // Long
         if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}$")) {
-
-            // TODO: Refactoring
-            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                if (negation) {
-                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
-                }
-                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
-            }
-            if (negation) {
-                return criteriaBuilder.notEqual(root.get(field.getName()), Long.valueOf(value));
-            }
-            return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(value));
+            return createNummericalPrediacte(value, Long.valueOf(value), field, negation);
         }
 
         // Integer
         if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && value.matches("^-?\\d{1,10}$")) {
-            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                if (negation) {
-                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
-                }
-                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
-            }
-            if (negation) {
-                return criteriaBuilder.notEqual(root.get(field.getName()), Integer.valueOf(value));
-            }
-            return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(value));
+            return createNummericalPrediacte(value, Integer.valueOf(value), field, negation);
         }
 
         // Short
         if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && value.matches("^-?\\d{1,5}$")) {
-            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                if (negation) {
-                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
-                }
-                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
-            }
-            if (negation) {
-                return criteriaBuilder.notEqual(root.get(field.getName()), Short.valueOf(value));
-            }
-            return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(value));
+            return createNummericalPrediacte(value, Short.valueOf(value), field, negation);
         }
 
         return null;
+    }
+
+    private Predicate createNummericalPrediacte(String value, Object number, Field field, boolean negation) {
+
+        if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+            if (negation) {
+                return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), likeValue(value));
+            }
+            return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(value));
+        }
+        if (negation) {
+            return criteriaBuilder.notEqual(root.get(field.getName()), number);
+        }
+        return criteriaBuilder.equal(root.get(field.getName()), number);
+    }
+
+    private String likeValue(String value) {
+        return "%" + value.toLowerCase() + "%";
     }
 
     private LocalDateTime parseFilterDate(String dateFilterString, boolean start) {
