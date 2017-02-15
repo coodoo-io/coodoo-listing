@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingQueryParams;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
+import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 
 /**
  * Creates a dynamic JPA query using Criteria API considering optional fields, e.g. a filter for attributes, sorting and result limit.
@@ -226,6 +227,14 @@ public class ListingFilterQuery<T> {
 
         // Long
         if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}$")) {
+
+            // TODO: Refactoring
+            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                if (negation) {
+                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
+                }
+                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
+            }
             if (negation) {
                 return criteriaBuilder.notEqual(root.get(field.getName()), Long.valueOf(value));
             }
@@ -234,6 +243,12 @@ public class ListingFilterQuery<T> {
 
         // Integer
         if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && value.matches("^-?\\d{1,10}$")) {
+            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                if (negation) {
+                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
+                }
+                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
+            }
             if (negation) {
                 return criteriaBuilder.notEqual(root.get(field.getName()), Integer.valueOf(value));
             }
@@ -242,6 +257,12 @@ public class ListingFilterQuery<T> {
 
         // Short
         if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && value.matches("^-?\\d{1,5}$")) {
+            if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                if (negation) {
+                    return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), "%" + value + "%");
+                }
+                return criteriaBuilder.like(root.get(field.getName()).as(String.class), "%" + value + "%");
+            }
             if (negation) {
                 return criteriaBuilder.notEqual(root.get(field.getName()), Short.valueOf(value));
             }
