@@ -1,6 +1,4 @@
-package io.coodoo.framework.listing.boundary.dto;
-
-import io.coodoo.framework.listing.boundary.ListingQueryParams;
+package io.coodoo.framework.listing.boundary;
 
 /**
  * The meta data provides information for the use of a pagination presentation.
@@ -16,7 +14,7 @@ import io.coodoo.framework.listing.boundary.ListingQueryParams;
  * 
  * @author coodoo
  */
-public class ListingMetadataDTO {
+public class Metadata {
 
     private long count;
     private int currentPage;
@@ -26,15 +24,15 @@ public class ListingMetadataDTO {
     private int startIndex;
     private int endIndex;
 
-    public ListingMetadataDTO(Long count, ListingQueryParams listingQueryParams) {
-        this(count, listingQueryParams.getPage(), listingQueryParams.getLimit(), null);
+    public Metadata(Long count, ListingQueryParams listingQueryParams) {
+        this(count, listingQueryParams.getPage(), listingQueryParams.getLimit(), listingQueryParams.getSortAttribute());
     }
 
-    public ListingMetadataDTO(Long count, int currentPage, int itemsPerPage) {
+    public Metadata(Long count, int currentPage, int itemsPerPage) {
         this(count, currentPage, itemsPerPage, null);
     }
 
-    public ListingMetadataDTO(Long count, int currentPage, int limit, String sort) {
+    public Metadata(Long count, int currentPage, int limit, String sort) {
         this.count = count;
         this.currentPage = currentPage;
         this.limit = limit;

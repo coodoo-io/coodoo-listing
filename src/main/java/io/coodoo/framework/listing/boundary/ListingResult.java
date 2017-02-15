@@ -2,26 +2,33 @@ package io.coodoo.framework.listing.boundary;
 
 import java.util.List;
 
+
 public class ListingResult<T> {
 
-    private List<T> result;
+    private List<T> results;
 
-    private Long count;
+    private Metadata metadata;
 
-    public List<T> getResult() {
-        return result;
+    public ListingResult(List<T> result, Metadata metadata) {
+        super();
+        this.results = result;
+        this.metadata = metadata;
     }
 
-    public void setResult(List<T> result) {
-        this.result = result;
+    public List<T> getResults() {
+        return results;
     }
 
-    public Long getCount() {
-        return count;
+    public void setResults(List<T> result) {
+        this.results = result;
     }
 
-    public void setCount(Long count) {
-        this.count = count;
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
     }
 
 }

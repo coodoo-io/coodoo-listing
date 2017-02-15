@@ -61,6 +61,18 @@ public class ListingQueryParams {
 
     private Map<String, String> filterAttributes = new HashMap<>();
 
+
+    public ListingQueryParams() {}
+
+    public ListingQueryParams(Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
+        super();
+        this.page = page;
+        this.limit = limit;
+        this.filter = filter;
+        this.sortAttribute = sortAttribute;
+        this.index = index;
+    }
+
     public Integer getPage() {
         if (page == null && limit != null && index != null) {
             int mod = index % limit;
