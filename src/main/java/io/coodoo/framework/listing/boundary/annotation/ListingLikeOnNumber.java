@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 
+ * Enables LIKE comparison an numerical Values
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
