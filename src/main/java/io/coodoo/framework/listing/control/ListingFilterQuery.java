@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
@@ -143,14 +145,10 @@ public class ListingFilterQuery<T> {
 
     private Predicate createPredicateByFilter(String filter, Field field) {
 
-        // FEATURE: null empty ...
-
-        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, ",") || StringUtils.contains(filter, " OR ")) {
-
-            String value = filter.replaceAll(" OR ", "|").replaceAll(",", "|").trim();
+        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, " OR ")) {
 
             Predicate orPredicate = criteriaBuilder.disjunction();
-            for (String orfilter : value.split("\\|", -1)) {
+            for (String orfilter : filter.replaceAll(" OR ", "|").trim().split("\\|", -1)) {
 
                 Predicate predicate = createPredicate(orfilter.trim(), field);
                 if (predicate != null) {
@@ -171,13 +169,17 @@ public class ListingFilterQuery<T> {
             value = value.replaceFirst("!", "");
             negation = true;
         }
-        if (value.startsWith("-")) {
-            value = value.replaceFirst("-", "");
-            negation = true;
-        }
         if (value.startsWith("NOT ")) {
             value = value.replaceFirst("NOT ", "");
             negation = true;
+        }
+
+        // Nulls
+        if (value.matches("^NULL$")) {
+            if (negation) {
+                return criteriaBuilder.isNotNull(root.get(field.getName()));
+            }
+            return criteriaBuilder.isNull(root.get(field.getName()));
         }
 
         // String
@@ -238,19 +240,64 @@ public class ListingFilterQuery<T> {
             return criteriaBuilder.and(possibleEnumValues);
         }
 
+
+
+        // TODO: Refactor Numbers
+
         // Long
         if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}$")) {
             return createNummericalPrediacte(value, Long.valueOf(value), field, negation);
+        }
+        if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}--?\\d{1,37}$")) {
+
+            Pattern longRangePattern = Pattern.compile("(^-?\\d{1,37})-(-?\\d{1,37}$)");
+            Matcher longRangeMatcher = longRangePattern.matcher(value);
+
+            if (longRangeMatcher.find()) {
+                if (negation) {
+                    return criteriaBuilder.not(criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRangeMatcher.group(1)),
+                                    Long.valueOf(longRangeMatcher.group(2))));
+                }
+                return criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRangeMatcher.group(1)), Long.valueOf(longRangeMatcher.group(2)));
+            }
         }
 
         // Integer
         if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && value.matches("^-?\\d{1,10}$")) {
             return createNummericalPrediacte(value, Integer.valueOf(value), field, negation);
         }
+        if ((field.getType().equals(Integer.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,10}--?\\d{1,10}$")) {
+
+            Pattern longRangePattern = Pattern.compile("(^-?\\d{1,10})-(-?\\d{1,10}$)");
+            Matcher longRangeMatcher = longRangePattern.matcher(value);
+
+            if (longRangeMatcher.find()) {
+                if (negation) {
+                    return criteriaBuilder.not(criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(longRangeMatcher.group(1)),
+                                    Integer.valueOf(longRangeMatcher.group(2))));
+                }
+                return criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(longRangeMatcher.group(1)),
+                                Integer.valueOf(longRangeMatcher.group(2)));
+            }
+        }
+
 
         // Short
         if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && value.matches("^-?\\d{1,5}$")) {
             return createNummericalPrediacte(value, Short.valueOf(value), field, negation);
+        }
+        if ((field.getType().equals(Short.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,5}--?\\d{1,5}$")) {
+
+            Pattern longRangePattern = Pattern.compile("(^-?\\d{1,5})-(-?\\d{1,5}$)");
+            Matcher longRangeMatcher = longRangePattern.matcher(value);
+
+            if (longRangeMatcher.find()) {
+                if (negation) {
+                    return criteriaBuilder.not(criteriaBuilder.between(root.get(field.getName()), Short.valueOf(longRangeMatcher.group(1)),
+                                    Short.valueOf(longRangeMatcher.group(2))));
+                }
+                return criteriaBuilder.between(root.get(field.getName()), Short.valueOf(longRangeMatcher.group(1)), Short.valueOf(longRangeMatcher.group(2)));
+            }
         }
 
         return null;
