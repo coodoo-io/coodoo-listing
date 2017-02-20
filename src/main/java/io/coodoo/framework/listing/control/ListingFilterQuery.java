@@ -191,6 +191,11 @@ public class ListingFilterQuery<T> {
 
         // String
         if (field.getType().equals(String.class)) {
+
+            // quoted values needs an exact match
+            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+                return criteriaBuilder.equal(root.get(field.getName()), filter.replaceAll("^\"|\"$", ""));
+            }
             return criteriaBuilder.like(root.get(field.getName()), likeValue(filter));
         }
 
@@ -226,8 +231,16 @@ public class ListingFilterQuery<T> {
         // Enum
         if (field.getType() instanceof Class && field.getType().isEnum()) {
 
-            Predicate possibleEnumValues = criteriaBuilder.disjunction();
+            // quoted values needs an exact match
+            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+                try {
+                    Enum enumValue = Enum.valueOf((Class<Enum>) field.getType(), filter.replaceAll("^\"|\"$", ""));
+                    return criteriaBuilder.equal(root.get(field.getName()), enumValue);
+                } catch (IllegalArgumentException e) {
+                }
+            }
 
+            Predicate possibleEnumValues = criteriaBuilder.disjunction();
             for (Object enumValue : field.getType().getEnumConstants()) {
                 if (enumValue.toString().toUpperCase().contains(((String) filter).toUpperCase())) {
                     Predicate possibleEnumValue = criteriaBuilder.equal(root.get(field.getName()), enumValue);
