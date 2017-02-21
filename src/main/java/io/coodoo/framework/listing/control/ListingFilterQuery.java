@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
@@ -69,7 +71,7 @@ public class ListingFilterQuery<T> {
             for (Field field : getFields()) {
                 if (field.isAnnotationPresent(Column.class) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
 
-                    Predicate predicate = createPredicateByFilter(filter, field);
+                    Predicate predicate = createPredicateAllowOrOperator(filter, field);
 
                     if (predicate != null) {
                         predicates.add(predicate);
@@ -135,34 +137,30 @@ public class ListingFilterQuery<T> {
 
         for (Field field : fields) {
             if (field.getName().equals(filterAttribute)) {
-                return createPredicateByFilter(filter, field);
+                return createPredicateAllowOrOperator(filter, field);
             }
         }
         return null;
     }
 
-    private Predicate createPredicateByFilter(String filter, Field field) {
+    private Predicate createPredicateAllowOrOperator(String filter, Field field) {
 
-        // FEATURE: null empty ...
-
-        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, ",") || StringUtils.contains(filter, " OR ")) {
-
-            String value = filter.replaceAll(" OR ", "|").replaceAll(",", "|").trim();
+        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, " OR ")) {
 
             Predicate orPredicate = criteriaBuilder.disjunction();
-            for (String orfilter : value.split("\\|", -1)) {
+            for (String orfilter : filter.replaceAll(" OR ", "|").trim().split("\\|", -1)) {
 
-                Predicate predicate = createPredicate(orfilter.trim(), field);
+                Predicate predicate = createPredicateAllowNegation(orfilter.trim(), field);
                 if (predicate != null) {
                     orPredicate = criteriaBuilder.or(orPredicate, predicate);
                 }
             }
             return orPredicate;
         }
-        return createPredicate(filter, field);
+        return createPredicateAllowNegation(filter, field);
     }
 
-    private Predicate createPredicate(String filter, Field field) {
+    private Predicate createPredicateAllowNegation(String filter, Field field) {
 
         String value = filter.trim();
         boolean negation = false;
@@ -171,140 +169,172 @@ public class ListingFilterQuery<T> {
             value = value.replaceFirst("!", "");
             negation = true;
         }
-        if (value.startsWith("-")) {
-            value = value.replaceFirst("-", "");
-            negation = true;
-        }
         if (value.startsWith("NOT ")) {
             value = value.replaceFirst("NOT ", "");
             negation = true;
         }
 
-        // String
-        if (field.getType().equals(String.class)) {
-            if (negation) {
-                return criteriaBuilder.notLike(root.get(field.getName()), likeValue(value));
-            }
-            return criteriaBuilder.like(root.get(field.getName()), likeValue(value));
+        Predicate predicate = createPredicate(value, field);
+
+        if (predicate != null && negation) {
+            return criteriaBuilder.not(predicate);
+        }
+        return predicate;
+    }
+
+    private Predicate createPredicate(String filter, Field field) {
+
+        // Nulls
+        if (filter.matches("^NULL$")) {
+            return criteriaBuilder.isNull(root.get(field.getName()));
         }
 
+        // String
+        if (field.getType().equals(String.class)) {
+
+            // quoted values needs an exact match
+            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+                return criteriaBuilder.equal(root.get(field.getName()), filter.replaceAll("^\"|\"$", ""));
+            }
+            return criteriaBuilder.like(root.get(field.getName()), likeValue(filter));
+        }
+
+        // Date
         if (field.getType().equals(LocalDateTime.class) || field.getType().equals(Date.class)) {
             LocalDateTime startDate = null;
             LocalDateTime endDate = null;
 
-            if (value.contains("-")) { // Datum von-bis
-                String[] dateRange = value.split("-");
+            if (filter.contains("-")) { // Date range from - to
+                String[] dateRange = filter.split("-");
                 if (dateRange.length == 2) {
-                    startDate = parseFilterDate(dateRange[0], true);
-                    endDate = parseFilterDate(dateRange[1], false);
+                    startDate = parseFilterDate(dateRange[0], false);
+                    endDate = parseFilterDate(dateRange[1], true);
                 }
-            } else { // genau ein Datum (Jahr, Monat oder Tag)
-                startDate = parseFilterDate(value, true);
-                endDate = parseFilterDate(value, false);
+            } else { // Date (year, month or day)
+                startDate = parseFilterDate(filter, false);
+                endDate = parseFilterDate(filter, true);
             }
             if (startDate != null && endDate != null) {
 
-                Predicate dateConjunction = criteriaBuilder.conjunction();
+                Predicate date = criteriaBuilder.conjunction();
                 if (field.getType().equals(Date.class)) {
-                    dateConjunction = criteriaBuilder.and(dateConjunction,
-                                    criteriaBuilder.greaterThan(root.get(field.getName()), Date.from(startDate.toInstant(ZoneOffset.UTC))));
-                    dateConjunction = criteriaBuilder.and(dateConjunction,
-                                    criteriaBuilder.lessThan(root.get(field.getName()), Date.from(endDate.toInstant(ZoneOffset.UTC))));
+                    date = criteriaBuilder.and(date, criteriaBuilder.greaterThan(root.get(field.getName()), Date.from(startDate.toInstant(ZoneOffset.UTC))));
+                    date = criteriaBuilder.and(date, criteriaBuilder.lessThan(root.get(field.getName()), Date.from(endDate.toInstant(ZoneOffset.UTC))));
                 } else {
-                    dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
-                    dateConjunction = criteriaBuilder.and(dateConjunction, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
+                    date = criteriaBuilder.and(date, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
+                    date = criteriaBuilder.and(date, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
                 }
-                if (negation) {
-                    return criteriaBuilder.not(dateConjunction);
-                }
-                return criteriaBuilder.and(dateConjunction);
+                return criteriaBuilder.and(date);
             }
         }
 
         // Enum
         if (field.getType() instanceof Class && field.getType().isEnum()) {
 
-            Predicate possibleEnumValues = criteriaBuilder.disjunction();
+            // quoted values needs an exact match
+            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+                try {
+                    Enum enumValue = Enum.valueOf((Class<Enum>) field.getType(), filter.replaceAll("^\"|\"$", ""));
+                    return criteriaBuilder.equal(root.get(field.getName()), enumValue);
+                } catch (IllegalArgumentException e) {
+                }
+            }
 
+            Predicate possibleEnumValues = criteriaBuilder.disjunction();
             for (Object enumValue : field.getType().getEnumConstants()) {
-                if (enumValue.toString().toUpperCase().contains(((String) value).toUpperCase())) {
+                if (enumValue.toString().toUpperCase().contains(((String) filter).toUpperCase())) {
                     Predicate possibleEnumValue = criteriaBuilder.equal(root.get(field.getName()), enumValue);
                     possibleEnumValues = criteriaBuilder.or(possibleEnumValues, possibleEnumValue);
                 }
-            }
-            if (negation) {
-                return criteriaBuilder.not(possibleEnumValues);
             }
             return criteriaBuilder.and(possibleEnumValues);
         }
 
         // Long
-        if ((field.getType().equals(Long.class) || field.getType().equals(long.class)) && value.matches("^-?\\d{1,37}$")) {
-            return createNummericalPrediacte(value, Long.valueOf(value), field, negation);
+        if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
+            if (filter.matches("^-?\\d{1,37}$")) {
+                if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                }
+                return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
+            }
+            Matcher longRange = Pattern.compile("(^-?\\d{1,37})-(-?\\d{1,37}$)").matcher(filter);
+            if (longRange.find()) {
+                return criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRange.group(1)), Long.valueOf(longRange.group(2)));
+            }
         }
 
         // Integer
-        if ((field.getType().equals(Integer.class) || field.getType().equals(int.class)) && value.matches("^-?\\d{1,10}$")) {
-            return createNummericalPrediacte(value, Integer.valueOf(value), field, negation);
+        if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
+            if (filter.matches("^-?\\d{1,10}$")) {
+                if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                }
+                return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+            }
+            Matcher intRange = Pattern.compile("(^-?\\d{1,10})-(-?\\d{1,10}$)").matcher(filter);
+            if (intRange.find()) {
+                return criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(intRange.group(1)), Integer.valueOf(intRange.group(2)));
+            }
         }
 
         // Short
-        if ((field.getType().equals(Short.class) || field.getType().equals(short.class)) && value.matches("^-?\\d{1,5}$")) {
-            return createNummericalPrediacte(value, Short.valueOf(value), field, negation);
+        if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
+            if (filter.matches("^-?\\d{1,5}$")) {
+                if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                }
+                return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
+            }
+            Matcher shortRange = Pattern.compile("(^-?\\d{1,5})-(-?\\d{1,5}$)").matcher(filter);
+            if (shortRange.find()) {
+                return criteriaBuilder.between(root.get(field.getName()), Short.valueOf(shortRange.group(1)), Short.valueOf(shortRange.group(2)));
+            }
+        }
+
+        // Boolean
+        if ((field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))
+                        && (filter.toLowerCase().equals("true") || filter.toLowerCase().equals("false"))) {
+
+            Boolean booleanValue = filter.toLowerCase().equals("true");
+            return criteriaBuilder.equal(root.get(field.getName()), booleanValue);
         }
 
         return null;
-    }
-
-    private Predicate createNummericalPrediacte(String value, Object number, Field field, boolean negation) {
-
-        if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-            if (negation) {
-                return criteriaBuilder.notLike(root.get(field.getName()).as(String.class), likeValue(value));
-            }
-            return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(value));
-        }
-        if (negation) {
-            return criteriaBuilder.notEqual(root.get(field.getName()), number);
-        }
-        return criteriaBuilder.equal(root.get(field.getName()), number);
     }
 
     private String likeValue(String value) {
         return "%" + value.toLowerCase() + "%";
     }
 
-    private LocalDateTime parseFilterDate(String dateFilterString, boolean start) {
+    private LocalDateTime parseFilterDate(String dateString, boolean end) {
         // YYYY
-        if (dateFilterString.matches("^\\d{4}$")) {
-            if (start) {
-                return LocalDateTime.of(Integer.valueOf(dateFilterString).intValue(), 1, 1, 0, 0, 0);
-            } else {
-                return LocalDateTime.of(Integer.valueOf(dateFilterString).intValue(), 1, 1, 0, 0, 0).plusYears(1).minusSeconds(1);
+        Matcher yearMatcher = Pattern.compile("^(\\d{4})$").matcher(dateString);
+        if (yearMatcher.find()) {
+            LocalDateTime date = LocalDateTime.of(Integer.valueOf(yearMatcher.group(1)), 1, 1, 0, 0, 0);
+            if (end) {
+                return date.plusYears(1).minusSeconds(1);
             }
+            return date;
         }
         // MM.YYYY
-        if (dateFilterString.matches("^\\d{1,2}\\.\\d{4}$")) {
-            String[] dateParts = dateFilterString.split("\\.");
-            int year = Integer.valueOf(dateParts[1]).intValue();
-            int month = Integer.valueOf(dateParts[0]).intValue();
-            if (start) {
-                return LocalDateTime.of(year, month, 1, 0, 0, 0);
-            } else {
-                return LocalDateTime.of(year, month, 1, 0, 0, 0).plusMonths(1).minusSeconds(1);
+        Matcher monthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
+        if (monthYearMatcher.find()) {
+            LocalDateTime date = LocalDateTime.of(Integer.valueOf(monthYearMatcher.group(2)), Integer.valueOf(monthYearMatcher.group(1)), 1, 0, 0, 0);
+            if (end) {
+                return date.plusMonths(1).minusSeconds(1);
             }
+            return date;
         }
         // DD.MM.YYYY
-        if (dateFilterString.matches("^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$")) {
-            String[] dateParts = dateFilterString.split("\\.");
-            int year = Integer.valueOf(dateParts[2]).intValue();
-            int month = Integer.valueOf(dateParts[1]).intValue();
-            int day = Integer.valueOf(dateParts[0]).intValue();
-            if (start) {
-                return LocalDateTime.of(year, month, day, 0, 0, 0);
-            } else {
-                return LocalDateTime.of(year, month, day, 0, 0, 0).plusDays(1).minusSeconds(1);
+        Matcher dayMonthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
+        if (dayMonthYearMatcher.find()) {
+            LocalDateTime date = LocalDateTime.of(Integer.valueOf(dayMonthYearMatcher.group(3)), Integer.valueOf(dayMonthYearMatcher.group(2)),
+                            Integer.valueOf(dayMonthYearMatcher.group(1)), 0, 0, 0);
+            if (end) {
+                return date.plusDays(1).minusSeconds(1);
             }
+            return date;
         }
         return null;
     }
@@ -340,7 +370,6 @@ public class ListingFilterQuery<T> {
         if (attribute == null) {
             return this;
         }
-
         if (asc) {
             query.orderBy(criteriaBuilder.asc(root.get(attribute)));
         } else {
