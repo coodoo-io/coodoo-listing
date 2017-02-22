@@ -6,7 +6,7 @@ There is no need anymore to implement separate services for every entity to just
 This library gives you easy access to list your entities by calling a JAX-RS API with just two lines of code.
 
 
-## Usage
+## Getting started
 
 1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Clisting%7C1.0.0%7Cjar)):
 
@@ -74,16 +74,16 @@ This library gives you easy access to list your entities by calling a JAX-RS API
    ```
 
 
-## Getting started
+## Usage
 
 The central service is the `ListingService` that needs to get injected as a CDI or an EJB bean. It provides three ways to get listing data:
  * `getListing` gets a list of the desired data
  * `countListing` gets the count of resulting data
- * `getListingResult` gets an result object that contains the list and count of the resulting data
+ * `getListingResult` gets an result object that contains the list and metadata (total count, page, index, ...) of the resulting data
 
 Every method takes the targeted entity class as a parameter.
 
-## Listing query parameter
+### Listing query parameter
 To control the listing there is a listing query parameter object `ListingFilterParams`. 
 
 ...
