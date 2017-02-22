@@ -30,16 +30,28 @@ public class ListingService {
                         .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes()).count();
     }
 
-    public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
-        return getListingResult(entityClass, new ListingQueryParams(limit, page, index, sortAttribute, filter));
+    public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit) {
+        return getListingResult(entityClass, new ListingQueryParams(page, limit, null));
     }
 
-    public <T> List<T> getListing(Class<T> entityClass, Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
-        return getListing(entityClass, new ListingQueryParams(limit, page, index, sortAttribute, filter));
+    public <T> List<T> getListing(Class<T> entityClass, Integer page, Integer limit) {
+        return getListing(entityClass, new ListingQueryParams(page, limit, null));
     }
 
-    public <T> Long countListing(Class<T> entityClass, Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
-        return countListing(entityClass, new ListingQueryParams(limit, page, index, sortAttribute, filter));
+    public <T> Long countListing(Class<T> entityClass, Integer page, Integer limit) {
+        return countListing(entityClass, new ListingQueryParams(page, limit, null));
+    }
+
+    public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
+        return getListingResult(entityClass, new ListingQueryParams(page, limit, sortAttribute));
+    }
+
+    public <T> List<T> getListing(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
+        return getListing(entityClass, new ListingQueryParams(page, limit, sortAttribute));
+    }
+
+    public <T> Long countListing(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
+        return countListing(entityClass, new ListingQueryParams(page, limit, sortAttribute));
     }
 
 }

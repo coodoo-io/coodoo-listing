@@ -64,13 +64,11 @@ public class ListingQueryParams {
 
     public ListingQueryParams() {}
 
-    public ListingQueryParams(Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
+    public ListingQueryParams(Integer page, Integer limit, String sortAttribute) {
         super();
         this.page = page;
         this.limit = limit;
-        this.filter = filter;
         this.sortAttribute = sortAttribute;
-        this.index = index;
     }
 
     public Integer getPage() {

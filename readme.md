@@ -6,6 +6,39 @@ There is no need anymore to implement separate services for every entity to just
 This library gives you easy access to list your entities.
 
 
+## Usage
+
+1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Clisting%7C1.0.0%7Cjar)):
+```xml
+	<dependency>
+	    <groupId>io.coodoo</groupId>
+	    <artifactId>listing</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
+```
+
+2. Inject `ListingService` located in the `io.coodoo.listing` package 
+```java
+
+	@Stateless
+	public void MyEntityManager {
+	    @Inject
+	    ListingService listingService
+	    
+	    public void doListing() {
+	    	// 
+	    	ListingResult<MyEntity> myEntityListingResult = listingService.getListingResult(MyEntity.class, 1, 50);
+	    	
+	    	log.info("Loaded page 1 with limit 50. Total entity count: {}", myEntityListingResult.getMetadata()getCount();
+	    	
+	    	for(MyEntity myEntity : myEntityListingResult.getResults()) {
+	    		log.info("Loaded entity: {}", myEntity);
+	    	}
+	    }
+	}
+ 
+```
+
 ## Getting started
 
 The central service is the `ListingService` that needs to get injected as a CDI or an EJB bean. It provides three ways to get listing data:
