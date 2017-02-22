@@ -37,7 +37,7 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 	    public ListingResult getWines(@BeanParam ListingQueryParams listingQueryParams) {
 	    
 	    	// Just inject and invoke the listingService to page an entity.
-	    	return listingService.getListingResult(MyEntity.class, listingQueryParams);
+	    	return listingService.getListingResult(Wine.class, listingQueryParams);
 	    }
 	}
  
