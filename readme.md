@@ -21,12 +21,15 @@ This library gives you easy access to list your entities.
 ```java
 
 	@Stateless
-	public void MyEntityManager {
+	public void MyEntityBusinessService {
+    	private static Logger log = LoggerFactory.getLogger(MyEntityBusinessService.class);
+    	
 	    @Inject
 	    ListingService listingService
 	    
 	    public void doListing() {
-	    	// 
+	    
+	    	// Just inject and invoke the listingService to page an entity.
 	    	ListingResult<MyEntity> myEntityListingResult = listingService.getListingResult(MyEntity.class, 1, 50);
 	    	
 	    	log.info("Loaded page 1 with limit 50. Total entity count: {}", myEntityListingResult.getMetadata()getCount();
