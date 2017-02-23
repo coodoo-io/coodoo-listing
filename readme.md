@@ -1,21 +1,89 @@
 # JavaEE JPA/JAX-RS Listing Framework
 
-*A generic JPA/JAX-RS listing mechanism for easy paging, filtering, sorting and searching on entities*
+*A generic JPA/JAX-RS listing mechanism for easy paging, filtering, sorting and searching on entities.*
 
-There is no need anymore to implement separate services for every entity to just have sortable and filterable table listing on a web page.
-This library gives you easy access to list your entities.
+There is no need anymore to implement separate services for every entity to just have sortable and filterable table listings on a web page.
+This library gives you easy access to list your entities by calling a JAX-RS API with just two lines of code.
 
 
 ## Getting started
 
+1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Clisting%7C1.0.0%7Cjar)):
+
+   ```xml
+	<dependency>
+	    <groupId>io.coodoo</groupId>
+	    <artifactId>listing</artifactId>
+	    <version>1.0.1</version>
+	</dependency>
+   ```
+
+2. Usage in a JAX-RS Resource
+
+   Inject `ListingService` located in the `io.coodoo.listing` package. The wine entity a standard JPA Entity, annotated with  `@Entity`.
+   
+
+   ```java
+   
+	@Path("/wines")
+	@Stateless
+	public void WineResource {
+	    @Inject
+	    ListingService listingService
+	    
+	    @GET
+	    @Path("/")
+	    @Produces(MediaType.APPLICATION_JSON)
+	    public ListingResult getWines(@BeanParam ListingQueryParams listingQueryParams) {
+	    
+	    	// Just inject and invoke the listingService to page an entity.
+	    	return listingService.getListingResult(Wine.class, listingQueryParams);
+	    }
+	}
+ 
+   ```
+
+   Just call this REST Resource: `curl http://localhost:8080/app-context/api/wines`
+   
+3. Usage in a Stateless EJB
+
+   Inject `ListingService` located in the `io.coodoo.listing` package. The wine entity a standard JPA Entity, annotated with  `@Entity`.
+
+   ```java
+
+	@Stateless
+	public void WineBusinessService {
+    	private static Logger log = LoggerFactory.getLogger(WineBusinessService.class);
+    	
+	    @Inject
+	    ListingService listingService
+	    
+	    public void doListing() {
+	    
+	    	// Just inject and invoke the listingService to page the wine entity.
+	    	ListingResult<Wine> wineListingResult = listingService.getListingResult(Wine.class, 1, 50);
+	    	
+	    	log.info("Loaded page 1 with limit 50. Total wines count: {}", wineListingResult.getMetadata()getCount();
+	    	
+	    	for(Wine wine : wineListingResult.getResults()) {
+	    		log.info("Loaded wine: {}", wine);
+	    	}
+	    }
+	}
+ 
+   ```
+
+
+## Usage
+
 The central service is the `ListingService` that needs to get injected as a CDI or an EJB bean. It provides three ways to get listing data:
  * `getListing` gets a list of the desired data
  * `countListing` gets the count of resulting data
- * `getListingResult` gets an result object that contains the list and count of the resulting data
+ * `getListingResult` gets an result object that contains the list and metadata (total count, page, index, ...) of the resulting data
 
 Every method takes the targeted entity class as a parameter.
 
-## Listing query parameter
+### Listing query parameter
 To control the listing there is a listing query parameter object `ListingFilterParams`. 
 
 ...

@@ -64,13 +64,11 @@ public class ListingQueryParams {
 
     public ListingQueryParams() {}
 
-    public ListingQueryParams(Integer limit, Integer page, Integer index, String sortAttribute, String filter) {
+    public ListingQueryParams(Integer page, Integer limit, String sortAttribute) {
         super();
         this.page = page;
         this.limit = limit;
-        this.filter = filter;
         this.sortAttribute = sortAttribute;
-        this.index = index;
     }
 
     public Integer getPage() {
@@ -180,7 +178,11 @@ public class ListingQueryParams {
                     continue;
                 }
                 queryParamAttribute = queryParamAttribute.substring("filter-".length(), queryParamAttribute.length());
-                filterAttributes.put(queryParamAttribute, queryParam.getValue().get(0));
+                String filterVal = StringUtils.trimToNull(queryParam.getValue().get(0));
+                System.out.println("blubb");
+                if (filterVal != null) {
+                    filterAttributes.put(queryParamAttribute, filterVal);
+                }
             }
         }
         return filterAttributes;
