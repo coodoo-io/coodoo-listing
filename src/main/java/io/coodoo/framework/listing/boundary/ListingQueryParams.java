@@ -178,7 +178,8 @@ public class ListingQueryParams {
                     continue;
                 }
                 queryParamAttribute = queryParamAttribute.substring("filter-".length(), queryParamAttribute.length());
-                filterAttributes.put(queryParamAttribute, queryParam.getValue().get(0));
+                String filterVal = StringUtils.trimToNull(queryParam.getValue().get(0));
+                filterAttributes.put(queryParamAttribute, filterVal);
             }
         }
         return filterAttributes;
