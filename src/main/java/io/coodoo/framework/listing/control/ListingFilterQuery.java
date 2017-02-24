@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
@@ -145,10 +146,18 @@ public class ListingFilterQuery<T> {
 
     private Predicate createPredicateAllowOrOperator(String filter, Field field) {
 
+        // REVIEW: what about "," & ";" ?
+
         if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, " OR ")) {
 
+            List<String> orList = Arrays.asList(filter.replaceAll(" OR ", "|").trim().split("\\|", -1));
+
+            // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
+            if (orList.size() > 10) {
+                return createInPredicate(orList, field);
+            }
             Predicate orPredicate = criteriaBuilder.disjunction();
-            for (String orfilter : filter.replaceAll(" OR ", "|").trim().split("\\|", -1)) {
+            for (String orfilter : orList) {
 
                 Predicate predicate = createPredicateAllowNegation(orfilter.trim(), field);
                 if (predicate != null) {
@@ -158,6 +167,36 @@ public class ListingFilterQuery<T> {
             return orPredicate;
         }
         return createPredicateAllowNegation(filter, field);
+    }
+
+    private Predicate createInPredicate(List<String> inList, Field field) {
+
+        if (field.getType().equals(String.class)) {
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inList));
+        }
+        if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
+            List<Long> inListLong = inList.stream().map(Long::parseLong).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListLong));
+        }
+        if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
+            List<Integer> inListInt = inList.stream().map(Integer::parseInt).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListInt));
+        }
+        if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
+            List<Short> inListShort = inList.stream().map(Short::parseShort).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListShort));
+        }
+        if (field.getType() instanceof Class && field.getType().isEnum()) {
+            List<Enum> inListEnum = new ArrayList<Enum>();
+            for (String enumString : inList) {
+                try {
+                    inListEnum.add(Enum.valueOf((Class<Enum>) field.getType(), enumString));
+                } catch (IllegalArgumentException e) {
+                }
+            }
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListEnum));
+        }
+        return null;
     }
 
     private Predicate createPredicateAllowNegation(String filter, Field field) {

@@ -1,17 +1,33 @@
 
-<a name="1.0.0-SNAPSHOT"></a>
+
+<!--
+### Bug Fixes
+### Features
+### BREAKING CHANGES
+-->
+
+
+<a name="1.0.3"></a>
+
+## 1.0.3 (2017-02-24)
 
 ### Bug Fixes
 
+ * Preventing stack overflow if there are to many disjunction in an filter value
 
-### Features
 
+<a name="1.0.2"></a>
 
-### BREAKING CHANGES
+## 1.0.2 (2017-02-23)
 
+### Bug Fixes
+
+ * Empty attribute filter
 
 
 <a name="1.0.0"></a>
+
+## 1.0.0 (2017-02-21)
 
 ### Features
 
