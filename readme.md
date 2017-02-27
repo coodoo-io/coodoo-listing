@@ -14,7 +14,7 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 	<dependency>
 	    <groupId>io.coodoo</groupId>
 	    <artifactId>listing</artifactId>
-	    <version>1.0.2</version>
+	    <version>1.0.3</version>
 	</dependency>
    ```
 
