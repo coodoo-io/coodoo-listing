@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+
+  <TEST_ENTITY ID="1" TEXT="coodoo" NUMBER="0"/>
+  <TEST_ENTITY ID="2" TEXT="coo" NUMBER="1"/>
+  <TEST_ENTITY ID="3" TEXT="doo" NUMBER="-1"/>
+  <TEST_ENTITY ID="4" TEXT="doocoo" NUMBER="83"/>
+  <TEST_ENTITY ID="5" TEXT="cooodooo" NUMBER="77"/>
+
+</dataset>

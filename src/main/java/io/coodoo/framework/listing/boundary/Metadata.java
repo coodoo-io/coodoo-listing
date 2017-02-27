@@ -36,6 +36,7 @@ public class Metadata {
         this.count = count;
         this.currentPage = currentPage;
         this.limit = limit;
+        this.sort = sort;
 
         numPages = count.intValue() / limit + (count.intValue() % limit != 0 ? 1 : 0);
         if (count < limit) {
