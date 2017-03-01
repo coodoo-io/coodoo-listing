@@ -19,14 +19,23 @@ public class ListingService {
     }
 
     public <T> List<T> getListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingFilterQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
-                        .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes())
-                        .list(queryParams.getIndex(), queryParams.getLimit());
+        return assambleFilter(entityClass, queryParams).list(queryParams.getIndex(), queryParams.getLimit());
     }
 
     public <T> Long countListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingFilterQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
-                        .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes()).count();
+        return assambleFilter(entityClass, queryParams).count();
+    }
+
+    private <T> ListingFilterQuery<T> assambleFilter(Class<T> entityClass, ListingQueryParams queryParams) {
+        return new ListingFilterQuery<>(entityManager, entityClass)
+                        // apply sorting
+                        .sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
+                        // disjunctive filter on the whole table
+                        .filterAllAttributes(queryParams.getFilter())
+                        // column specific conjunctive filter
+                        .filterByAttributes(queryParams.getFilterAttributes())
+                        // additional filters
+                        .filterByPredicates(queryParams.getPredicates());
     }
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit) {

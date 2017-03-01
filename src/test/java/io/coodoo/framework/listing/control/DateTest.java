@@ -41,13 +41,14 @@ public class DateTest extends AbstractDbUnitTest {
     }
 
     @Test
-    public void testHelloWorld() {
+    public void testDatasetLoaded() {
 
         TestDatesEntity result = entityManager.find(TestDatesEntity.class, 1L);
 
         assertEquals(1L, result.getId().longValue());
     }
 
+    @Ignore
     @Test
     public void testLocalDateTimeDay() {
 
@@ -56,6 +57,7 @@ public class DateTest extends AbstractDbUnitTest {
         assertEquals(1L, countListing(TestDatesEntity.class, params).longValue());
     }
 
+    @Ignore
     @Test
     public void testLocalDateTimeMonth() {
 
@@ -64,6 +66,7 @@ public class DateTest extends AbstractDbUnitTest {
         assertEquals(31L, countListing(TestDatesEntity.class, params).longValue());
     }
 
+    @Ignore
     @Test
     public void testLocalDateTimeYear() {
 
@@ -72,6 +75,7 @@ public class DateTest extends AbstractDbUnitTest {
         assertEquals(365L, countListing(TestDatesEntity.class, params).longValue());
     }
 
+    @Ignore
     @Test
     public void testDateDay() {
 
@@ -80,6 +84,7 @@ public class DateTest extends AbstractDbUnitTest {
         assertEquals(1L, countListing(TestDatesEntity.class, params).longValue());
     }
 
+    @Ignore
     @Test
     public void testDateMonth() {
 
@@ -88,6 +93,7 @@ public class DateTest extends AbstractDbUnitTest {
         assertEquals(31L, countListing(TestDatesEntity.class, params).longValue());
     }
 
+    @Ignore
     @Test
     public void testDateYear() {
 
