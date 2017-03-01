@@ -22,6 +22,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.coodoo.framework.listing.boundary.ListingPredicate;
 import io.coodoo.framework.listing.boundary.ListingQueryParams;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
 import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
@@ -51,7 +52,7 @@ public class ListingFilterQuery<T> {
 
     public ListingFilterQuery<T> filter(String filter, String... attributes) {
         if (!StringUtils.isBlank(filter)) {
-            filter = likeValue(filter);
+            filter = ListingUtil.likeValue(filter);
             List<Predicate> predicates = new ArrayList<>();
             for (String attribute : attributes) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(attribute)), filter));
@@ -69,7 +70,7 @@ public class ListingFilterQuery<T> {
             List<Predicate> predicates = new ArrayList<>();
 
             // go for all fields that are defined as columns except if annotated with @ListingFilterIgnore
-            for (Field field : getFields()) {
+            for (Field field : ListingUtil.getFields(domainClass)) {
                 if (field.isAnnotationPresent(Column.class) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
 
                     Predicate predicate = createPredicateAllowOrOperator(filter, field);
@@ -90,7 +91,6 @@ public class ListingFilterQuery<T> {
             return this;
         }
 
-        List<Field> fields = getFields();
         List<Predicate> predicates = new ArrayList<>();
 
         boolean disjunctivFilter = false; // default
@@ -105,7 +105,7 @@ public class ListingFilterQuery<T> {
                 Predicate orPredicate = criteriaBuilder.disjunction();
                 for (String orAttribute : filterAttribute.split("\\|", -1)) {
 
-                    Predicate predicate = filterByAttribute(fields, orAttribute.trim(), filter);
+                    Predicate predicate = filterByAttribute(orAttribute.trim(), filter);
                     if (predicate != null) {
                         orPredicate = criteriaBuilder.or(orPredicate, predicate);
                     }
@@ -113,7 +113,7 @@ public class ListingFilterQuery<T> {
                 predicates.add(criteriaBuilder.and(orPredicate));
 
             } else { // just one attribute for one filter
-                Predicate predicate = filterByAttribute(fields, filterAttribute, filter);
+                Predicate predicate = filterByAttribute(filterAttribute, filter);
                 if (predicate != null) {
                     predicates.add(predicate);
                 }
@@ -134,9 +134,56 @@ public class ListingFilterQuery<T> {
         return this;
     }
 
-    private Predicate filterByAttribute(List<Field> fields, String filterAttribute, String filter) {
+    public ListingFilterQuery<T> filterByPredicates(List<ListingPredicate> listingPredicates) {
 
-        for (Field field : fields) {
+        Predicate predicate = filterByPredicateTree(false, false, listingPredicates);
+        if (predicate != null) {
+            whereConstraints.add(predicate);
+        }
+        return this;
+    }
+
+    private Predicate filterByPredicateTree(boolean disjunctive, boolean negation, List<ListingPredicate> listingPredicates) {
+
+        if (listingPredicates != null && !listingPredicates.isEmpty()) {
+
+            List<Predicate> predicates = new ArrayList<>();
+            for (ListingPredicate listingPredicate : listingPredicates) {
+
+                Predicate predicate = null;
+                if (listingPredicate.hasPredicates()) {
+
+                    // process child predicates
+                    predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), listingPredicate.getPredicates());
+
+                } else if (StringUtils.isNoneEmpty(listingPredicate.getAttribute()) && StringUtils.isNoneEmpty(listingPredicate.getFilter())) {
+
+                    // add predicate
+                    predicate = filterByAttribute(listingPredicate.getAttribute(), listingPredicate.getFilter());
+                }
+                if (predicate != null) {
+                    predicates.add(predicate);
+                }
+            }
+            if (!predicates.isEmpty()) {
+                Predicate predicate = null;
+                if (disjunctive) {
+                    predicate = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
+                } else {
+                    predicate = criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+                }
+                if (negation) {
+                    return criteriaBuilder.not(predicate);
+                }
+                return predicate;
+            }
+        }
+        return null;
+    }
+
+    private Predicate filterByAttribute(String filterAttribute, String filter) {
+
+        for (Field field : ListingUtil.getFields(domainClass)) {
             if (field.getName().equals(filterAttribute)) {
                 return createPredicateAllowOrOperator(filter, field);
             }
@@ -235,7 +282,7 @@ public class ListingFilterQuery<T> {
             if (filter.startsWith("\"") && filter.endsWith("\"")) {
                 return criteriaBuilder.equal(root.get(field.getName()), filter.replaceAll("^\"|\"$", ""));
             }
-            return criteriaBuilder.like(root.get(field.getName()), likeValue(filter));
+            return criteriaBuilder.like(root.get(field.getName()), ListingUtil.likeValue(filter));
         }
 
         // Date
@@ -246,12 +293,12 @@ public class ListingFilterQuery<T> {
             if (filter.contains("-")) { // Date range from - to
                 String[] dateRange = filter.split("-");
                 if (dateRange.length == 2) {
-                    startDate = parseFilterDate(dateRange[0], false);
-                    endDate = parseFilterDate(dateRange[1], true);
+                    startDate = ListingUtil.parseFilterDate(dateRange[0], false);
+                    endDate = ListingUtil.parseFilterDate(dateRange[1], true);
                 }
             } else { // Date (year, month or day)
-                startDate = parseFilterDate(filter, false);
-                endDate = parseFilterDate(filter, true);
+                startDate = ListingUtil.parseFilterDate(filter, false);
+                endDate = ListingUtil.parseFilterDate(filter, true);
             }
             if (startDate != null && endDate != null) {
 
@@ -293,7 +340,7 @@ public class ListingFilterQuery<T> {
         if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
             if (filter.matches("^-?\\d{1,37}$")) {
                 if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                 }
                 return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
             }
@@ -307,7 +354,7 @@ public class ListingFilterQuery<T> {
         if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
             if (filter.matches("^-?\\d{1,10}$")) {
                 if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                 }
                 return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
             }
@@ -321,7 +368,7 @@ public class ListingFilterQuery<T> {
         if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
             if (filter.matches("^-?\\d{1,5}$")) {
                 if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), likeValue(filter));
+                    return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                 }
                 return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
             }
@@ -340,54 +387,6 @@ public class ListingFilterQuery<T> {
         }
 
         return null;
-    }
-
-    private String likeValue(String value) {
-        return "%" + value.toLowerCase() + "%";
-    }
-
-    private LocalDateTime parseFilterDate(String dateString, boolean end) {
-        // YYYY
-        Matcher yearMatcher = Pattern.compile("^(\\d{4})$").matcher(dateString);
-        if (yearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(yearMatcher.group(1)), 1, 1, 0, 0, 0);
-            if (end) {
-                return date.plusYears(1).minusSeconds(1);
-            }
-            return date;
-        }
-        // MM.YYYY
-        Matcher monthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
-        if (monthYearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(monthYearMatcher.group(2)), Integer.valueOf(monthYearMatcher.group(1)), 1, 0, 0, 0);
-            if (end) {
-                return date.plusMonths(1).minusSeconds(1);
-            }
-            return date;
-        }
-        // DD.MM.YYYY
-        Matcher dayMonthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
-        if (dayMonthYearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(dayMonthYearMatcher.group(3)), Integer.valueOf(dayMonthYearMatcher.group(2)),
-                            Integer.valueOf(dayMonthYearMatcher.group(1)), 0, 0, 0);
-            if (end) {
-                return date.plusDays(1).minusSeconds(1);
-            }
-            return date;
-        }
-        return null;
-    }
-
-    private List<Field> getFields() {
-
-        List<Field> fields = new ArrayList<>();
-
-        Class<?> inheritanceClass = domainClass;
-        while (inheritanceClass != null) {
-            fields.addAll(Arrays.asList(inheritanceClass.getDeclaredFields()));
-            inheritanceClass = inheritanceClass.getSuperclass();
-        }
-        return fields;
     }
 
     public ListingFilterQuery<T> addIsNullConstraint(String attribute) {
@@ -448,4 +447,5 @@ public class ListingFilterQuery<T> {
         TypedQuery<Long> q = this.entityManager.createQuery(this.getQueryForCount());
         return q.getSingleResult();
     }
+
 }

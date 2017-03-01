@@ -1,5 +1,6 @@
 package io.coodoo.framework.listing.boundary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class ListingQueryParams {
 
     private Map<String, String> filterAttributes = new HashMap<>();
 
+    private List<ListingPredicate> predicates = new ArrayList<>();
 
     public ListingQueryParams() {}
 
@@ -179,13 +181,38 @@ public class ListingQueryParams {
                 }
                 queryParamAttribute = queryParamAttribute.substring("filter-".length(), queryParamAttribute.length());
                 String filterVal = StringUtils.trimToNull(queryParam.getValue().get(0));
-                System.out.println("blubb");
                 if (filterVal != null) {
                     filterAttributes.put(queryParamAttribute, filterVal);
                 }
             }
         }
         return filterAttributes;
+    }
+
+    /**
+     * Adds an additional listing predicate
+     * 
+     * @param listingPredicate listing predicate
+     */
+    public void addPredicate(ListingPredicate listingPredicate) {
+        this.predicates.add(listingPredicate);
+    }
+
+    /**
+     * Has additional listing predicates
+     * 
+     * @return <code>true</code> if additional listing predicate list is not null or empty, <code>false</code> otherwise
+     */
+    public boolean hasPredicates() {
+        return this.predicates != null && !this.predicates.isEmpty();
+    }
+
+    public List<ListingPredicate> getPredicates() {
+        return predicates;
+    }
+
+    public void setPredicates(List<ListingPredicate> predicates) {
+        this.predicates = predicates;
     }
 
 }

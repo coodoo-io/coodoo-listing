@@ -6,6 +6,13 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.1.0"></a>
+
+## 1.1.0 (2017-03-01)
+
+### Features
+
+ * Additional custom predicates for the filter query 
 
 <a name="1.0.3"></a>
 
