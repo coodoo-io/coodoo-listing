@@ -6,6 +6,14 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.2.0"></a>
+
+## 1.2.0 (2017-03-01)
+
+### Features
+
+ * Custom predicate tree with builder pattern style constructors
+
 <a name="1.1.0"></a>
 
 ## 1.1.0 (2017-03-01)

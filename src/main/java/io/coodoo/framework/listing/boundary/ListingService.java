@@ -35,7 +35,7 @@ public class ListingService {
                         // column specific conjunctive filter
                         .filterByAttributes(queryParams.getFilterAttributes())
                         // additional filters
-                        .filterByPredicates(queryParams.getPredicates());
+                        .filterByPredicate(queryParams.getPredicate());
     }
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit) {

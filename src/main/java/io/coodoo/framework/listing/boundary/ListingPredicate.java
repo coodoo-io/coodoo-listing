@@ -25,78 +25,63 @@ public class ListingPredicate {
     }
 
     /**
-     * Constructor (conjunctive query (AND) by default)
-     * 
-     * @param attribute target attribute
-     * @param filter filter value
+     * Makes this a conjunctive predicate
      */
-    public ListingPredicate(String attribute, String filter) {
-        this(attribute, filter, false, false);
+    public ListingPredicate and() {
+        this.disjunctive = false;
+        return this;
     }
 
     /**
-     * Constructor
-     * 
-     * @param attribute target attribute
-     * @param filter filter value
-     * @param disjunctive disjunctive query (OR)
+     * Makes this a disjunctive predicate
      */
-    public ListingPredicate(String attribute, String filter, boolean disjunctive) {
-        this(attribute, filter, disjunctive, false);
+    public ListingPredicate or() {
+        this.disjunctive = true;
+        return this;
     }
 
     /**
-     * Constructor
+     * Makes this a negated predicate
+     */
+    public ListingPredicate not() {
+        this.negation = true;
+        return this;
+    }
+
+    /**
+     * Makes this a predicate
      * 
      * @param attribute target attribute
      * @param filter filter value
-     * @param disjunctive disjunctive query (OR)
-     * @param negation negation of result
      */
-    public ListingPredicate(String attribute, String filter, boolean disjunctive, boolean negation) {
-        super();
+    public ListingPredicate filter(String attribute, String filter) {
         this.attribute = attribute;
         this.filter = filter;
-        this.disjunctive = disjunctive;
-        this.negation = negation;
-        this.predicates = new ArrayList<>();
+        return this;
     }
 
     /**
-     * Constructor (conjunctive query (AND) by default)
+     * Adds this a child predicate
      * 
-     * @param predicates
+     * @param predicate filter predicate
      */
-    public ListingPredicate(List<ListingPredicate> predicates) {
-        this(false, false, predicates);
+    public ListingPredicate predicate(ListingPredicate predicate) {
+        if (predicate != null) {
+            this.predicates.add(predicate);
+        }
+        return this;
     }
 
     /**
-     * Constructor
+     * Makes this a set of predicates
      * 
-     * @param disjunctive disjunctive query (OR)
      * @param predicates filter predicates
      */
-    public ListingPredicate(boolean disjunctive, List<ListingPredicate> predicates) {
-        this(disjunctive, false, predicates);
-    }
-
-    /**
-     * Constructor
-     * 
-     * @param disjunctive disjunctive query (OR)
-     * @param negation negation of result
-     * @param predicates filter predicates
-     */
-    public ListingPredicate(boolean disjunctive, boolean negation, List<ListingPredicate> predicates) {
-        super();
-        this.disjunctive = disjunctive;
-        this.negation = negation;
+    public ListingPredicate predicates(List<ListingPredicate> predicates) {
         if (predicates != null) {
             this.predicates = predicates;
-        } else {
-            this.predicates = new ArrayList<>();
         }
+        return this;
     }
 
     /**

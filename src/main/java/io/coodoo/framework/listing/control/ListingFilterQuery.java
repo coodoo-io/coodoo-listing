@@ -87,60 +87,78 @@ public class ListingFilterQuery<T> {
     }
 
     public ListingFilterQuery<T> filterByAttributes(Map<String, String> filterAttributes) {
-        if (filterAttributes == null || filterAttributes.isEmpty()) {
-            return this;
-        }
+        if (filterAttributes != null && !filterAttributes.isEmpty()) {
 
-        List<Predicate> predicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
-        boolean disjunctivFilter = false; // default
+            boolean disjunctivFilter = false; // default
 
-        for (String filterAttribute : filterAttributes.keySet()) {
+            for (String filterAttribute : filterAttributes.keySet()) {
 
-            String filter = filterAttributes.get(filterAttribute);
+                String filter = filterAttributes.get(filterAttribute);
 
-            // a filter can be applied on many attibutes, joined by a "|", those get conjuncted
-            if (StringUtils.contains(filterAttribute, "|")) {
+                // a filter can be applied on many attibutes, joined by a "|", those get conjuncted
+                if (StringUtils.contains(filterAttribute, "|")) {
 
-                Predicate orPredicate = criteriaBuilder.disjunction();
-                for (String orAttribute : filterAttribute.split("\\|", -1)) {
+                    Predicate orPredicate = criteriaBuilder.disjunction();
+                    for (String orAttribute : filterAttribute.split("\\|", -1)) {
 
-                    Predicate predicate = filterByAttribute(orAttribute.trim(), filter);
+                        Predicate predicate = filterByAttribute(orAttribute.trim(), filter);
+                        if (predicate != null) {
+                            orPredicate = criteriaBuilder.or(orPredicate, predicate);
+                        }
+                    }
+                    predicates.add(criteriaBuilder.and(orPredicate));
+
+                } else { // just one attribute for one filter
+                    Predicate predicate = filterByAttribute(filterAttribute, filter);
                     if (predicate != null) {
-                        orPredicate = criteriaBuilder.or(orPredicate, predicate);
+                        predicates.add(predicate);
                     }
                 }
-                predicates.add(criteriaBuilder.and(orPredicate));
 
-            } else { // just one attribute for one filter
-                Predicate predicate = filterByAttribute(filterAttribute, filter);
-                if (predicate != null) {
-                    predicates.add(predicate);
+                if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, filterAttribute)) {
+                    disjunctivFilter = true;
                 }
             }
 
-            if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, filterAttribute)) {
-                disjunctivFilter = true;
+            if (disjunctivFilter && !predicates.isEmpty()) {
+                // disjunctive filters
+                whereConstraints.add(criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()])));
+            } else {
+                // conjunctive filters
+                whereConstraints.addAll(predicates);
             }
-        }
-
-        if (disjunctivFilter && !predicates.isEmpty()) {
-            // disjunctive filters
-            whereConstraints.add(criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()])));
-        } else {
-            // conjunctive filters
-            whereConstraints.addAll(predicates);
         }
         return this;
     }
 
-    public ListingFilterQuery<T> filterByPredicates(List<ListingPredicate> listingPredicates) {
+    public ListingFilterQuery<T> filterByPredicate(ListingPredicate listingPredicate) {
 
-        Predicate predicate = filterByPredicateTree(false, false, listingPredicates);
-        if (predicate != null) {
-            whereConstraints.add(predicate);
-        }
+        addToWhereConstraint(listingPredicate);
         return this;
+    }
+
+    private void addToWhereConstraint(ListingPredicate listingPredicate) {
+        if (listingPredicate != null) {
+
+            Predicate predicate = null;
+            List<ListingPredicate> filters = new ArrayList<>();
+
+            if (listingPredicate.hasPredicates()) {
+                filters.addAll(listingPredicate.getPredicates());
+            } else {
+                filters.add(new ListingPredicate().filter(listingPredicate.getAttribute(), listingPredicate.getFilter()));
+            }
+            predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), filters);
+
+            if (predicate != null) {
+                if (listingPredicate.isNegation()) {
+                    predicate = criteriaBuilder.not(predicate);
+                }
+                whereConstraints.add(predicate);
+            }
+        }
     }
 
     private Predicate filterByPredicateTree(boolean disjunctive, boolean negation, List<ListingPredicate> listingPredicates) {
