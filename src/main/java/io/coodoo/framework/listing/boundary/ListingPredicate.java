@@ -9,6 +9,8 @@ public class ListingPredicate {
 
     private String filter;
 
+    private boolean in;
+
     private boolean disjunctive;
 
     private boolean negation;
@@ -21,6 +23,7 @@ public class ListingPredicate {
     public ListingPredicate() {
         this.disjunctive = false;
         this.negation = false;
+        this.in = false;
         this.predicates = new ArrayList<>();
     }
 
@@ -45,6 +48,14 @@ public class ListingPredicate {
      */
     public ListingPredicate not() {
         this.negation = true;
+        return this;
+    }
+
+    /**
+     * Makes this a IN statement predicate by providing an filter of values conjuncted by pipes ("|")
+     */
+    public ListingPredicate in() {
+        this.in = true;
         return this;
     }
 
@@ -104,8 +115,8 @@ public class ListingPredicate {
 
     @Override
     public String toString() {
-        return "ListingPredicate [attribute=" + attribute + ", filter=" + filter + ", disjunctive=" + disjunctive + ", negation=" + negation + ", predicates="
-                        + predicates + "]";
+        return "ListingPredicate [attribute=" + attribute + ", filter=" + filter + ", in=" + in + ", disjunctive=" + disjunctive + ", negation=" + negation
+                        + ", predicates=" + predicates + "]";
     }
 
     public String getAttribute() {
@@ -122,6 +133,14 @@ public class ListingPredicate {
 
     public void setFilter(String filter) {
         this.filter = filter;
+    }
+
+    public boolean isIn() {
+        return in;
+    }
+
+    public void setIn(boolean in) {
+        this.in = in;
     }
 
     public boolean isDisjunctive() {

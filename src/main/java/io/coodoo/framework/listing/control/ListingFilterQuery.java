@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -50,38 +50,19 @@ public class ListingFilterQuery<T> {
         root = query.from(domainClass);
     }
 
-    public ListingFilterQuery<T> filter(String filter, String... attributes) {
-        if (!StringUtils.isBlank(filter)) {
-            filter = ListingUtil.likeValue(filter);
-            List<Predicate> predicates = new ArrayList<>();
-            for (String attribute : attributes) {
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(attribute)), filter));
-            }
-            Predicate filterConstraint = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
-            whereConstraints.add(filterConstraint);
-        }
-
-        return this;
-    }
-
     public ListingFilterQuery<T> filterAllAttributes(String filter) {
         if (!StringUtils.isBlank(filter)) {
 
-            List<Predicate> predicates = new ArrayList<>();
+            Map<String, String> filterAttributes = new HashMap<>();
+            filterAttributes.put(ListingQueryParams.FILTER_TYPE_DISJUNCTION, "this just enables an OR-statement for all the fields");
 
             // go for all fields that are defined as columns except if annotated with @ListingFilterIgnore
             for (Field field : ListingUtil.getFields(domainClass)) {
                 if (field.isAnnotationPresent(Column.class) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
-
-                    Predicate predicate = createPredicateAllowOrOperator(filter, field);
-
-                    if (predicate != null) {
-                        predicates.add(predicate);
-                    }
+                    filterAttributes.put(field.getName(), filter);
                 }
             }
-            Predicate filterConstraint = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
-            whereConstraints.add(filterConstraint);
+            return filterByAttributes(filterAttributes);
         }
         return this;
     }
@@ -89,46 +70,29 @@ public class ListingFilterQuery<T> {
     public ListingFilterQuery<T> filterByAttributes(Map<String, String> filterAttributes) {
         if (filterAttributes != null && !filterAttributes.isEmpty()) {
 
-            List<Predicate> predicates = new ArrayList<>();
+            Map<String, Field> fieldMap = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
+            ListingPredicate listingPredicate = new ListingPredicate().and();
 
-            boolean disjunctivFilter = false; // default
+            for (String attribute : filterAttributes.keySet()) {
 
-            for (String filterAttribute : filterAttributes.keySet()) {
-
-                String filter = filterAttributes.get(filterAttribute);
-
-                // a filter can be applied on many attibutes, joined by a "|", those get conjuncted
-                if (StringUtils.contains(filterAttribute, "|")) {
-
-                    Predicate orPredicate = criteriaBuilder.disjunction();
-                    for (String orAttribute : filterAttribute.split("\\|", -1)) {
-
-                        Predicate predicate = filterByAttribute(orAttribute.trim(), filter);
-                        if (predicate != null) {
-                            orPredicate = criteriaBuilder.or(orPredicate, predicate);
-                        }
-                    }
-                    predicates.add(criteriaBuilder.and(orPredicate));
-
-                } else { // just one attribute for one filter
-                    Predicate predicate = filterByAttribute(filterAttribute, filter);
-                    if (predicate != null) {
-                        predicates.add(predicate);
-                    }
+                if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, attribute)) {
+                    listingPredicate = listingPredicate.or(); // changing filter to disjunctive
                 }
+                if (!fieldMap.containsKey(attribute)) {
+                    continue; // given fieldName does not exist in domainClass
+                }
+                String filter = filterAttributes.get(attribute);
 
-                if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, filterAttribute)) {
-                    disjunctivFilter = true;
+                if (StringUtils.contains(attribute, ListingUtil.OR)) {
+                    // a filter can be applied on many fields, joined by a "|", those get conjuncted
+                    listingPredicate.addPredicate(new ListingPredicate().or().predicates(ListingUtil.split(attribute).stream()
+                                    .map(orAttribute -> createListingPredicate(orAttribute, filter)).collect(Collectors.toList())));
+                } else {
+                    // just one attribute for one filter
+                    listingPredicate.addPredicate(createListingPredicate(attribute, filter));
                 }
             }
-
-            if (disjunctivFilter && !predicates.isEmpty()) {
-                // disjunctive filters
-                whereConstraints.add(criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()])));
-            } else {
-                // conjunctive filters
-                whereConstraints.addAll(predicates);
-            }
+            addToWhereConstraint(listingPredicate);
         }
         return this;
     }
@@ -144,13 +108,14 @@ public class ListingFilterQuery<T> {
 
             Predicate predicate = null;
             List<ListingPredicate> filters = new ArrayList<>();
+            Map<String, Field> fieldMap = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
 
             if (listingPredicate.hasPredicates()) {
                 filters.addAll(listingPredicate.getPredicates());
             } else {
                 filters.add(new ListingPredicate().filter(listingPredicate.getAttribute(), listingPredicate.getFilter()));
             }
-            predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), filters);
+            predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), filters, fieldMap);
 
             if (predicate != null) {
                 if (listingPredicate.isNegation()) {
@@ -161,7 +126,32 @@ public class ListingFilterQuery<T> {
         }
     }
 
-    private Predicate filterByPredicateTree(boolean disjunctive, boolean negation, List<ListingPredicate> listingPredicates) {
+    private ListingPredicate createListingPredicate(String attribute, String filter) {
+
+        if (StringUtils.contains(filter, ListingUtil.OR) || StringUtils.contains(filter, ListingUtil.OR_WORD)) {
+
+            List<String> orList = ListingUtil.split(filter.replaceAll(ListingUtil.OR_WORD, ListingUtil.OR));
+            if (orList.size() > ListingUtil.OR_TO_IN_LIMIT) {
+                // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
+                return new ListingPredicate().in().filter(attribute, filter.replaceAll(ListingUtil.OR_WORD, ListingUtil.OR));
+            }
+            return new ListingPredicate().or()
+                            .predicates(orList.stream().map(orfilter -> createListingPredicateFilter(attribute, orfilter)).collect(Collectors.toList()));
+        }
+        return createListingPredicateFilter(attribute, filter);
+    }
+
+    private ListingPredicate createListingPredicateFilter(String attribute, String filter) {
+        if (filter.startsWith(ListingUtil.NOT)) {
+            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(ListingUtil.NOT, ListingUtil.EMPTY));
+        }
+        if (filter.startsWith(ListingUtil.NOT_WORD)) {
+            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(ListingUtil.NOT_WORD, ListingUtil.EMPTY));
+        }
+        return new ListingPredicate().filter(attribute, filter);
+    }
+
+    private Predicate filterByPredicateTree(boolean disjunctive, boolean negation, List<ListingPredicate> listingPredicates, Map<String, Field> fieldMap) {
 
         if (listingPredicates != null && !listingPredicates.isEmpty()) {
 
@@ -172,12 +162,20 @@ public class ListingFilterQuery<T> {
                 if (listingPredicate.hasPredicates()) {
 
                     // process child predicates
-                    predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), listingPredicate.getPredicates());
+                    predicate = filterByPredicateTree(listingPredicate.isDisjunctive(), listingPredicate.isNegation(), listingPredicate.getPredicates(),
+                                    fieldMap);
 
                 } else if (StringUtils.isNoneEmpty(listingPredicate.getAttribute()) && StringUtils.isNoneEmpty(listingPredicate.getFilter())) {
 
+                    if (!fieldMap.containsKey(listingPredicate.getAttribute())) {
+                        continue; // given fieldName does not exist in domainClass
+                    }
                     // add predicate
-                    predicate = filterByAttribute(listingPredicate.getAttribute(), listingPredicate.getFilter());
+                    if (listingPredicate.isIn()) {
+                        predicate = createInPredicate(ListingUtil.split(listingPredicate.getFilter()), fieldMap.get(listingPredicate.getAttribute()));
+                    } else {
+                        predicate = createPredicate(listingPredicate.getFilter(), fieldMap.get(listingPredicate.getAttribute()));
+                    }
                 }
                 if (predicate != null) {
                     predicates.add(predicate);
@@ -199,97 +197,10 @@ public class ListingFilterQuery<T> {
         return null;
     }
 
-    private Predicate filterByAttribute(String filterAttribute, String filter) {
-
-        for (Field field : ListingUtil.getFields(domainClass)) {
-            if (field.getName().equals(filterAttribute)) {
-                return createPredicateAllowOrOperator(filter, field);
-            }
-        }
-        return null;
-    }
-
-    private Predicate createPredicateAllowOrOperator(String filter, Field field) {
-
-        // REVIEW: what about "," & ";" ?
-
-        if (StringUtils.contains(filter, "|") || StringUtils.contains(filter, " OR ")) {
-
-            List<String> orList = Arrays.asList(filter.replaceAll(" OR ", "|").trim().split("\\|", -1));
-
-            // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
-            if (orList.size() > 10) {
-                return createInPredicate(orList, field);
-            }
-            Predicate orPredicate = criteriaBuilder.disjunction();
-            for (String orfilter : orList) {
-
-                Predicate predicate = createPredicateAllowNegation(orfilter.trim(), field);
-                if (predicate != null) {
-                    orPredicate = criteriaBuilder.or(orPredicate, predicate);
-                }
-            }
-            return orPredicate;
-        }
-        return createPredicateAllowNegation(filter, field);
-    }
-
-    private Predicate createInPredicate(List<String> inList, Field field) {
-
-        if (field.getType().equals(String.class)) {
-            return criteriaBuilder.isTrue(root.get(field.getName()).in(inList));
-        }
-        if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
-            List<Long> inListLong = inList.stream().map(Long::parseLong).collect(Collectors.toList());
-            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListLong));
-        }
-        if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
-            List<Integer> inListInt = inList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListInt));
-        }
-        if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
-            List<Short> inListShort = inList.stream().map(Short::parseShort).collect(Collectors.toList());
-            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListShort));
-        }
-        if (field.getType() instanceof Class && field.getType().isEnum()) {
-            List<Enum> inListEnum = new ArrayList<Enum>();
-            for (String enumString : inList) {
-                try {
-                    inListEnum.add(Enum.valueOf((Class<Enum>) field.getType(), enumString));
-                } catch (IllegalArgumentException e) {
-                }
-            }
-            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListEnum));
-        }
-        return null;
-    }
-
-    private Predicate createPredicateAllowNegation(String filter, Field field) {
-
-        String value = filter.trim();
-        boolean negation = false;
-
-        if (value.startsWith("!")) {
-            value = value.replaceFirst("!", "");
-            negation = true;
-        }
-        if (value.startsWith("NOT ")) {
-            value = value.replaceFirst("NOT ", "");
-            negation = true;
-        }
-
-        Predicate predicate = createPredicate(value, field);
-
-        if (predicate != null && negation) {
-            return criteriaBuilder.not(predicate);
-        }
-        return predicate;
-    }
-
     private Predicate createPredicate(String filter, Field field) {
 
         // Nulls
-        if (filter.matches("^NULL$")) {
+        if (filter.matches("^" + ListingUtil.NULL + "$")) {
             return criteriaBuilder.isNull(root.get(field.getName()));
         }
 
@@ -297,8 +208,8 @@ public class ListingFilterQuery<T> {
         if (field.getType().equals(String.class)) {
 
             // quoted values needs an exact match
-            if (filter.startsWith("\"") && filter.endsWith("\"")) {
-                return criteriaBuilder.equal(root.get(field.getName()), filter.replaceAll("^\"|\"$", ""));
+            if (ListingUtil.isQuoted(filter)) {
+                return criteriaBuilder.equal(root.get(field.getName()), ListingUtil.removeQuotes(filter));
             }
             return criteriaBuilder.like(root.get(field.getName()), ListingUtil.likeValue(filter));
         }
@@ -336,9 +247,9 @@ public class ListingFilterQuery<T> {
         if (field.getType() instanceof Class && field.getType().isEnum()) {
 
             // quoted values needs an exact match
-            if (filter.startsWith("\"") && filter.endsWith("\"")) {
+            if (ListingUtil.isQuoted(filter)) {
                 try {
-                    Enum enumValue = Enum.valueOf((Class<Enum>) field.getType(), filter.replaceAll("^\"|\"$", ""));
+                    Enum enumValue = Enum.valueOf((Class<Enum>) field.getType(), ListingUtil.removeQuotes(filter));
                     return criteriaBuilder.equal(root.get(field.getName()), enumValue);
                 } catch (IllegalArgumentException e) {
                 }
@@ -405,6 +316,50 @@ public class ListingFilterQuery<T> {
         }
 
         return null;
+    }
+
+    private Predicate createInPredicate(List<String> inList, Field field) {
+
+        if (field.getType().equals(String.class)) {
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inList));
+        }
+        if (field.getType().equals(Long.class) || field.getType().equals(long.class)) {
+            List<Long> inListLong = inList.stream().map(Long::parseLong).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListLong));
+        }
+        if (field.getType().equals(Integer.class) || field.getType().equals(int.class)) {
+            List<Integer> inListInt = inList.stream().map(Integer::parseInt).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListInt));
+        }
+        if (field.getType().equals(Short.class) || field.getType().equals(short.class)) {
+            List<Short> inListShort = inList.stream().map(Short::parseShort).collect(Collectors.toList());
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListShort));
+        }
+        if (field.getType() instanceof Class && field.getType().isEnum()) {
+            List<Enum> inListEnum = new ArrayList<Enum>();
+            for (String enumString : inList) {
+                try {
+                    inListEnum.add(Enum.valueOf((Class<Enum>) field.getType(), enumString));
+                } catch (IllegalArgumentException e) {
+                }
+            }
+            return criteriaBuilder.isTrue(root.get(field.getName()).in(inListEnum));
+        }
+        return null;
+    }
+
+    public ListingFilterQuery<T> filter(String filter, String... attributes) {
+        if (!StringUtils.isBlank(filter)) {
+            filter = ListingUtil.likeValue(filter);
+            List<Predicate> predicates = new ArrayList<>();
+            for (String attribute : attributes) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get(attribute)), filter));
+            }
+            Predicate filterConstraint = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
+            whereConstraints.add(filterConstraint);
+        }
+
+        return this;
     }
 
     public ListingFilterQuery<T> addIsNullConstraint(String attribute) {
