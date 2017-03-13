@@ -6,6 +6,14 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.2.2"></a>
+
+## 1.2.2 (2017-03-13)
+
+### Bug Fixes
+
+ * Multi column filter via pipe restored (go broken in 1.2.1)
+
 <a name="1.2.1"></a>
 
 ## 1.2.1 (2017-03-11)

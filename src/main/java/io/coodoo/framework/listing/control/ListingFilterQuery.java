@@ -70,16 +70,12 @@ public class ListingFilterQuery<T> {
     public ListingFilterQuery<T> filterByAttributes(Map<String, String> filterAttributes) {
         if (filterAttributes != null && !filterAttributes.isEmpty()) {
 
-            Map<String, Field> fieldMap = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
             ListingPredicate listingPredicate = new ListingPredicate().and();
 
             for (String attribute : filterAttributes.keySet()) {
 
                 if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, attribute)) {
                     listingPredicate = listingPredicate.or(); // changing filter to disjunctive
-                }
-                if (!fieldMap.containsKey(attribute)) {
-                    continue; // given fieldName does not exist in domainClass
                 }
                 String filter = filterAttributes.get(attribute);
 
