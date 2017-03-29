@@ -3,15 +3,17 @@ package io.coodoo.framework.listing.boundary;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
+import io.coodoo.framework.listing.boundary.annotation.CoodooListingDatabase;
 import io.coodoo.framework.listing.control.ListingFilterQuery;
 
 @Stateless
 public class ListingService {
 
-    @PersistenceContext
+    @Inject
+    @CoodooListingDatabase
     EntityManager entityManager;
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, ListingQueryParams queryParams) {
@@ -27,6 +29,7 @@ public class ListingService {
     }
 
     private <T> ListingFilterQuery<T> assambleFilter(Class<T> entityClass, ListingQueryParams queryParams) {
+
         return new ListingFilterQuery<>(entityManager, entityClass)
                         // apply sorting
                         .sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
