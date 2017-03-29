@@ -34,11 +34,6 @@ public class ListingQueryParams {
      */
     public static final int DEFAULT_LIMIT = 10;
 
-    /**
-     * If this key is present in filterAttributes map, the attributes gets disjuncted (default is conjunction)
-     */
-    public static final String FILTER_TYPE_DISJUNCTION = "Filter-Type-Disjunction";
-
     @QueryParam("page")
     @DefaultValue("" + ListingQueryParams.DEFAULT_PAGE)
     private Integer page;

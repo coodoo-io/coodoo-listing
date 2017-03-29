@@ -23,7 +23,6 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
-import io.coodoo.framework.listing.boundary.ListingQueryParams;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
 import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 
@@ -54,7 +53,7 @@ public class ListingFilterQuery<T> {
         if (!StringUtils.isBlank(filter)) {
 
             Map<String, String> filterAttributes = new HashMap<>();
-            filterAttributes.put(ListingQueryParams.FILTER_TYPE_DISJUNCTION, "this just enables an OR-statement for all the fields");
+            filterAttributes.put(CoodooListingConfig.FILTER_TYPE_DISJUNCTION, "this just enables an OR-statement for all the fields");
 
             // go for all fields that are defined as columns except if annotated with @ListingFilterIgnore
             for (Field field : ListingUtil.getFields(domainClass)) {
@@ -74,12 +73,12 @@ public class ListingFilterQuery<T> {
 
             for (String attribute : filterAttributes.keySet()) {
 
-                if (StringUtils.equals(ListingQueryParams.FILTER_TYPE_DISJUNCTION, attribute)) {
+                if (StringUtils.equals(CoodooListingConfig.FILTER_TYPE_DISJUNCTION, attribute)) {
                     listingPredicate = listingPredicate.or(); // changing filter to disjunctive
                 }
                 String filter = filterAttributes.get(attribute);
 
-                if (StringUtils.contains(attribute, ListingUtil.OR)) {
+                if (StringUtils.contains(attribute, CoodooListingConfig.OPERATOR_OR)) {
                     // a filter can be applied on many fields, joined by a "|", those get conjuncted
                     listingPredicate.addPredicate(new ListingPredicate().or().predicates(ListingUtil.split(attribute).stream()
                                     .map(orAttribute -> createListingPredicate(orAttribute, filter)).collect(Collectors.toList())));
@@ -124,12 +123,12 @@ public class ListingFilterQuery<T> {
 
     private ListingPredicate createListingPredicate(String attribute, String filter) {
 
-        if (StringUtils.contains(filter, ListingUtil.OR) || StringUtils.contains(filter, ListingUtil.OR_WORD)) {
+        if (StringUtils.contains(filter, CoodooListingConfig.OPERATOR_OR) || StringUtils.contains(filter, CoodooListingConfig.OPERATOR_OR_WORD)) {
 
-            List<String> orList = ListingUtil.split(filter.replaceAll(ListingUtil.OR_WORD, ListingUtil.OR));
-            if (orList.size() > ListingUtil.OR_TO_IN_LIMIT) {
+            List<String> orList = ListingUtil.split(filter.replaceAll(CoodooListingConfig.OPERATOR_OR_WORD, CoodooListingConfig.OPERATOR_OR));
+            if (orList.size() > CoodooListingConfig.OR_TO_IN_LIMIT) {
                 // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
-                return new ListingPredicate().in().filter(attribute, filter.replaceAll(ListingUtil.OR_WORD, ListingUtil.OR));
+                return new ListingPredicate().in().filter(attribute, filter.replaceAll(CoodooListingConfig.OPERATOR_OR_WORD, CoodooListingConfig.OPERATOR_OR));
             }
             return new ListingPredicate().or()
                             .predicates(orList.stream().map(orfilter -> createListingPredicateFilter(attribute, orfilter)).collect(Collectors.toList()));
@@ -138,11 +137,11 @@ public class ListingFilterQuery<T> {
     }
 
     private ListingPredicate createListingPredicateFilter(String attribute, String filter) {
-        if (filter.startsWith(ListingUtil.NOT)) {
-            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(ListingUtil.NOT, ListingUtil.EMPTY));
+        if (filter.startsWith(CoodooListingConfig.OPERATOR_NOT)) {
+            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(CoodooListingConfig.OPERATOR_NOT, ""));
         }
-        if (filter.startsWith(ListingUtil.NOT_WORD)) {
-            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(ListingUtil.NOT_WORD, ListingUtil.EMPTY));
+        if (filter.startsWith(CoodooListingConfig.OPERATOR_NOT_WORD)) {
+            return new ListingPredicate().not().filter(attribute, filter.replaceFirst(CoodooListingConfig.OPERATOR_NOT_WORD, ""));
         }
         return new ListingPredicate().filter(attribute, filter);
     }
@@ -196,7 +195,7 @@ public class ListingFilterQuery<T> {
     private Predicate createPredicate(String filter, Field field) {
 
         // Nulls
-        if (filter.matches("^" + ListingUtil.NULL + "$")) {
+        if (filter.matches("^" + CoodooListingConfig.OPERATOR_NULL + "$")) {
             return criteriaBuilder.isNull(root.get(field.getName()));
         }
 
