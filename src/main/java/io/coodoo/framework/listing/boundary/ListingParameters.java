@@ -75,6 +75,8 @@ public class ListingParameters {
     public Integer getLimit() {
         if (limit == null) {
             return ListingConfig.DEFAULT_LIMIT;
+        } else if (limit == 0) {
+            return null;
         }
         return limit;
     }
@@ -96,9 +98,7 @@ public class ListingParameters {
             return null;
         }
 
-        if (sortAttribute.startsWith("-")) {
-            return sortAttribute.substring(1, sortAttribute.length());
-        } else if (sortAttribute.startsWith("+")) {
+        if (sortAttribute.startsWith("-") || sortAttribute.startsWith("+")) {
             return sortAttribute.substring(1, sortAttribute.length());
         }
 

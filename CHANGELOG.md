@@ -21,6 +21,7 @@
  * No EJB components anymore, just plain CDI
  * Configuration via properties file (coodoo.listing.properties)
  * Configuration static loader
+ * Limitless results if limit is set to 0
 
 
 ### BREAKING CHANGES
