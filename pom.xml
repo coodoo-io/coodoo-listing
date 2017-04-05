@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <name>JavaEE JPA/JAX-RS Listing Framework</name>
     <description>A generic JPA/JAX-RS listing mechanism for easy paging, filtering, sorting and searching on entities</description>
-    <url>https://github.com/coodoo-io/listing</url>
+    <url>https://github.com/coodoo-io/coodoo-listing</url>
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.coodoo</groupId>
-    <artifactId>listing</artifactId>
+    <artifactId>coodoo-listing</artifactId>
     <version>1.3.0</version>
     <packaging>jar</packaging>
     <inceptionYear>2017</inceptionYear>
@@ -30,7 +30,7 @@
     <licenses>
         <license>
             <name>MIT License</name>
-            <url>https://raw.githubusercontent.com/coodoo-io/listing/master/LICENSE</url>
+            <url>https://raw.githubusercontent.com/coodoo-io/coodoo-listing/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -45,26 +45,31 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.5</version>
         </dependency>
+            <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.23</version>
+        </dependency>
         <!-- Testing -->
         <dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.11</version>
-		    <scope>test</scope>
-		</dependency>
-	    <dependency>
-		    <groupId>org.dbunit</groupId>
-		    <artifactId>dbunit</artifactId>
-		    <version>2.4.8</version>
-		    <scope>test</scope>
-		</dependency>
-	    <dependency>
-		    <groupId>org.hibernate</groupId>
-		    <artifactId>hibernate-core</artifactId>
-		    <version>4.1.0.Final</version>
-		    <scope>test</scope>
-		</dependency>
-		<dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.dbunit</groupId>
+            <artifactId>dbunit</artifactId>
+            <version>2.4.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>4.1.0.Final</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
             <version>4.1.0.Final</version>
@@ -76,18 +81,12 @@
             <version>1.0.1.Final</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-		    <groupId>org.hsqldb</groupId>
-		    <artifactId>hsqldb</artifactId>
-		    <version>2.3.4</version>
-		    <scope>test</scope>
-		</dependency>
-		<dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-api</artifactId>
-		    <version>1.7.23</version>
-		    <scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.3.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>listing</finalName>
@@ -166,13 +165,13 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
     <scm>
-        <connection>scm:git:git@github.com/coodoo-io/listing.git</connection>
-        <url>scm:git:git@github.com:coodoo-io/listing.git</url>
-        <developerConnection>scm:git:git@github.com:coodoo-io/listing.git</developerConnection>
+        <connection>scm:git:git@github.com/coodoo-io/coodoo-listing.git</connection>
+        <url>scm:git:git@github.com:coodoo-io/coodoo-listing.git</url>
+        <developerConnection>scm:git:git@github.com:coodoo-io/coodoo-listing.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/coodoo-io/listing/issues</url>
+        <url>https://github.com/coodoo-io/coodoo-listing/issues</url>
     </issueManagement>
 </project>

@@ -25,8 +25,9 @@
 
 ### BREAKING CHANGES
 
- * To provide the EntityManager you have to implement a `@ListingEntityManager` CDI producer
+ * Renamed the project/Maven artifactId from "listing" to "coodoo-listing"
  * Renamed `ListingQueryParams` to `ListingParameters`
+ * To provide the EntityManager you have to implement a `@ListingEntityManager` CDI producer
 
 
 <a name="1.2.2"></a>

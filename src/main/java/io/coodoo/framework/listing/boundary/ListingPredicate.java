@@ -32,6 +32,8 @@ public class ListingPredicate {
 
     /**
      * Makes this a conjunctive predicate
+     * 
+     * @return this
      */
     public ListingPredicate and() {
         this.disjunctive = false;
@@ -40,6 +42,8 @@ public class ListingPredicate {
 
     /**
      * Makes this a disjunctive predicate
+     * 
+     * @return this
      */
     public ListingPredicate or() {
         this.disjunctive = true;
@@ -48,6 +52,8 @@ public class ListingPredicate {
 
     /**
      * Makes this a negated predicate
+     * 
+     * @return this
      */
     public ListingPredicate not() {
         this.negation = true;
@@ -56,6 +62,8 @@ public class ListingPredicate {
 
     /**
      * Makes this a IN statement predicate by providing an filter of values conjuncted by pipes ("|")
+     * 
+     * @return this
      */
     public ListingPredicate in() {
         this.in = true;
@@ -67,6 +75,7 @@ public class ListingPredicate {
      * 
      * @param attribute target attribute
      * @param filter filter value
+     * @return this
      */
     public ListingPredicate filter(String attribute, String filter) {
         this.attribute = attribute;
@@ -78,6 +87,7 @@ public class ListingPredicate {
      * Adds this a child predicate
      * 
      * @param predicate filter predicate
+     * @return this
      */
     public ListingPredicate predicate(ListingPredicate predicate) {
         if (predicate != null) {
@@ -90,6 +100,7 @@ public class ListingPredicate {
      * Makes this a set of predicates
      * 
      * @param predicates filter predicates
+     * @return this
      */
     public ListingPredicate predicates(List<ListingPredicate> predicates) {
         if (predicates != null) {

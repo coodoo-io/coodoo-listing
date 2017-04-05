@@ -8,12 +8,12 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 
 ## Getting started
 
-1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Clisting%7C1.0.0%7Cjar)):
+1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.0.0%7Cjar)):
 
    ```xml
 	<dependency>
 	    <groupId>io.coodoo</groupId>
-	    <artifactId>listing</artifactId>
+	    <artifactId>coodoo-listing</artifactId>
 	    <version>1.3.0</version>
 	</dependency>
    ```
@@ -199,5 +199,5 @@ coodoo.listing.operator.or.word = OR
 ## NULL operator
 coodoo.listing.operator.null = NULL
 ```
-*You can find a template [here](https://github.com/coodoo-io/listing/tree/master/src/main/resources/example.coodoo.listing.properties)*
+*You can find a template [here](https://github.com/coodoo-io/coodoo-listing/tree/master/src/main/resources/example.coodoo.listing.properties)*
 
