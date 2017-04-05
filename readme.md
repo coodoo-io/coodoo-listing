@@ -12,9 +12,9 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 
    ```xml
 	<dependency>
-	    <groupId>io.coodoo</groupId>
-	    <artifactId>listing</artifactId>
-	    <version>1.3.0</version>
+	    <groupId>io.coodoo</groupId>
+	    <artifactId>listing</artifactId>
+	    <version>1.3.0</version>
 	</dependency>
    ```
 
@@ -121,12 +121,14 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 
 ## Usage
 
-The central service is the `ListingService` that needs to get injected as a CDI or an EJB bean. It provides three ways to get listing data:
+The central class is `Listing` that provides three ways to get listing data:
  * `getListing` gets a list of the desired data
  * `countListing` gets the count of resulting data
  * `getListingResult` gets an result object that contains the list and metadata (total count, page, index, ...) of the resulting data
 
 Every method takes the targeted entity class as a parameter.
+
+You can also inject the CDI bean `ListingService`
 
 ### Listing query parameter
 To control the listing there is a listing query parameter object `ListingFilterParams`. 
@@ -143,6 +145,8 @@ To control the listing there is a listing query parameter object `ListingFilterP
 Filter attributes are stored in a map by attribute and value. A filter attribute corresponds to a entity attribute and it provides a string representation of the value.
 To add a filter use `ListingFilterParams.addFilterAttributes(String filter, String value)`.
 
+To do a LIKE comparison on numerical value attributes use `@ListingLikeOnNumber` on the wanted attributes in the entity.
+
 Disjunctive filtering is possible by adding a filter named by this constant: `ListingFilterParams.FILTER_TYPE_DISJUNCTION`
 
 ### Sort
@@ -151,7 +155,7 @@ To get a descending sort, the `sort` attribute needs to get a "-" prefix added.
 
 ### Search (or global filter)
 To put one filter on all the attributes of the entity there is the `filter` attribute.
-To exclude attributes from this filter the entity attributs needs to get annotated with `@ListingFilterIgnore`.
+To exclude attributes from this filter the entity attributes needs to get annotated with `@ListingFilterIgnore`.
 
 ## The usage with Jax-RS
 ...
