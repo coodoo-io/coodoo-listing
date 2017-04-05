@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Field shall not be part in a type wide listing filter
+ * 
+ * @author coodoo GmbH (coodoo.io)
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

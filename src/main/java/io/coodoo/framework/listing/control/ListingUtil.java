@@ -1,5 +1,8 @@
 package io.coodoo.framework.listing.control;
 
+/**
+ * @author coodoo GmbH (coodoo.io)
+ */
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,14 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ListingUtil {
-
-    public static final int OR_TO_IN_LIMIT = 10;
-    public static final String NOT = "!";
-    public static final String NOT_WORD = "NOT ";
-    public static final String OR = "|";
-    public static final String OR_WORD = " OR ";
-    public static final String NULL = "NULL";
-    public static final String EMPTY = "";
 
     private ListingUtil() {}
 
@@ -41,7 +36,7 @@ public final class ListingUtil {
     }
 
     public static String removeQuotes(String value) {
-        return value.replaceAll("^\"|\"$", EMPTY);
+        return value.replaceAll("^\"|\"$", "");
     }
 
     public static List<String> split(String value) {

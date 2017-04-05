@@ -6,6 +6,29 @@
 ### BREAKING CHANGES
 -->
 
+
+
+
+
+
+<a name="1.3.0"></a>
+
+## 1.3.0 (2017-04-05)
+
+### Features
+
+ * Central `Listing` class with static method
+ * No EJB components anymore, just plain CDI
+ * Configuration via properties file (coodoo.listing.properties)
+ * Configuration static loader
+
+
+### BREAKING CHANGES
+
+ * To provide the EntityManager you have to implement a `@ListingEntityManager` CDI producer
+ * Renamed `ListingQueryParams` to `ListingParameters`
+
+
 <a name="1.2.2"></a>
 
 ## 1.2.2 (2017-03-13)

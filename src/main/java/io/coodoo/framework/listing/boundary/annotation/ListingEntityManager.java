@@ -5,12 +5,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.inject.Qualifier;
+
 /**
- * Enables LIKE comparison an numerical values
- * 
  * @author coodoo GmbH (coodoo.io)
  */
-@Target(ElementType.FIELD)
+@Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ListingLikeOnNumber {
+@Target({ElementType.METHOD, ElementType.FIELD})
+public @interface ListingEntityManager {
+
 }

@@ -2,64 +2,53 @@ package io.coodoo.framework.listing.boundary;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
-import io.coodoo.framework.listing.control.ListingFilterQuery;
+import io.coodoo.framework.listing.boundary.annotation.ListingEntityManager;
 
-@Stateless
+/**
+ * @author coodoo GmbH (coodoo.io)
+ */
 public class ListingService {
 
-    @PersistenceContext
+    @Inject
+    @ListingEntityManager
     EntityManager entityManager;
 
-    public <T> ListingResult<T> getListingResult(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingResult<T>(getListing(entityClass, queryParams), new Metadata(countListing(entityClass, queryParams), queryParams));
+    public <T> ListingResult<T> getListingResult(Class<T> entityClass, ListingParameters queryParams) {
+        return Listing.getListingResult(entityManager, entityClass, queryParams);
     }
 
-    public <T> List<T> getListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return assambleFilter(entityClass, queryParams).list(queryParams.getIndex(), queryParams.getLimit());
+    public <T> List<T> getListing(Class<T> entityClass, ListingParameters queryParams) {
+        return Listing.getListing(entityManager, entityClass, queryParams);
     }
 
-    public <T> Long countListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return assambleFilter(entityClass, queryParams).count();
-    }
-
-    private <T> ListingFilterQuery<T> assambleFilter(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingFilterQuery<>(entityManager, entityClass)
-                        // apply sorting
-                        .sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
-                        // disjunctive filter on the whole table
-                        .filterAllAttributes(queryParams.getFilter())
-                        // column specific conjunctive filter
-                        .filterByAttributes(queryParams.getFilterAttributes())
-                        // additional filters
-                        .filterByPredicate(queryParams.getPredicate());
+    public <T> Long countListing(Class<T> entityClass, ListingParameters queryParams) {
+        return Listing.countListing(entityManager, entityClass, queryParams);
     }
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit) {
-        return getListingResult(entityClass, new ListingQueryParams(page, limit, null));
+        return Listing.getListingResult(entityManager, entityClass, page, limit);
     }
 
     public <T> List<T> getListing(Class<T> entityClass, Integer page, Integer limit) {
-        return getListing(entityClass, new ListingQueryParams(page, limit, null));
+        return Listing.getListing(entityManager, entityClass, page, limit);
     }
 
     public <T> Long countListing(Class<T> entityClass, Integer page, Integer limit) {
-        return countListing(entityClass, new ListingQueryParams(page, limit, null));
+        return Listing.countListing(entityManager, entityClass, page, limit);
     }
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
-        return getListingResult(entityClass, new ListingQueryParams(page, limit, sortAttribute));
+        return Listing.getListingResult(entityManager, entityClass, page, limit, sortAttribute);
     }
 
     public <T> List<T> getListing(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
-        return getListing(entityClass, new ListingQueryParams(page, limit, sortAttribute));
+        return Listing.getListing(entityManager, entityClass, page, limit, sortAttribute);
     }
 
     public <T> Long countListing(Class<T> entityClass, Integer page, Integer limit, String sortAttribute) {
-        return countListing(entityClass, new ListingQueryParams(page, limit, sortAttribute));
+        return Listing.countListing(entityManager, entityClass, page, limit, sortAttribute);
     }
-
 }

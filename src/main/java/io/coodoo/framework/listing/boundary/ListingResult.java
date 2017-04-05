@@ -2,7 +2,9 @@ package io.coodoo.framework.listing.boundary;
 
 import java.util.List;
 
-
+/**
+ * @author coodoo GmbH (coodoo.io)
+ */
 public class ListingResult<T> {
 
     private List<T> results;
