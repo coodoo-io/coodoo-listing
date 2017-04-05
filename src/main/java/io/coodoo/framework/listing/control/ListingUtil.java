@@ -1,5 +1,8 @@
 package io.coodoo.framework.listing.control;
 
+/**
+ * @author coodoo GmbH (coodoo.io)
+ */
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

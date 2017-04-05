@@ -14,13 +14,33 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 	<dependency>
 	    <groupId>io.coodoo</groupId>
 	    <artifactId>listing</artifactId>
-	    <version>1.2.2</version>
+	    <version>1.3.0</version>
 	</dependency>
    ```
 
-2. Usage in a JAX-RS Resource
+2. CDI
+   
+   To provide the EntityManager you have to implement a `@ListingEntityManager` CDI producer.
+   
+   ```java
 
-   Inject `ListingService` located in the `io.coodoo.listing` package. The wine entity a standard JPA Entity, annotated with  `@Entity`.
+	@Stateless
+	public class ListingEntityManagerProducer {
+	
+	    @PersistenceContext(unitName = "my-fancy-persistence-unit")
+	    private EntityManager entityManager;
+	
+	    @Produces
+	    @ListingEntityManager
+	    public EntityManager getEntityManager() {
+	        return entityManager;
+	    }
+	}   
+	```
+
+3. Usage in a JAX-RS resource
+
+   Inject `ListingService` and ask it for a listing result on a standard JPA entity (annotated with  `@Entity`).
    
 
    ```java
@@ -45,10 +65,10 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 
    Just call this REST Resource: `curl http://localhost:8080/app-context/api/wines`
    
-3. Usage in a Stateless EJB
+4. Usage in a stateless EJB
 
-   Inject `ListingService` located in the `io.coodoo.listing` package. The wine entity a standard JPA Entity, annotated with  `@Entity`.
-
+   Inject `ListingService` and ask it for a listing result on a standard JPA entity (annotated with  `@Entity`).
+   
    ```java
 
 	@Stateless
@@ -71,6 +91,31 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 	    }
 	}
  
+   ```
+	
+   Alternativly you can avoid CDI by using the static listing class and pass the EntityManager.
+   
+   ```java
+
+	@Stateless
+	public void WineBusinessService {
+    	private static Logger log = LoggerFactory.getLogger(WineBusinessService.class);
+    	
+	    @PersistenceContext
+	    private EntityManager entityManager;
+	    
+	    public void doListing() {
+	    
+	    	// Just inject and invoke the listingService to page the wine entity.
+	    	ListingResult<Wine> wineListingResult = Listing.getListingResult(entityManager, Wine.class, 1, 50);
+	    	
+	    	log.info("Loaded page 1 with limit 50. Total wines count: {}", wineListingResult.getMetadata()getCount();
+	    	
+	    	for(Wine wine : wineListingResult.getResults()) {
+	    		log.info("Loaded wine: {}", wine);
+	    	}
+	    }
+	}
    ```
 
 

@@ -30,6 +30,8 @@ import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
  * Creates a dynamic JPA query using Criteria API considering optional fields, e.g. a filter for attributes, sorting and result limit.
  * 
  * @param <T> The target entity
+ * 
+ * @author coodoo GmbH (coodoo.io)
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ListingQuery<T> {

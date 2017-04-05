@@ -6,7 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Enables LIKE comparison an numerical Values
+ * Enables LIKE comparison an numerical values
+ * 
+ * @author coodoo GmbH (coodoo.io)
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

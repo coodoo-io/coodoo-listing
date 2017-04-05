@@ -3,6 +3,9 @@ package io.coodoo.framework.listing.boundary;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author coodoo GmbH (coodoo.io)
+ */
 public class ListingPredicate {
 
     private String attribute;
