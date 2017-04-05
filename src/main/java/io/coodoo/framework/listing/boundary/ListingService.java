@@ -2,17 +2,15 @@ package io.coodoo.framework.listing.boundary;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import io.coodoo.framework.listing.boundary.annotation.CoodooListingDatabase;
+import io.coodoo.framework.listing.boundary.annotation.ListingEntityManager;
 
-@Stateless
-public class CoodooListingService {
+public class ListingService {
 
     @Inject
-    @CoodooListingDatabase
+    @ListingEntityManager
     EntityManager entityManager;
 
     public <T> ListingResult<T> getListingResult(Class<T> entityClass, ListingQueryParams queryParams) {
