@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
@@ -12,34 +11,19 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.coodoo.framework.listing.control.ListingConfig;
+
 /**
  * Listing query parameters and settings
  * 
- * @author coodoo
+ * @author coodoo GmbH (coodoo.io)
  */
-public class ListingQueryParams {
-
-    /**
-     * Default index for pagination
-     */
-    public static final int DEFAULT_INDEX = 0;
-
-    /**
-     * Default current page number for pagination
-     */
-    public static final int DEFAULT_PAGE = 1;
-
-    /**
-     * Default limit of results per page for pagination
-     */
-    public static final int DEFAULT_LIMIT = 10;
+public class ListingParameters {
 
     @QueryParam("page")
-    @DefaultValue("" + ListingQueryParams.DEFAULT_PAGE)
     private Integer page;
 
     @QueryParam("limit")
-    @DefaultValue("" + ListingQueryParams.DEFAULT_LIMIT)
     private Integer limit;
 
     @QueryParam("filter")
@@ -58,9 +42,9 @@ public class ListingQueryParams {
 
     private ListingPredicate predicate;
 
-    public ListingQueryParams() {}
+    public ListingParameters() {}
 
-    public ListingQueryParams(Integer page, Integer limit, String sortAttribute) {
+    public ListingParameters(Integer page, Integer limit, String sortAttribute) {
         super();
         this.page = page;
         this.limit = limit;
@@ -71,15 +55,15 @@ public class ListingQueryParams {
         if (page == null && limit != null && index != null) {
             int mod = index % limit;
             if (index == 0) {
-                return ListingQueryParams.DEFAULT_PAGE;
+                return ListingConfig.DEFAULT_PAGE;
             } else if (mod == 0) {
                 return index / limit;
             }
             return (index / limit) + 1;
         } else if (page == null) {
-            return ListingQueryParams.DEFAULT_PAGE;
+            return ListingConfig.DEFAULT_PAGE;
         } else if (page < 1) {
-            return DEFAULT_PAGE;
+            return ListingConfig.DEFAULT_PAGE;
         }
         return page;
     }
@@ -90,7 +74,7 @@ public class ListingQueryParams {
 
     public Integer getLimit() {
         if (limit == null) {
-            return ListingQueryParams.DEFAULT_LIMIT;
+            return ListingConfig.DEFAULT_LIMIT;
         }
         return limit;
     }
@@ -150,7 +134,7 @@ public class ListingQueryParams {
             // calculate index from page
             return (page - 1) * limit;
         } else if (index == null) {
-            return ListingQueryParams.DEFAULT_INDEX;
+            return ListingConfig.DEFAULT_INDEX;
         }
         return index;
     }

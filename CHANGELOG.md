@@ -6,6 +6,26 @@
 ### BREAKING CHANGES
 -->
 
+
+
+
+
+
+<a name="1.2.2"></a>
+
+## 1.3.0 (2017-04-05)
+
+### Features
+
+ * Configuration via properties file (coodoo.listing.properties)
+ * Configuration static loader
+
+
+### BREAKING CHANGES
+
+ * Renamed `ListingQueryParams` to `ListingParameters`
+
+
 <a name="1.2.2"></a>
 
 ## 1.2.2 (2017-03-13)

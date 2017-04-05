@@ -21,8 +21,8 @@ import org.hibernate.internal.SessionImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import io.coodoo.framework.listing.boundary.ListingQueryParams;
-import io.coodoo.framework.listing.control.ListingFilterQuery;
+import io.coodoo.framework.listing.boundary.ListingParameters;
+import io.coodoo.framework.listing.control.ListingQuery;
 
 public abstract class AbstractDbUnitTest {
 
@@ -33,7 +33,7 @@ public abstract class AbstractDbUnitTest {
 
     public static String datasetXml = "test-dataset.xml";
 
-    public ListingQueryParams params;
+    public ListingParameters params;
 
     /**
      * Set up memory database and insert data from test-dataset.xml
@@ -67,14 +67,14 @@ public abstract class AbstractDbUnitTest {
         entityManagerFactory.close();
     }
 
-    public <T> List<T> getListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingFilterQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
+    public <T> List<T> getListing(Class<T> entityClass, ListingParameters queryParams) {
+        return new ListingQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
                         .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes())
                         .list(queryParams.getIndex(), queryParams.getLimit());
     }
 
-    public <T> Long countListing(Class<T> entityClass, ListingQueryParams queryParams) {
-        return new ListingFilterQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
+    public <T> Long countListing(Class<T> entityClass, ListingParameters queryParams) {
+        return new ListingQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
                         .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes()).count();
     }
 

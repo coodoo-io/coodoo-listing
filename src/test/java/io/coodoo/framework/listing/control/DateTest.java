@@ -20,7 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.coodoo.framework.listing.boundary.ListingQueryParams;
+import io.coodoo.framework.listing.boundary.ListingParameters;
 import io.coodoo.framework.listing.dbunit.AbstractDbUnitTest;
 import io.coodoo.framework.listing.dbunit.model.TestDatesEntity;
 
@@ -36,7 +36,7 @@ public class DateTest extends AbstractDbUnitTest {
 
     @Before
     public void initFilterParams() {
-        params = new ListingQueryParams();
+        params = new ListingParameters();
         params.setLimit(Integer.MAX_VALUE);
     }
 

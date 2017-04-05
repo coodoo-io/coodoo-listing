@@ -12,7 +12,7 @@ package io.coodoo.framework.listing.boundary;
  * <code>startIndex</code>: Index of the first result for the current page<br>
  * <code>endIndex</code>: Index of the last result for the current page<br>
  * 
- * @author coodoo
+ * @author coodoo GmbH (coodoo.io)
  */
 public class Metadata {
 
@@ -24,7 +24,7 @@ public class Metadata {
     private int startIndex;
     private int endIndex;
 
-    public Metadata(Long count, ListingQueryParams listingQueryParams) {
+    public Metadata(Long count, ListingParameters listingQueryParams) {
         this(count, listingQueryParams.getPage(), listingQueryParams.getLimit(), listingQueryParams.getSortAttribute());
     }
 

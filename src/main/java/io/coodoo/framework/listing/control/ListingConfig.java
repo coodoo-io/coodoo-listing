@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,28 +14,27 @@ import org.slf4j.LoggerFactory;
 /**
  * Listing configuration
  * 
- * @author coodoo
+ * @author coodoo GmbH (coodoo.io)
  */
-@Singleton
-@Startup
-public class CoodooListingConfig {
+@ApplicationScoped
+public class ListingConfig {
 
-    private static Logger log = LoggerFactory.getLogger(CoodooListingConfig.class);
+    private static Logger log = LoggerFactory.getLogger(ListingConfig.class);
 
-    // /**
-    // * Default index for pagination
-    // */
-    // public static int DEFAULT_INDEX = 0;
-    //
-    // /**
-    // * Default current page number for pagination
-    // */
-    // public static int DEFAULT_PAGE = 1;
-    //
-    // /**
-    // * Default limit of results per page for pagination
-    // */
-    // public static int DEFAULT_LIMIT = 10;
+    /**
+     * Default index for pagination
+     */
+    public static int DEFAULT_INDEX = 0;
+
+    /**
+     * Default current page number for pagination
+     */
+    public static int DEFAULT_PAGE = 1;
+
+    /**
+     * Default limit of results per page for pagination
+     */
+    public static int DEFAULT_LIMIT = 10;
 
     /**
      * If this key is present in filterAttributes map, the attributes gets disjuncted (default is conjunction)
@@ -79,23 +78,25 @@ public class CoodooListingConfig {
      */
     private static final String listingPropertiesFilename = "coodoo.listing.properties";
 
-    Properties properties = new Properties();
+    static Properties properties = new Properties();
 
-    @PostConstruct
-    public void init() {
+    public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
+        loadProperties();
+    }
 
+    private static void loadProperties() {
         InputStream inputStream = null;
         try {
-            inputStream = getClass().getClassLoader().getResourceAsStream(listingPropertiesFilename);
+            inputStream = ListingConfig.class.getClassLoader().getResourceAsStream(listingPropertiesFilename);
 
             if (inputStream != null) {
 
                 properties.load(inputStream);
                 log.info("Reading {}", listingPropertiesFilename);
 
-                // DEFAULT_INDEX = loadProperty(DEFAULT_INDEX, "coodoo.listing.default.index");
-                // DEFAULT_PAGE = loadProperty(DEFAULT_PAGE, "coodoo.listing.default.page");
-                // DEFAULT_LIMIT = loadProperty(DEFAULT_LIMIT, "coodoo.listing.default.limit");
+                DEFAULT_INDEX = loadProperty(DEFAULT_INDEX, "coodoo.listing.default.index");
+                DEFAULT_PAGE = loadProperty(DEFAULT_PAGE, "coodoo.listing.default.page");
+                DEFAULT_LIMIT = loadProperty(DEFAULT_LIMIT, "coodoo.listing.default.limit");
                 FILTER_TYPE_DISJUNCTION = loadProperty(FILTER_TYPE_DISJUNCTION, "coodoo.listing.filter.type.disjunction");
                 OR_TO_IN_LIMIT = loadProperty(OR_TO_IN_LIMIT, "coodoo.listing.or.to.in.imit");
                 OPERATOR_NOT = loadProperty(OPERATOR_NOT, "coodoo.listing.operator.not");
@@ -117,7 +118,7 @@ public class CoodooListingConfig {
         }
     }
 
-    private String loadProperty(String value, String key) {
+    private static String loadProperty(String value, String key) {
 
         String property = properties.getProperty(key);
         if (property == null) {
@@ -127,7 +128,7 @@ public class CoodooListingConfig {
         return property;
     }
 
-    private int loadProperty(int value, String key) {
+    private static int loadProperty(int value, String key) {
         String property = properties.getProperty(key);
         if (property != null) {
             try {
