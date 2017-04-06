@@ -11,6 +11,16 @@
 
 
 
+<a name="1.4.0"></a>
+
+## 1.4.0 (2017-04-06)
+
+### BREAKING CHANGES
+
+ * CDI producer `@ListingEntityManager` removed
+ * `ListingService` removed (use `Listing` class with static method and pass the entity manager)
+
+
 <a name="1.3.0"></a>
 
 ## 1.3.0 (2017-04-05)

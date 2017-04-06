@@ -8,56 +8,34 @@ This library gives you easy access to list your entities by calling a JAX-RS API
 
 ## Getting started
 
-1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.0.0%7Cjar)):
+1. Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.4.0%7Cjar)):
 
    ```xml
 	<dependency>
 	    <groupId>io.coodoo</groupId>
 	    <artifactId>coodoo-listing</artifactId>
-	    <version>1.3.0</version>
+	    <version>1.4.0</version>
 	</dependency>
    ```
 
-2. CDI
-   
-   To provide the EntityManager you have to implement a `@ListingEntityManager` CDI producer.
-   
-   ```java
-
-	@Stateless
-	public class ListingEntityManagerProducer {
-	
-	    @PersistenceContext(unitName = "my-fancy-persistence-unit")
-	    private EntityManager entityManager;
-	
-	    @Produces
-	    @ListingEntityManager
-	    public EntityManager getEntityManager() {
-	        return entityManager;
-	    }
-	}   
-	```
-
 3. Usage in a JAX-RS resource
-
-   Inject `ListingService` and ask it for a listing result on a standard JPA entity (annotated with  `@Entity`).
-   
 
    ```java
    
 	@Path("/wines")
 	@Stateless
 	public void WineResource {
-	    @Inject
-	    ListingService listingService
+	
+	    @PersistenceContext
+	    private EntityManager entityManager;
 	    
 	    @GET
 	    @Path("/")
 	    @Produces(MediaType.APPLICATION_JSON)
-	    public ListingResult getWines(@BeanParam ListingQueryParams listingQueryParams) {
+	    public ListingResult getWines(@BeanParam ListingParameters listingParameters) {
 	    
 	    	// Just inject and invoke the listingService to page an entity.
-	    	return listingService.getListingResult(Wine.class, listingQueryParams);
+	    	return Listing.getListingResult(entityManager, Wine.class, listingParameters);
 	    }
 	}
  
@@ -67,34 +45,6 @@ This library gives you easy access to list your entities by calling a JAX-RS API
    
 4. Usage in a stateless EJB
 
-   Inject `ListingService` and ask it for a listing result on a standard JPA entity (annotated with  `@Entity`).
-   
-   ```java
-
-	@Stateless
-	public void WineBusinessService {
-    	private static Logger log = LoggerFactory.getLogger(WineBusinessService.class);
-    	
-	    @Inject
-	    ListingService listingService
-	    
-	    public void doListing() {
-	    
-	    	// Just inject and invoke the listingService to page the wine entity.
-	    	ListingResult<Wine> wineListingResult = listingService.getListingResult(Wine.class, 1, 50);
-	    	
-	    	log.info("Loaded page 1 with limit 50. Total wines count: {}", wineListingResult.getMetadata()getCount();
-	    	
-	    	for(Wine wine : wineListingResult.getResults()) {
-	    		log.info("Loaded wine: {}", wine);
-	    	}
-	    }
-	}
- 
-   ```
-	
-   Alternativly you can avoid CDI by using the static listing class and pass the EntityManager.
-   
    ```java
 
 	@Stateless
@@ -128,10 +78,8 @@ The central class is `Listing` that provides three ways to get listing data:
 
 Every method takes the targeted entity class as a parameter.
 
-You can also inject the CDI bean `ListingService`
-
 ### Listing query parameter
-To control the listing there is a listing query parameter object `ListingFilterParams`. 
+To control the listing there is a listing query parameter object `ListingParameters`. 
 
 ...
 
@@ -143,14 +91,14 @@ To control the listing there is a listing query parameter object `ListingFilterP
 
 ### Filter
 Filter attributes are stored in a map by attribute and value. A filter attribute corresponds to a entity attribute and it provides a string representation of the value.
-To add a filter use `ListingFilterParams.addFilterAttributes(String filter, String value)`.
+To add a filter use `ListingParameters.addFilterAttributes(String filter, String value)`.
 
 To do a LIKE comparison on numerical value attributes use `@ListingLikeOnNumber` on the wanted attributes in the entity.
 
-Disjunctive filtering is possible by adding a filter named by this constant: `ListingFilterParams.FILTER_TYPE_DISJUNCTION`
+Disjunctive filtering is possible by adding a filter named by this constant: `ListingParameters.FILTER_TYPE_DISJUNCTION`
 
 ### Sort
-Add the name of the desired `sort` attribute to the `ListingFilterParams` object and it will result in an ascending sort for the listing.
+Add the name of the desired `sort` attribute to the `ListingParameters` object and it will result in an ascending sort for the listing.
 To get a descending sort, the `sort` attribute needs to get a "-" prefix added.
 
 ### Search (or global filter)

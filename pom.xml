@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.coodoo</groupId>
     <artifactId>coodoo-listing</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
     <inceptionYear>2017</inceptionYear>
     <organization>
@@ -101,7 +101,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>listing</finalName>
+        <finalName>coodoo-listing</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
