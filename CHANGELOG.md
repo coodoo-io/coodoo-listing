@@ -11,6 +11,18 @@
 
 
 
+<a name="1.4.1"></a>
+
+## 1.4.1 (2017-04-10)
+
+### Bug Fixes
+
+ * Reducing the page number in case less results are found to prevent empty pages
+
+### Features
+
+* Attribute order swaped in ListingResult class so the meta data appear first (e.g. in Rest response) to simplify debugging 
+
 <a name="1.4.0"></a>
 
 ## 1.4.0 (2017-04-06)
