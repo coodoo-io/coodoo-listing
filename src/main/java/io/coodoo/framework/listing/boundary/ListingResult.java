@@ -7,21 +7,13 @@ import java.util.List;
  */
 public class ListingResult<T> {
 
-    private List<T> results;
-
     private Metadata metadata;
+
+    private List<T> results;
 
     public ListingResult(List<T> result, Metadata metadata) {
         super();
-        this.results = result;
         this.metadata = metadata;
-    }
-
-    public List<T> getResults() {
-        return results;
-    }
-
-    public void setResults(List<T> result) {
         this.results = result;
     }
 
@@ -31,6 +23,14 @@ public class ListingResult<T> {
 
     public void setMetadata(Metadata metadata) {
         this.metadata = metadata;
+    }
+
+    public List<T> getResults() {
+        return results;
+    }
+
+    public void setResults(List<T> result) {
+        this.results = result;
     }
 
 }
