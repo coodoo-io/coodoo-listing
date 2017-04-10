@@ -17,7 +17,12 @@ public class Listing {
     }
 
     public static <T> List<T> getListing(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
-        return assambleFilter(entityManager, entityClass, queryParams).list(queryParams.getIndex(), queryParams.getLimit());
+        List<T> list = assambleFilter(entityManager, entityClass, queryParams).list(queryParams.getIndex(), queryParams.getLimit());
+        if (list.isEmpty() && queryParams.getPage() > 1) {
+            queryParams.setPage(queryParams.getPage() - 1);
+            return getListing(entityManager, entityClass, queryParams);
+        }
+        return list;
     }
 
     public static <T> Long countListing(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
