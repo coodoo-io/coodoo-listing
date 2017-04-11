@@ -11,35 +11,45 @@ import io.coodoo.framework.listing.control.ListingQuery;
  */
 public class Listing {
 
-    public static <T> ListingResult<T> getListingResult(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
-        return new ListingResult<T>(getListing(entityManager, entityClass, queryParams),
-                        new Metadata(countListing(entityManager, entityClass, queryParams), queryParams));
+    public static <T> ListingResult<T> getListingResult(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
+        return new ListingResult<T>(getListing(entityManager, entityClass, parameters),
+                        new Metadata(countListing(entityManager, entityClass, parameters), parameters));
     }
 
-    public static <T> List<T> getListing(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
-        List<T> list = assambleFilter(entityManager, entityClass, queryParams).list(queryParams.getIndex(), queryParams.getLimit());
-        if (list.isEmpty() && queryParams.getPage() > 1) {
-            queryParams.setPage(queryParams.getPage() - 1);
-            return getListing(entityManager, entityClass, queryParams);
+    public static <T> List<T> getListing(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
+        // List<T> list = assambleFilter(entityManager, entityClass, parameters).list(parameters.getIndex(), parameters.getLimit());
+
+        List<T> list = new ListingQuery<>(entityManager, entityClass)
+                        // apply sorting
+                        .sort(parameters.getSortAttribute(), parameters.isSortAsc())
+                        // disjunctive filter on the whole table
+                        .filterAllAttributes(parameters.getFilter())
+                        // column specific conjunctive filter
+                        .filterByAttributes(parameters.getFilterAttributes())
+                        // additional filters
+                        .filterByPredicate(parameters.getPredicate())
+                        // get all matching entries in the given range
+                        .list(parameters.getIndex(), parameters.getLimit());
+
+        if (list.isEmpty() && parameters.getPage() > 1) {
+            // Reducing the page number in case less results are found to prevent empty pages
+            parameters.setPage(parameters.getPage() - 1);
+            return getListing(entityManager, entityClass, parameters);
         }
         return list;
     }
 
-    public static <T> Long countListing(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
-        return assambleFilter(entityManager, entityClass, queryParams).count();
-    }
-
-    private static <T> ListingQuery<T> assambleFilter(EntityManager entityManager, Class<T> entityClass, ListingParameters queryParams) {
-
+    public static <T> Long countListing(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
+        // return assambleFilter(entityManager, entityClass, parameters).count();
         return new ListingQuery<>(entityManager, entityClass)
-                        // apply sorting
-                        .sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
                         // disjunctive filter on the whole table
-                        .filterAllAttributes(queryParams.getFilter())
+                        .filterAllAttributes(parameters.getFilter())
                         // column specific conjunctive filter
-                        .filterByAttributes(queryParams.getFilterAttributes())
+                        .filterByAttributes(parameters.getFilterAttributes())
                         // additional filters
-                        .filterByPredicate(queryParams.getPredicate());
+                        .filterByPredicate(parameters.getPredicate())
+                        // count all matching entries
+                        .count();
     }
 
     public static <T> ListingResult<T> getListingResult(EntityManager entityManager, Class<T> entityClass, Integer page, Integer limit) {
