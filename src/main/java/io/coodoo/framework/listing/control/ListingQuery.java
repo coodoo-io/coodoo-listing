@@ -208,7 +208,7 @@ public class ListingQuery<T> {
             if (ListingUtil.isQuoted(filter)) {
                 return criteriaBuilder.equal(root.get(field.getName()), ListingUtil.removeQuotes(filter));
             }
-            return criteriaBuilder.like(root.get(field.getName()), ListingUtil.likeValue(filter));
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get(field.getName())), ListingUtil.likeValue(filter));
         }
 
         // Date
