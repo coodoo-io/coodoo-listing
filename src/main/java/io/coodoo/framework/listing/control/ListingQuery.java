@@ -175,6 +175,10 @@ public class ListingQuery<T> {
                     }
                 }
                 if (predicate != null) {
+
+                    if (listingPredicate.isNegation()) {
+                        predicate = criteriaBuilder.not(predicate);
+                    }
                     predicates.add(predicate);
                 }
             }
