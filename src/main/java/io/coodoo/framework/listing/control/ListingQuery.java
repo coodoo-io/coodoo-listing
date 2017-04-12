@@ -1,10 +1,7 @@
 package io.coodoo.framework.listing.control;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -215,34 +212,52 @@ public class ListingQuery<T> {
                 }
                 return criteriaBuilder.like(criteriaBuilder.lower(root.get(field.getName())), ListingUtil.likeValue(filter));
 
+            // case "LocalDate": Doesn't work in JPA 2.0...
             case "LocalDateTime":
-            case "Date":
 
-                LocalDateTime startDate = null;
-                LocalDateTime endDate = null;
-
-                if (filter.contains("-")) { // Date range from - to
-                    String[] dateRange = filter.split("-");
-                    if (dateRange.length == 2) {
-                        startDate = ListingUtil.parseFilterDate(dateRange[0], false);
-                        endDate = ListingUtil.parseFilterDate(dateRange[1], true);
-                    }
-                } else { // Date (year, month or day)
-                    startDate = ListingUtil.parseFilterDate(filter, false);
-                    endDate = ListingUtil.parseFilterDate(filter, true);
+                if (ListingUtil.validDate(filter)) {
+                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDateTime(filter, false),
+                                    ListingUtil.parseDateTime(filter, true));
                 }
-                if (startDate != null && endDate != null) {
-
-                    Predicate date = criteriaBuilder.conjunction();
-                    if (field.getType().equals(Date.class)) {
-                        date = criteriaBuilder.and(date,
-                                        criteriaBuilder.greaterThan(root.get(field.getName()), Date.from(startDate.toInstant(ZoneOffset.UTC))));
-                        date = criteriaBuilder.and(date, criteriaBuilder.lessThan(root.get(field.getName()), Date.from(endDate.toInstant(ZoneOffset.UTC))));
-                    } else {
-                        date = criteriaBuilder.and(date, criteriaBuilder.greaterThan(root.get(field.getName()), startDate));
-                        date = criteriaBuilder.and(date, criteriaBuilder.lessThan(root.get(field.getName()), endDate));
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validDate(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), ListingUtil.parseDateTime(ltFilter, false));
                     }
-                    return criteriaBuilder.and(date);
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validDate(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), ListingUtil.parseDateTime(gtFilter, true));
+                    }
+                }
+                Matcher dateTimeRange = Pattern.compile(ListingUtil.rangePatternDate()).matcher(filter);
+                if (dateTimeRange.find()) {
+                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDateTime(dateTimeRange.group(1), false),
+                                    ListingUtil.parseDateTime(dateTimeRange.group(8), true));
+                }
+                break;
+
+            case "Date":
+                if (ListingUtil.validDate(filter)) {
+                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDate(filter, false), ListingUtil.parseDate(filter, true));
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validDate(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), ListingUtil.parseDate(ltFilter, false));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validDate(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), ListingUtil.parseDate(gtFilter, true));
+                    }
+                }
+                Matcher dateRange = Pattern.compile(ListingUtil.rangePatternDate()).matcher(filter);
+                if (dateRange.find()) {
+                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDate(dateRange.group(1), false),
+                                    ListingUtil.parseDate(dateRange.group(8), true));
                 }
                 break;
 
