@@ -36,11 +36,6 @@ import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ListingQuery<T> {
 
-    private static final String REGEX_LONG = "^[-+]?\\d{1,37}$";
-    private static final String REGEX_INT = "^[-+]?\\d{1,10}$";
-    private static final String REGEX_SHORT = "^[-+]?\\d{1,5}$";
-    private static final String REGEX_FLOAT = "^[-+]?\\d*[.,]?\\d+$";
-
     private EntityManager entityManager;
     private CriteriaBuilder criteriaBuilder;
     private CriteriaQuery query;
@@ -254,75 +249,135 @@ public class ListingQuery<T> {
             case "Long":
             case "long":
 
-                if (filter.matches(REGEX_LONG)) {
+                if (ListingUtil.validLong(filter)) {
                     if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
                 }
-                Matcher longRange = Pattern.compile("(^[-+]?\\d{1,37})-([-+]?\\d{1,37}$)").matcher(filter);
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validLong(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), Long.valueOf(ltFilter));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validLong(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), Long.valueOf(gtFilter));
+                    }
+                }
+                Matcher longRange = Pattern.compile(ListingUtil.rangePatternLong()).matcher(filter);
                 if (longRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRange.group(1)), Long.valueOf(longRange.group(2)));
+                    return criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRange.group(1)), Long.valueOf(longRange.group(3)));
                 }
                 break;
 
             case "Integer":
             case "int":
 
-                if (filter.matches(REGEX_INT)) {
+                if (ListingUtil.validInt(filter)) {
                     if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
                 }
-                Matcher intRange = Pattern.compile("(^[-+]?\\d{1,10})-([-+]?\\d{1,10}$)").matcher(filter);
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validInt(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), Integer.valueOf(ltFilter));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validInt(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), Integer.valueOf(gtFilter));
+                    }
+                }
+                Matcher intRange = Pattern.compile(ListingUtil.rangePatternInt()).matcher(filter);
                 if (intRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(intRange.group(1)), Integer.valueOf(intRange.group(2)));
+                    return criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(intRange.group(1)), Integer.valueOf(intRange.group(3)));
                 }
                 break;
 
             case "Short":
             case "short":
 
-                if (filter.matches(REGEX_SHORT)) {
+                if (ListingUtil.validShort(filter)) {
                     if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
                 }
-                Matcher shortRange = Pattern.compile("(^[-+]?\\d{1,5})-([-+]?\\d{1,5}$)").matcher(filter);
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validShort(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), Short.valueOf(ltFilter));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validShort(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), Short.valueOf(gtFilter));
+                    }
+                }
+                Matcher shortRange = Pattern.compile(ListingUtil.rangePatternShort()).matcher(filter);
                 if (shortRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Short.valueOf(shortRange.group(1)), Short.valueOf(shortRange.group(2)));
+                    return criteriaBuilder.between(root.get(field.getName()), Short.valueOf(shortRange.group(1)), Short.valueOf(shortRange.group(3)));
                 }
                 break;
 
             case "Float":
             case "float":
 
-                if (filter.matches(REGEX_FLOAT)) {
+                if (ListingUtil.validFloat(filter)) {
                     if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(toFloat(filter).toString()));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), toFloat(filter));
                 }
-                Matcher floatRange = Pattern.compile("^([-+]?\\d*[.,]?\\d+)-([-+]?\\d*[.,]?\\d+)$").matcher(filter);
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validFloat(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), toFloat(ltFilter));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validFloat(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), toFloat(gtFilter));
+                    }
+                }
+                Matcher floatRange = Pattern.compile(ListingUtil.rangePatternFloat()).matcher(filter);
                 if (floatRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), toFloat(floatRange.group(1)), toFloat(floatRange.group(2)));
+                    return criteriaBuilder.between(root.get(field.getName()), toFloat(floatRange.group(1)), toFloat(floatRange.group(3)));
                 }
                 break;
 
             case "Double":
             case "double":
 
-                if (filter.matches(REGEX_FLOAT)) {
+                if (ListingUtil.validDouble(filter)) {
                     if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(toDouble(filter).toString()));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), toDouble(filter));
                 }
-                Matcher doubleRange = Pattern.compile("^([-+]?\\d*[.,]?\\d+)-([-+]?\\d*[.,]?\\d+)$").matcher(filter);
+                if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
+                    if (ListingUtil.validDouble(ltFilter)) {
+                        return criteriaBuilder.lessThan(root.get(field.getName()), toDouble(ltFilter));
+                    }
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
+                    String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
+                    if (ListingUtil.validDouble(gtFilter)) {
+                        return criteriaBuilder.greaterThan(root.get(field.getName()), toDouble(gtFilter));
+                    }
+                }
+                Matcher doubleRange = Pattern.compile(ListingUtil.rangePatternDouble()).matcher(filter);
                 if (doubleRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), toDouble(doubleRange.group(1)), toDouble(doubleRange.group(2)));
+                    return criteriaBuilder.between(root.get(field.getName()), toDouble(doubleRange.group(1)), toDouble(doubleRange.group(3)));
                 }
                 break;
 
@@ -376,23 +431,23 @@ public class ListingQuery<T> {
                 break;
             case "Long":
             case "long":
-                list = inList.stream().filter(x -> x.matches(REGEX_LONG)).map(Long::valueOf).collect(Collectors.toList());
+                list = inList.stream().filter(x -> ListingUtil.validLong(x)).map(Long::valueOf).collect(Collectors.toList());
                 break;
             case "Integer":
             case "int":
-                list = inList.stream().filter(x -> x.matches(REGEX_INT)).map(Integer::valueOf).collect(Collectors.toList());
+                list = inList.stream().filter(x -> ListingUtil.validInt(x)).map(Integer::valueOf).collect(Collectors.toList());
                 break;
             case "Short":
             case "short":
-                list = inList.stream().filter(x -> x.matches(REGEX_SHORT)).map(Short::valueOf).collect(Collectors.toList());
+                list = inList.stream().filter(x -> ListingUtil.validShort(x)).map(Short::valueOf).collect(Collectors.toList());
                 break;
             case "Float":
             case "float":
-                list = inList.stream().filter(x -> x.matches(REGEX_FLOAT)).map(x -> toFloat(x)).collect(Collectors.toList());
+                list = inList.stream().filter(x -> ListingUtil.validFloat(x)).map(x -> toFloat(x)).collect(Collectors.toList());
                 break;
             case "Double":
             case "double":
-                list = inList.stream().filter(x -> x.matches(REGEX_FLOAT)).map(x -> toDouble(x)).collect(Collectors.toList());
+                list = inList.stream().filter(x -> ListingUtil.validDouble(x)).map(x -> toDouble(x)).collect(Collectors.toList());
                 break;
             default:
                 // Enum

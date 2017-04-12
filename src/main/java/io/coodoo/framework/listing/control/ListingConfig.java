@@ -69,6 +69,39 @@ public class ListingConfig {
     public static String OPERATOR_OR_WORD = " " + OPERATOR_OR_WORD_BLANK + " ";
 
     /**
+     * LESS THAN operator
+     */
+    public static String OPERATOR_LT = "<";
+
+    /**
+     * LESS THAN operator as word
+     */
+    private static String OPERATOR_LT_WORD_BLANK = "LT";
+    public static String OPERATOR_LT_WORD = OPERATOR_LT_WORD_BLANK + " ";
+
+    /**
+     * GREATER THAN operator
+     */
+    public static String OPERATOR_GT = ">";
+
+    /**
+     * GREATER THAN operator as word
+     */
+    private static String OPERATOR_GT_WORD_BLANK = "GT";
+    public static String OPERATOR_GT_WORD = OPERATOR_GT_WORD_BLANK + " ";
+
+    /**
+     * TO operator
+     */
+    public static String OPERATOR_TO = "-";
+
+    /**
+     * TO operator as word
+     */
+    private static String OPERATOR_TO_WORD_BLANK = "TO";
+    public static String OPERATOR_TO_WORD = " " + OPERATOR_TO_WORD_BLANK + " ";
+
+    /**
      * NULL operator
      */
     public static String OPERATOR_NULL = "NULL";
@@ -101,8 +134,15 @@ public class ListingConfig {
                 OR_TO_IN_LIMIT = loadProperty(OR_TO_IN_LIMIT, "coodoo.listing.or.to.in.imit");
                 OPERATOR_NOT = loadProperty(OPERATOR_NOT, "coodoo.listing.operator.not");
                 OPERATOR_NOT_WORD_BLANK = loadProperty(OPERATOR_NOT_WORD_BLANK, "coodoo.listing.operator.not.word");
-                OPERATOR_OR = loadProperty(OPERATOR_OR, "coodoo.listing.operator_or");
+                OPERATOR_OR = loadProperty(OPERATOR_OR, "coodoo.listing.operator.or");
                 OPERATOR_OR_WORD_BLANK = loadProperty(OPERATOR_OR_WORD_BLANK, "coodoo.listing.operator.or.word");
+                OPERATOR_LT = loadProperty(OPERATOR_LT, "coodoo.listing.operator.lt");
+                OPERATOR_LT_WORD_BLANK = loadProperty(OPERATOR_LT_WORD_BLANK, "coodoo.listing.operator.lt.word");
+                OPERATOR_GT = loadProperty(OPERATOR_GT, "coodoo.listing.operator.gt");
+                OPERATOR_GT_WORD_BLANK = loadProperty(OPERATOR_GT_WORD_BLANK, "coodoo.listing.operator.gt.word");
+                OPERATOR_TO = loadProperty(OPERATOR_TO, "coodoo.listing.operator.to");
+                OPERATOR_TO_WORD_BLANK = loadProperty(OPERATOR_TO_WORD_BLANK, "coodoo.listing.operator.to.word");
+
                 OPERATOR_NULL = loadProperty(OPERATOR_NULL, "coodoo.listing.operator.null");
             }
         } catch (IOException e) {

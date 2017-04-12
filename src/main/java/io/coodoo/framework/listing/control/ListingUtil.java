@@ -13,6 +13,12 @@ import java.util.regex.Pattern;
 
 public final class ListingUtil {
 
+    private static final String REGEX_LONG = "[-+]?\\d{1,37}";
+    private static final String REGEX_INT = "[-+]?\\d{1,10}";
+    private static final String REGEX_SHORT = "[-+]?\\d{1,5}";
+    private static final String REGEX_FLOAT = "[-+]?\\d*[.,]?\\d+";
+    private static final String REGEX_DOUBLE = "[-+]?\\d*[.,]?\\d+";
+
     private ListingUtil() {}
 
     public static List<Field> getFields(Class<?> targetClass) {
@@ -73,6 +79,64 @@ public final class ListingUtil {
             return date;
         }
         return null;
+    }
+
+    public static boolean validLong(String value) {
+        return matches(value, REGEX_LONG);
+    }
+
+    public static boolean validInt(String value) {
+        return matches(value, REGEX_INT);
+    }
+
+    public static boolean validShort(String value) {
+        return matches(value, REGEX_SHORT);
+    }
+
+    public static boolean validFloat(String value) {
+        return matches(value, REGEX_FLOAT);
+    }
+
+    public static boolean validDouble(String value) {
+        return matches(value, REGEX_DOUBLE);
+    }
+
+    public static boolean matches(String value, String valueRegex) {
+        return value.matches("^" + valueRegex + "$");
+    }
+
+    public static String rangePatternLong() {
+        return rangePattern(REGEX_LONG);
+    }
+
+    public static String rangePatternInt() {
+        return rangePattern(REGEX_INT);
+    }
+
+    public static String rangePatternShort() {
+        return rangePattern(REGEX_SHORT);
+    }
+
+    public static String rangePatternFloat() {
+        return rangePattern(REGEX_FLOAT);
+    }
+
+    public static String rangePatternDouble() {
+        return rangePattern(REGEX_DOUBLE);
+    }
+
+    public static String rangePattern(String valueRegex) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("^(");
+        stringBuffer.append(valueRegex);
+        stringBuffer.append(")(");
+        stringBuffer.append(ListingConfig.OPERATOR_TO);
+        stringBuffer.append("|");
+        stringBuffer.append(ListingConfig.OPERATOR_TO_WORD);
+        stringBuffer.append(")(");
+        stringBuffer.append(valueRegex);
+        stringBuffer.append(")$");
+        return stringBuffer.toString();
     }
 
 }
