@@ -44,7 +44,83 @@ public class ListingParametersTest {
 
         Integer limit = classUnderTest.getLimit();
 
-        assertThat(limit, is(equalTo(83)));
+        assertThat(limit, equalTo(83));
+    }
+
+    @Test
+    public void testGetSortAttribute_nonSet() {
+
+        String sortAttribute = classUnderTest.getSortAttribute();
+
+        assertThat(sortAttribute, equalTo(null));
+    }
+
+    @Test
+    public void testGetSortAttribute_set() {
+
+        classUnderTest.setSortAttribute("fisch");
+
+        String sortAttribute = classUnderTest.getSortAttribute();
+
+        assertThat(sortAttribute, equalTo("fisch"));
+    }
+
+    @Test
+    public void testGetSortAttribute_setAsc() {
+
+        classUnderTest.setSortAttribute("+fisch");
+
+        String sortAttribute = classUnderTest.getSortAttribute();
+
+        assertThat(sortAttribute, equalTo("fisch"));
+    }
+
+    @Test
+    public void testGetSortAttribute_setDesc() {
+
+        classUnderTest.setSortAttribute("-fisch");
+
+        String sortAttribute = classUnderTest.getSortAttribute();
+
+        assertThat(sortAttribute, equalTo("fisch"));
+    }
+
+    @Test
+    public void testIsSortAsc_nonSet() {
+
+        boolean sortAsc = classUnderTest.isSortAsc();
+
+        assertThat(sortAsc, equalTo(true));
+    }
+
+    @Test
+    public void testIsSortAsc_set() {
+
+        classUnderTest.setSortAttribute("fisch");
+
+        boolean sortAsc = classUnderTest.isSortAsc();
+
+        assertThat(sortAsc, equalTo(true));
+    }
+
+    @Test
+    public void testIsSortAsc_setAsc() {
+
+        classUnderTest.setSortAttribute("+fisch");
+
+        boolean sortAsc = classUnderTest.isSortAsc();
+
+        assertThat(sortAsc, equalTo(true));
+    }
+
+    @Test
+    public void testIsSortAsc_setDesc() {
+
+        classUnderTest.setSortAttribute("-fisch");
+
+        boolean sortAsc = classUnderTest.isSortAsc();
+
+        assertThat(sortAsc, equalTo(false));
     }
 
 }

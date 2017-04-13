@@ -97,12 +97,13 @@ public class ListingParameters {
         if (StringUtils.isBlank(sortAttribute)) {
             return null;
         }
-
-        if (sortAttribute.startsWith("-") || sortAttribute.startsWith("+")) {
-            return sortAttribute.substring(1, sortAttribute.length());
+        if (sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_DESC)) {
+            return sortAttribute.substring(ListingConfig.OPERATOR_SORT_DESC.length());
         }
-
-        return sortAttribute;
+        if (sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_ASC)) {
+            return sortAttribute.substring(ListingConfig.OPERATOR_SORT_ASC.length());
+        }
+        return sortAttribute.trim();
     }
 
     public void setSortAttribute(String sortAttribute) {
@@ -113,12 +114,7 @@ public class ListingParameters {
         if (StringUtils.isBlank(sortAttribute)) {
             return true;
         }
-
-        if (sortAttribute.startsWith("-")) {
-            return false;
-        } else {
-            return true;
-        }
+        return !sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_DESC);
     }
 
     public UriInfo getUriInfo() {

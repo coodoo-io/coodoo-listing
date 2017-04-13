@@ -107,6 +107,16 @@ public class ListingConfig {
     public static String OPERATOR_NULL = "NULL";
 
     /**
+     * ASC Sort direction operator
+     */
+    public static String OPERATOR_SORT_ASC = "+";
+
+    /**
+     * DESC Sort direction operator
+     */
+    public static String OPERATOR_SORT_DESC = "-";
+
+    /**
      * Name of the (optional) listing property file
      */
     private static final String listingPropertiesFilename = "coodoo.listing.properties";
@@ -142,8 +152,10 @@ public class ListingConfig {
                 OPERATOR_GT_WORD_BLANK = loadProperty(OPERATOR_GT_WORD_BLANK, "coodoo.listing.operator.gt.word");
                 OPERATOR_TO = loadProperty(OPERATOR_TO, "coodoo.listing.operator.to");
                 OPERATOR_TO_WORD_BLANK = loadProperty(OPERATOR_TO_WORD_BLANK, "coodoo.listing.operator.to.word");
-
                 OPERATOR_NULL = loadProperty(OPERATOR_NULL, "coodoo.listing.operator.null");
+                OPERATOR_SORT_ASC = loadProperty(OPERATOR_SORT_ASC, "coodoo.listing.operator.sort.asc");
+                OPERATOR_SORT_DESC = loadProperty(OPERATOR_SORT_DESC, "coodoo.listing.operator.sort.desc");
+
             }
         } catch (IOException e) {
             log.info("Couldn't read {}!", listingPropertiesFilename, e);
