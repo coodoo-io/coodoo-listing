@@ -69,6 +69,17 @@ public class ListingConfig {
     public static String OPERATOR_OR_WORD = " " + OPERATOR_OR_WORD_BLANK + " ";
 
     /**
+     * LIKE operator
+     */
+    public static String OPERATOR_LIKE = "~";
+
+    /**
+     * LIKE operator as word
+     */
+    private static String OPERATOR_LIKE_WORD_BLANK = "LIKE";
+    public static String OPERATOR_LIKE_WORD = OPERATOR_LIKE_WORD_BLANK + " ";
+
+    /**
      * LESS THAN operator
      */
     public static String OPERATOR_LT = "<";
@@ -156,6 +167,8 @@ public class ListingConfig {
                 OPERATOR_NOT_WORD_BLANK = loadProperty(OPERATOR_NOT_WORD_BLANK, "coodoo.listing.operator.not.word");
                 OPERATOR_OR = loadProperty(OPERATOR_OR, "coodoo.listing.operator.or");
                 OPERATOR_OR_WORD_BLANK = loadProperty(OPERATOR_OR_WORD_BLANK, "coodoo.listing.operator.or.word");
+                OPERATOR_LIKE = loadProperty(OPERATOR_LIKE, "coodoo.listing.operator.like");
+                OPERATOR_LIKE_WORD_BLANK = loadProperty(OPERATOR_LIKE_WORD_BLANK, "coodoo.listing.operator.like.word");
                 OPERATOR_LT = loadProperty(OPERATOR_LT, "coodoo.listing.operator.lt");
                 OPERATOR_LT_WORD_BLANK = loadProperty(OPERATOR_LT_WORD_BLANK, "coodoo.listing.operator.lt.word");
                 OPERATOR_GT = loadProperty(OPERATOR_GT, "coodoo.listing.operator.gt");

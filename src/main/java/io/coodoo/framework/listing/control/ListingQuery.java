@@ -271,6 +271,12 @@ public class ListingQuery<T> {
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
                 }
+                if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
+                    if (ListingUtil.validLong(ltFilter)) {
+                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
+                    }
+                }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validLong(ltFilter)) {
@@ -297,6 +303,12 @@ public class ListingQuery<T> {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
+                    if (ListingUtil.validInt(ltFilter)) {
+                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
+                    }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
@@ -325,6 +337,12 @@ public class ListingQuery<T> {
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
                 }
+                if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
+                    if (ListingUtil.validShort(ltFilter)) {
+                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
+                    }
+                }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validShort(ltFilter)) {
@@ -352,6 +370,12 @@ public class ListingQuery<T> {
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), toFloat(filter));
                 }
+                if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
+                    if (ListingUtil.validFloat(ltFilter)) {
+                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
+                    }
+                }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validFloat(ltFilter)) {
@@ -378,6 +402,12 @@ public class ListingQuery<T> {
                         return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(toDouble(filter).toString()));
                     }
                     return criteriaBuilder.equal(root.get(field.getName()), toDouble(filter));
+                }
+                if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
+                    String ltFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
+                    if (ListingUtil.validDouble(ltFilter)) {
+                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
+                    }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
