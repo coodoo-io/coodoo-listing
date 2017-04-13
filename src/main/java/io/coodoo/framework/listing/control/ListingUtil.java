@@ -38,7 +38,7 @@ public final class ListingUtil {
     }
 
     public static String likeValue(String value) {
-        return "%" + value.toLowerCase() + "%";
+        return "%" + value.replace(ListingConfig.WILDCARD_MANY, "%").replace(ListingConfig.WILDCARD_ONE, "_").toLowerCase() + "%";
     }
 
     public static boolean isQuoted(String value) {

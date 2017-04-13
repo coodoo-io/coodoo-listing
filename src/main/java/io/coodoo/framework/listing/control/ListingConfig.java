@@ -107,6 +107,16 @@ public class ListingConfig {
     public static String OPERATOR_NULL = "NULL";
 
     /**
+     * Wildcard many
+     */
+    public static String WILDCARD_MANY = "*";
+
+    /**
+     * Wildcard one
+     */
+    public static String WILDCARD_ONE = "?";
+
+    /**
      * ASC Sort direction operator
      */
     public static String OPERATOR_SORT_ASC = "+";
@@ -153,6 +163,8 @@ public class ListingConfig {
                 OPERATOR_TO = loadProperty(OPERATOR_TO, "coodoo.listing.operator.to");
                 OPERATOR_TO_WORD_BLANK = loadProperty(OPERATOR_TO_WORD_BLANK, "coodoo.listing.operator.to.word");
                 OPERATOR_NULL = loadProperty(OPERATOR_NULL, "coodoo.listing.operator.null");
+                WILDCARD_MANY = loadProperty(WILDCARD_MANY, "coodoo.listing.wildcard.many");
+                WILDCARD_ONE = loadProperty(WILDCARD_ONE, "coodoo.listing.wildcard.one");
                 OPERATOR_SORT_ASC = loadProperty(OPERATOR_SORT_ASC, "coodoo.listing.operator.sort.asc");
                 OPERATOR_SORT_DESC = loadProperty(OPERATOR_SORT_DESC, "coodoo.listing.operator.sort.desc");
 
