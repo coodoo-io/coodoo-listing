@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
+import javax.persistence.Id;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -56,7 +57,7 @@ public class ListingQuery<T> {
 
             // go for all fields that are defined as columns except if annotated with @ListingFilterIgnore
             for (Field field : ListingUtil.getFields(domainClass)) {
-                if (field.isAnnotationPresent(Column.class) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
+                if ((field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(Id.class)) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
                     filterAttributes.put(field.getName(), filter);
                 }
             }
