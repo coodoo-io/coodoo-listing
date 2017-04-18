@@ -20,6 +20,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import io.coodoo.framework.listing.boundary.Listing;
 import io.coodoo.framework.listing.boundary.ListingParameters;
 import io.coodoo.framework.listing.dbunit.AbstractDbUnitTest;
 import io.coodoo.framework.listing.dbunit.model.TestDatesEntity;
@@ -36,8 +37,8 @@ public class DateTest extends AbstractDbUnitTest {
 
     @Before
     public void initFilterParams() {
-        params = new ListingParameters();
-        params.setLimit(Integer.MAX_VALUE);
+        parameters = new ListingParameters();
+        parameters.setLimit(Integer.MAX_VALUE);
     }
 
     @Test
@@ -52,54 +53,66 @@ public class DateTest extends AbstractDbUnitTest {
     @Test
     public void testLocalDateTimeDay() {
 
-        params.addFilterAttributes("localDateTime1", "18.2.2014");
+        parameters.addFilterAttributes("localDateTime1", "18.2.2014");
 
-        assertEquals(1L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(1L, result.longValue());
     }
 
     @Ignore
     @Test
     public void testLocalDateTimeMonth() {
 
-        params.addFilterAttributes("localDateTime1", "12.2015");
+        parameters.addFilterAttributes("localDateTime1", "12.2015");
 
-        assertEquals(31L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(31L, result.longValue());
     }
 
     @Ignore
     @Test
     public void testLocalDateTimeYear() {
 
-        params.addFilterAttributes("localDateTime1", "2015");
+        parameters.addFilterAttributes("localDateTime1", "2015");
 
-        assertEquals(365L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(365L, result.longValue());
     }
 
     @Ignore
     @Test
     public void testDateDay() {
 
-        params.addFilterAttributes("date1", "18.2.2014");
+        parameters.addFilterAttributes("date1", "18.2.2014");
 
-        assertEquals(1L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(1L, result.longValue());
     }
 
     @Ignore
     @Test
     public void testDateMonth() {
 
-        params.addFilterAttributes("date1", "12.2015");
+        parameters.addFilterAttributes("date1", "12.2015");
 
-        assertEquals(31L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(31L, result.longValue());
     }
 
     @Ignore
     @Test
     public void testDateYear() {
 
-        params.addFilterAttributes("date1", "2015");
+        parameters.addFilterAttributes("date1", "2015");
 
-        assertEquals(365L, countListing(TestDatesEntity.class, params).longValue());
+        Long result = Listing.countListing(entityManager, TestDatesEntity.class, parameters);
+
+        assertEquals(365L, result.longValue());
     }
 
     @Ignore

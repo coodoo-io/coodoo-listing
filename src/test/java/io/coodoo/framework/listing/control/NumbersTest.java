@@ -32,8 +32,8 @@ public class NumbersTest extends AbstractDbUnitTest {
 
     @Before
     public void initFilterParams() {
-        params = new ListingParameters();
-        params.setLimit(Integer.MAX_VALUE);
+        parameters = new ListingParameters();
+        parameters.setLimit(Integer.MAX_VALUE);
     }
 
     @Test

@@ -2,7 +2,6 @@ package io.coodoo.framework.listing.dbunit;
 
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -22,7 +21,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import io.coodoo.framework.listing.boundary.ListingParameters;
-import io.coodoo.framework.listing.control.ListingQuery;
 
 public abstract class AbstractDbUnitTest {
 
@@ -33,7 +31,7 @@ public abstract class AbstractDbUnitTest {
 
     public static String datasetXml = "test-dataset.xml";
 
-    public ListingParameters params;
+    public ListingParameters parameters;
 
     /**
      * Set up memory database and insert data from test-dataset.xml
@@ -65,17 +63,6 @@ public abstract class AbstractDbUnitTest {
     public static void closeEntityManager() {
         entityManager.close();
         entityManagerFactory.close();
-    }
-
-    public <T> List<T> getListing(Class<T> entityClass, ListingParameters queryParams) {
-        return new ListingQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
-                        .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes())
-                        .list(queryParams.getIndex(), queryParams.getLimit());
-    }
-
-    public <T> Long countListing(Class<T> entityClass, ListingParameters queryParams) {
-        return new ListingQuery<>(entityManager, entityClass).sort(queryParams.getSortAttribute(), queryParams.isSortAsc())
-                        .filterAllAttributes(queryParams.getFilter()).filterByAttributes(queryParams.getFilterAttributes()).count();
     }
 
 }

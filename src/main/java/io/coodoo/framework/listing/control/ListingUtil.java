@@ -5,13 +5,23 @@ package io.coodoo.framework.listing.control;
  */
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ListingUtil {
+
+    private static final String REGEX_LONG = "[-+]?\\d{1,37}";
+    private static final String REGEX_INT = "[-+]?\\d{1,10}";
+    private static final String REGEX_SHORT = "[-+]?\\d{1,5}";
+    private static final String REGEX_FLOAT = "[-+]?\\d*[.,]?\\d+";
+    private static final String REGEX_DOUBLE = "[-+]?\\d*[.,]?\\d+";
+    // _______________________Group_numbers:__12______________34______________5________
+    private static final String REGEX_DATE = "((\\d{1,2})\\.)?((\\d{1,2})\\.)?(\\d{4})";
 
     private ListingUtil() {}
 
@@ -28,7 +38,7 @@ public final class ListingUtil {
     }
 
     public static String likeValue(String value) {
-        return "%" + value.toLowerCase() + "%";
+        return "%" + value.replace(ListingConfig.WILDCARD_MANY, "%").replace(ListingConfig.WILDCARD_ONE, "_").toLowerCase() + "%";
     }
 
     public static boolean isQuoted(String value) {
@@ -43,36 +53,109 @@ public final class ListingUtil {
         return Arrays.asList(value.split("\\|", -1));
     }
 
-    public static LocalDateTime parseFilterDate(String dateString, boolean end) {
-        // YYYY
-        Matcher yearMatcher = Pattern.compile("^(\\d{4})$").matcher(dateString);
-        if (yearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(yearMatcher.group(1)), 1, 1, 0, 0, 0);
-            if (end) {
-                return date.plusYears(1).minusSeconds(1);
+    public static Date parseDate(String dateString, boolean end) {
+        return Date.from(parseDateTime(dateString, end).toInstant(ZoneOffset.UTC));
+    }
+
+    public static LocalDateTime parseDateTime(String dateString, boolean end) {
+
+        Matcher matcher = Pattern.compile(REGEX_DATE).matcher(dateString);
+        if (matcher.find()) {
+            if (matcher.group(5) != null) {
+                Integer year = Integer.valueOf(matcher.group(5));
+                if (matcher.group(4) != null) {
+                    Integer month = Integer.valueOf(matcher.group(4));
+                    if (matcher.group(2) != null) {
+                        Integer day = Integer.valueOf(matcher.group(2));
+                        // DD.MM.YYYY
+                        LocalDateTime date = LocalDateTime.of(year, month, day, 0, 0, 0);
+                        if (end) {
+                            return date.plusDays(1).minusSeconds(1);
+                        }
+                        return date;
+                    }
+                    // MM.YYYY
+                    LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
+                    if (end) {
+                        return date.plusMonths(1).minusSeconds(1);
+                    }
+                    return date;
+                }
+                // YYYY
+                LocalDateTime date = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+                if (end) {
+                    return date.plusYears(1).minusSeconds(1);
+                }
+                return date;
             }
-            return date;
-        }
-        // MM.YYYY
-        Matcher monthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
-        if (monthYearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(monthYearMatcher.group(2)), Integer.valueOf(monthYearMatcher.group(1)), 1, 0, 0, 0);
-            if (end) {
-                return date.plusMonths(1).minusSeconds(1);
-            }
-            return date;
-        }
-        // DD.MM.YYYY
-        Matcher dayMonthYearMatcher = Pattern.compile("^(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})$").matcher(dateString);
-        if (dayMonthYearMatcher.find()) {
-            LocalDateTime date = LocalDateTime.of(Integer.valueOf(dayMonthYearMatcher.group(3)), Integer.valueOf(dayMonthYearMatcher.group(2)),
-                            Integer.valueOf(dayMonthYearMatcher.group(1)), 0, 0, 0);
-            if (end) {
-                return date.plusDays(1).minusSeconds(1);
-            }
-            return date;
         }
         return null;
+    }
+
+    public static boolean validDate(String value) {
+        return matches(value, REGEX_DATE);
+    }
+
+    public static boolean validLong(String value) {
+        return matches(value, REGEX_LONG);
+    }
+
+    public static boolean validInt(String value) {
+        return matches(value, REGEX_INT);
+    }
+
+    public static boolean validShort(String value) {
+        return matches(value, REGEX_SHORT);
+    }
+
+    public static boolean validFloat(String value) {
+        return matches(value, REGEX_FLOAT);
+    }
+
+    public static boolean validDouble(String value) {
+        return matches(value, REGEX_DOUBLE);
+    }
+
+    public static boolean matches(String value, String valueRegex) {
+        return value.matches("^" + valueRegex + "$");
+    }
+
+    public static String rangePatternDate() {
+        return rangePattern(REGEX_DATE);
+    }
+
+    public static String rangePatternLong() {
+        return rangePattern(REGEX_LONG);
+    }
+
+    public static String rangePatternInt() {
+        return rangePattern(REGEX_INT);
+    }
+
+    public static String rangePatternShort() {
+        return rangePattern(REGEX_SHORT);
+    }
+
+    public static String rangePatternFloat() {
+        return rangePattern(REGEX_FLOAT);
+    }
+
+    public static String rangePatternDouble() {
+        return rangePattern(REGEX_DOUBLE);
+    }
+
+    public static String rangePattern(String valueRegex) {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("^(");
+        stringBuffer.append(valueRegex);
+        stringBuffer.append(")(");
+        stringBuffer.append(ListingConfig.OPERATOR_TO);
+        stringBuffer.append("|");
+        stringBuffer.append(ListingConfig.OPERATOR_TO_WORD);
+        stringBuffer.append(")(");
+        stringBuffer.append(valueRegex);
+        stringBuffer.append(")$");
+        return stringBuffer.toString();
     }
 
 }

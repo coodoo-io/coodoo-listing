@@ -10,6 +10,29 @@
 
 
 
+<a name="1.4.2"></a>
+
+## 1.4.2 (2017-04-18)
+
+### Bug Fixes
+
+ * Removed silly sort from count statement (only MySQL was able to proceed with this bug)
+ * LIKE statements are now always compared by both sides in lower case
+ * NOT-condition back for duty
+ * Since `@Id` marked attributes are also columns, they will be not longer ignored by `filterAllAttributes()`
+ * Design related problems in case limit = 0
+
+### Features
+
+ * New supported types: Float & Double
+ * New operators LT, GT, TO & LIKE ('<', '>', '-' & '~') for the usage at numerical fields
+ * Sort direction indicators configurable: `ListingConfig.SORT_ASC` & `ListingConfig.SORT_DESC`
+ * Wildcards in LIKE statements ('*' '?') configurable: `ListingConfig.WILDCARD_MANY` & `ListingConfig.WILDCARD_ONE`
+
+### BREAKING CHANGES
+
+ * Configuration key `ListingConfig.OR_TO_IN_LIMIT` "coodoo.listing.or.to.in.limit" reduced to `ListingConfig.OR_LIMIT` "coodoo.listing.or.limit"
+
 
 <a name="1.4.1"></a>
 
@@ -21,7 +44,7 @@
 
 ### Features
 
-* Attribute order swaped in ListingResult class so the meta data appear first (e.g. in Rest response) to simplify debugging 
+ * Attribute order swaped in ListingResult class so the meta data appear first (e.g. in Rest response) to simplify debugging 
 
 <a name="1.4.0"></a>
 
