@@ -9,13 +9,7 @@
   - [Usage in a JAX-RS resource](#usage-in-a-jax-rs-resource)
   - [Usage in a stateless EJB](#usage-in-a-stateless-ejb)
 - [Usage](#usage)
-<!--
 - [Filter options](#filter-options)
-  - [Keywords](#keywords)
-  - [Numbers](#numbers)
-  - [Dates](#dates)
-  - [Enums](#enums)
--->
 - [API](#api)
   - [Listing](#listing)
   - [ListingParameters](#listingparameters)
@@ -23,8 +17,10 @@
     - [Filter attributes](#filter-attributes)
     - [Pagination](#pagination)
     - [Sort](#sort)
-    - [ListingPredicate](#listingpredicate)
+    - [Additional predicates](additional-predicates)
+  - [Metadata](#metadata)
 - [Configuration](#configuration)
+- [Changelog](#changelog)
 - [Maintainers](#maintainers)
 - [Contribute](#contribute)
 - [License](#license)
@@ -39,13 +35,13 @@ This library gives you easy access to list your JPA entities. All you need to do
 
 ## Install
 
-Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.4.1%7Cjar)):
+Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.4.2%7Cjar)):
 
 ```xml
 <dependency>
     <groupId>io.coodoo</groupId>
     <artifactId>coodoo-listing</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 </dependency>
 ```
 
@@ -54,62 +50,88 @@ Add the following dependency to your project ([published on Maven Central](http:
 ### Usage in a JAX-RS resource
 
 ```java
-@Path("/wines")
 @Stateless
-public void WineResource {
+@Path("/cars")
+public class ListingResource {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Inject
+    ListingService listingService;
 
     @GET
-    @Path("/")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ListingResult getWines(@BeanParam ListingParameters listingParameters) {
-  
-        return Listing.getListingResult(entityManager, Wine.class, listingParameters);
+    public ListingResult<Car> getCarsListing(@BeanParam ListingParameters listingParameters) {
+
+        return Listing.getListingResult(entityManager, Car.class, listingParameters);
     }
 }
 ```
 
-Just call this REST Resource: `curl http://localhost:8080/app-context/api/wines`
+Just call this REST Resource: `curl http://localhost:8080/showcase/api/cars`
+
+[Example implementation](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/ListingResource.java)
 
 
 ### Usage in a stateless EJB
 
 ```java
 @Stateless
-public void WineBusinessService {
-    private static Logger log = LoggerFactory.getLogger(WineBusinessService.class);
+public void CarService {
+
+    private static Logger log = LoggerFactory.getLogger(CarService.class);
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public void doListing() {
 
-        ListingResult<Wine> wineListingResult = Listing.getListingResult(entityManager, Wine.class, 1, 50);
+        ListingResult<Car> carListingResult = Listing.getListingResult(entityManager, Car.class, 1, 50);
 
-        log.info("Loaded page 1 with limit 50. Total wines count: {}", wineListingResult.getMetadata()getCount();
+        log.info("Loaded page 1 with limit 50. Total cars count: {}", carListingResult.getMetadata().getCount();
 
-        for(Wine wine : wineListingResult.getResults()) {
-            log.info("Loaded wine: {}", wine);
+        for(Car car : carListingResult.getResults()) {
+            log.info("Loaded car: {}", car);
         }
     }
 }
 ```
 
-<!--
+[Example implementation](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/ListingService.java)
+
+
 ## Filter options
 
-### Keywords
+| Option                   | Operator | Example       | Keyword | Example          | Restrictions                              |
+|--------------------------|----------|---------------|---------|------------------|-------------------------------------------|
+| Negation                 | !        | !Mercedes     | NOT     | NOT Mercedes     |                                           |
+| Value disjunction        | |        | Mercedes|Audi | OR      | Mercedes OR Audi |                                           |
+| Less than                | <        | <200          | LT      | LT 200           | Only Numbers and Dates                    |
+| Greater than             | >        | >200          | GT      | GT 200           | Only Numbers and Dates                    |
+| Range                    | -        | 200-400       | TO      | 200 TO 400       | Only Numbers and Dates                    |
+| No Value                 |          |               | NULL    | NULL             |                                           |
+| Like comparison          | ~        | ~200          | LIKE    | LIKE 200         | Only Numbers (Texts does this by default) |
+| Wildcard one character   | ?        | A?di          |         |                  | Only Texts & Numbers                      |
+| Wildcard many characters | *        | A*            |         |                  | Only Texts & Numbers                      |
 
-### Numbers
+[See examples here](https://github.com/coodoo-io/coodoo-framework-showcase/tree/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples)
 
-### Dates
-
-### Enums
--->
 
 ## API
+
+### Suported data types
+
+- Texts
+  - String
+  - Enum
+- Numbers
+  - Long / long
+  - Integer / int
+  - Short / short
+  - Float / float
+  - Double / double
+- Dates
+  - Date
+  - LocalDateTime
+- States
+  Boolean / boolean
 
 ### Listing
 
@@ -117,8 +139,6 @@ The central `Listing` class provides following static methods that will query th
  * `getListing` gets a list of the desired data
  * `countListing` gets the count of resulting data
  * `getListingResult` gets an result object that contains the list and metadata (total count, page, index, ...) of the resulting data
-
-
 
 
 Every method takes at least the entity manager and targeted entity class as parameters. It's up to you if you provide a `ListingParameters` object or plain values for page, limit and sort.
@@ -133,12 +153,15 @@ The filter gets applied to every column of the table. Every row where a column m
 It can be used as a sort of global search on a Table.
 
 ```java
-ListingParameters listingParameters = ListingParameters();
-listingParameters.setFilter("rouge");
-return Listing.getListingResult(entityManager, Wine.class, listingParameters);
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.setFilter("150");
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
 }
 ```
-Or via REST Resource: `curl http://localhost:8080/app-context/api/wines?filter=rouge`
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?filter=150`
+
+[Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingFilterService.java)
+
 
 #### Filter attributes
 
@@ -146,30 +169,71 @@ The `ListingParameters` object contains a map for filter attributes where the ke
 Every row where all filter attributes matches will be part of the result (conjunctive).
 
 ```java
-ListingParameters listingParameters = ListingParameters();
-listingParameters.addFilterAttributes("year", "1983");
-listingParameters.addFilterAttributes("name", "rouge");
-return Listing.getListingResult(entityManager, Wine.class, listingParameters);
-}
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.addFilterAttributes("seats", "2");
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
 ```
-Or via REST Resource: `curl http://localhost:8080/app-context/api/wines?filter-year=1983&filter-name=rouge`
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?filter-seats=2`
 
-In case the presentation combines two ore more columns so they share just one filter input you can with the filter attributes.
-
-```java
-ListingParameters listingParameters = ListingParameters();
-listingParameters.addFilterAttributes("year|name", "83");
-return Listing.getListingResult(entityManager, Wine.class, listingParameters);
-}
-```
-Or via REST Resource: `curl http://localhost:8080/app-context/api/wines?filter-year|name=83`
+[Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingFilterAttributesService.java)
 
 
 #### Pagination
 
+The `ListingParameters` object accepts a page number and a limit of results per page to provide you a the current page sublist. With the result list in the `ListingResult`object there comes `Metadata` object for all the other details. 
+
+```java
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.setPage(3);
+listingParameters.setLimit(50);
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
+```
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?page=3&limit=50`
+
+[Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingPaginationService.java)
+
+
 #### Sort
 
-#### ListingPredicate
+You can sort the resulting list by the attribute name and specify the order by prefixing the attribute name with '+' for ascending or '-' for descending order.
+
+```java
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.setSortAttribute("-hp");
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
+```
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?sort=-hp`
+
+[Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingSortService.java)
+
+
+#### Additional predicates
+
+Listing predicates enhances filtering by basic SQL elements compiled in a tree data structure. This can be useful to provided different views on the same data, or the enforce access permissions.
+
+*Predicate are an addition to filters given in the `ListingParameters`*
+
+```java
+ListingPredicate predicate = new ListingPredicate().filter("fuel", "Diesel");
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.setPredicate(predicate);
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
+```
+
+[Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingPredicateService.java)
+
+
+### Metadata
+
+The `Metadata`-object provides information for the use of a pagination presentation and is part of the `ListingResult`-object.
+
+- count *Count of the whole list*
+- currentPage *Current page as a sublist with the length of limit*
+- numPages *Number of pages*
+- limit *List elements per page*
+- sort *Name of the attribute, the result is sorter by (ascending by default, starts with "-" for descending)*
+- startIndex *Index of the first result for the current page*
+- endIndex *Index of the last result for the current page*
 
 
 ## Configuration
@@ -178,6 +242,10 @@ To provide own configuration you need to add a property file named `coodoo.listi
 
 You can find a template [here](https://github.com/coodoo-io/coodoo-listing/tree/master/src/main/resources/example.coodoo.listing.properties)
 
+
+## Changelog
+
+All release changes can be viewed on our [changelog](./CHANGELOG.md).
 
 ## Maintainers
 
