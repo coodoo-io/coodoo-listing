@@ -176,40 +176,7 @@ Or via REST Resource: `curl http://localhost:8080/app-context/api/wines?filter-y
 
 To provide own configuration you need to add a property file named `coodoo.listing.properties` to your project. This file gets read on JavaEE server startup if available or manually by calling `ListingConfig.loadProperties()`;
 
-These are the properties to be defined on the file:
-
-```properties
-### coodoo listing configuration ###
-
-## Default values ##
-
-## Default index for pagination
-coodoo.listing.default.index = 0
-## Default current page number for pagination
-coodoo.listing.default.page = 1
-## Default limit of results per page for pagination
-coodoo.listing.default.limit = 10
-
-## filter conjunction trigger
-coodoo.listing.filter.type.disjunction = Filter-Type-Disjunction
-
-## Limit on OR operator separated predicated to handle it in an IN statement
-coodoo.listing.or.to.in.imit = 10
-
-## Operators ##
-
-## NOT operator
-coodoo.listing.operator.not = !
-## NOT operator as word
-coodoo.listing.operator.not.word = NOT
-## OR operator
-coodoo.listing.operator_or = |
-## OR operator as word
-coodoo.listing.operator.or.word = OR
-## NULL operator
-coodoo.listing.operator.null = NULL
-```
-*You can find a template [here](https://github.com/coodoo-io/coodoo-listing/tree/master/src/main/resources/example.coodoo.listing.properties)*
+You can find a template [here](https://github.com/coodoo-io/coodoo-listing/tree/master/src/main/resources/example.coodoo.listing.properties)
 
 
 ## Maintainers

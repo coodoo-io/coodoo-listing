@@ -97,11 +97,11 @@ public class ListingParameters {
         if (StringUtils.isBlank(sortAttribute)) {
             return null;
         }
-        if (sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_DESC)) {
-            return sortAttribute.substring(ListingConfig.OPERATOR_SORT_DESC.length());
+        if (sortAttribute.startsWith(ListingConfig.SORT_DESC)) {
+            return sortAttribute.substring(ListingConfig.SORT_DESC.length());
         }
-        if (sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_ASC)) {
-            return sortAttribute.substring(ListingConfig.OPERATOR_SORT_ASC.length());
+        if (sortAttribute.startsWith(ListingConfig.SORT_ASC)) {
+            return sortAttribute.substring(ListingConfig.SORT_ASC.length());
         }
         return sortAttribute.trim();
     }
@@ -114,7 +114,7 @@ public class ListingParameters {
         if (StringUtils.isBlank(sortAttribute)) {
             return true;
         }
-        return !sortAttribute.startsWith(ListingConfig.OPERATOR_SORT_DESC);
+        return !sortAttribute.startsWith(ListingConfig.SORT_DESC);
     }
 
     public UriInfo getUriInfo() {
@@ -126,10 +126,11 @@ public class ListingParameters {
     }
 
     public Integer getIndex() {
-        if (index == null && page != null) {
-            // calculate index from page
+        if (index == null && page != null && limit != null) {
+            // calculate index from page and limit
             return (page - 1) * limit;
-        } else if (index == null) {
+        }
+        if (index == null) {
             return ListingConfig.DEFAULT_INDEX;
         }
         return index;

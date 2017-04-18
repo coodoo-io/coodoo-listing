@@ -126,7 +126,7 @@ public class ListingQuery<T> {
         if (StringUtils.contains(filter, ListingConfig.OPERATOR_OR) || StringUtils.contains(filter, ListingConfig.OPERATOR_OR_WORD)) {
 
             List<String> orList = ListingUtil.split(filter.replaceAll(ListingConfig.OPERATOR_OR_WORD, ListingConfig.OPERATOR_OR));
-            if (orList.size() > ListingConfig.OR_TO_IN_LIMIT) {
+            if (orList.size() > ListingConfig.OR_LIMIT) {
                 // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
                 return new ListingPredicate().in().filter(attribute, filter.replaceAll(ListingConfig.OPERATOR_OR_WORD, ListingConfig.OPERATOR_OR));
             }
@@ -462,7 +462,6 @@ public class ListingQuery<T> {
                 }
                 break;
         }
-
         return null;
     }
 

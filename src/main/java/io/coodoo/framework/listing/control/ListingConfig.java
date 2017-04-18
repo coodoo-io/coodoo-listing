@@ -44,7 +44,7 @@ public class ListingConfig {
     /**
      * Limit on OR operator separated predicated to handle it in an IN statement
      */
-    public static int OR_TO_IN_LIMIT = 10;
+    public static int OR_LIMIT = 10;
 
     /**
      * NOT operator
@@ -130,12 +130,12 @@ public class ListingConfig {
     /**
      * ASC Sort direction operator
      */
-    public static String OPERATOR_SORT_ASC = "+";
+    public static String SORT_ASC = "+";
 
     /**
      * DESC Sort direction operator
      */
-    public static String OPERATOR_SORT_DESC = "-";
+    public static String SORT_DESC = "-";
 
     /**
      * Name of the (optional) listing property file
@@ -161,8 +161,10 @@ public class ListingConfig {
                 DEFAULT_INDEX = loadProperty(DEFAULT_INDEX, "coodoo.listing.default.index");
                 DEFAULT_PAGE = loadProperty(DEFAULT_PAGE, "coodoo.listing.default.page");
                 DEFAULT_LIMIT = loadProperty(DEFAULT_LIMIT, "coodoo.listing.default.limit");
+
                 FILTER_TYPE_DISJUNCTION = loadProperty(FILTER_TYPE_DISJUNCTION, "coodoo.listing.filter.type.disjunction");
-                OR_TO_IN_LIMIT = loadProperty(OR_TO_IN_LIMIT, "coodoo.listing.or.to.in.imit");
+                OR_LIMIT = loadProperty(OR_LIMIT, "coodoo.listing.or.limit");
+
                 OPERATOR_NOT = loadProperty(OPERATOR_NOT, "coodoo.listing.operator.not");
                 OPERATOR_NOT_WORD_BLANK = loadProperty(OPERATOR_NOT_WORD_BLANK, "coodoo.listing.operator.not.word");
                 OPERATOR_OR = loadProperty(OPERATOR_OR, "coodoo.listing.operator.or");
@@ -176,10 +178,12 @@ public class ListingConfig {
                 OPERATOR_TO = loadProperty(OPERATOR_TO, "coodoo.listing.operator.to");
                 OPERATOR_TO_WORD_BLANK = loadProperty(OPERATOR_TO_WORD_BLANK, "coodoo.listing.operator.to.word");
                 OPERATOR_NULL = loadProperty(OPERATOR_NULL, "coodoo.listing.operator.null");
+
                 WILDCARD_MANY = loadProperty(WILDCARD_MANY, "coodoo.listing.wildcard.many");
                 WILDCARD_ONE = loadProperty(WILDCARD_ONE, "coodoo.listing.wildcard.one");
-                OPERATOR_SORT_ASC = loadProperty(OPERATOR_SORT_ASC, "coodoo.listing.operator.sort.asc");
-                OPERATOR_SORT_DESC = loadProperty(OPERATOR_SORT_DESC, "coodoo.listing.operator.sort.desc");
+
+                SORT_ASC = loadProperty(SORT_ASC, "coodoo.listing.sort.asc");
+                SORT_DESC = loadProperty(SORT_DESC, "coodoo.listing.sort.desc");
 
             }
         } catch (IOException e) {

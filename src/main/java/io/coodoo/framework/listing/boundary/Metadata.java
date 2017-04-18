@@ -16,63 +16,91 @@ package io.coodoo.framework.listing.boundary;
  */
 public class Metadata {
 
-    private long count;
-    private int currentPage;
-    private int numPages;
-    private int limit;
+    private Long count;
+    private Integer currentPage;
+    private Integer numPages;
+    private Integer limit;
     private String sort;
-    private int startIndex;
-    private int endIndex;
+    private Integer startIndex;
+    private Integer endIndex;
 
     public Metadata(Long count, ListingParameters listingQueryParams) {
         this(count, listingQueryParams.getPage(), listingQueryParams.getLimit(), listingQueryParams.getSortAttribute());
     }
 
-    public Metadata(Long count, int currentPage, int itemsPerPage) {
+    public Metadata(Long count, Integer currentPage, Integer itemsPerPage) {
         this(count, currentPage, itemsPerPage, null);
     }
 
-    public Metadata(Long count, int currentPage, int limit, String sort) {
+    public Metadata(Long count, Integer currentPage, Integer limit, String sort) {
+
         this.count = count;
         this.currentPage = currentPage;
-        this.limit = limit;
         this.sort = sort;
 
-        numPages = count.intValue() / limit + (count.intValue() % limit != 0 ? 1 : 0);
-        if (count < limit) {
-            numPages = 1;
-        }
+        if (count == null || count == 0) {
 
-        startIndex = (limit * currentPage) - limit + 1;
-        endIndex = limit * currentPage;
-        if (endIndex > count) {
-            endIndex = count.intValue();
-        }
+            this.limit = limit;
+            this.numPages = 1;
+            this.startIndex = 1;
+            this.endIndex = 1;
 
+        } else if (limit == null || limit == 0) {
+
+            this.limit = 0;
+            this.numPages = 1;
+            this.startIndex = 1;
+            this.endIndex = count.intValue();
+
+        } else {
+
+            this.limit = limit;
+            if (count < limit) {
+                this.numPages = 1;
+            } else {
+                this.numPages = count.intValue() / limit + (count.intValue() % limit != 0 ? 1 : 0);
+            }
+            if (currentPage == null) {
+                this.currentPage = 1;
+            }
+            this.startIndex = (limit * this.currentPage) - limit + 1;
+            this.endIndex = limit * this.currentPage;
+            if (endIndex > count) {
+                this.endIndex = count.intValue();
+            }
+        }
     }
 
-    public long getCount() {
+    public Long getCount() {
         return count;
     }
 
-    public void setCount(long count) {
+    public void setCount(Long count) {
         this.count = count;
     }
 
-    public int getCurrentPage() {
+    public Integer getCurrentPage() {
         return currentPage;
     }
 
-    public void setCurrentPage(int currentPage) {
+    public void setCurrentPage(Integer currentPage) {
         this.currentPage = currentPage;
     }
 
-    public int getNumPages() {
+    public Integer getNumPages() {
         return numPages;
     }
 
-    public void setNumPages(int numPages) {
+    public void setNumPages(Integer numPages) {
         this.numPages = numPages;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 
     public String getSort() {
@@ -83,27 +111,19 @@ public class Metadata {
         this.sort = sort;
     }
 
-    public int getLimit() {
-        return limit;
-    }
-
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
-    public int getStartIndex() {
+    public Integer getStartIndex() {
         return startIndex;
     }
 
-    public void setStartIndex(int startIndex) {
+    public void setStartIndex(Integer startIndex) {
         this.startIndex = startIndex;
     }
 
-    public int getEndIndex() {
+    public Integer getEndIndex() {
         return endIndex;
     }
 
-    public void setEndIndex(int endIndex) {
+    public void setEndIndex(Integer endIndex) {
         this.endIndex = endIndex;
     }
 
