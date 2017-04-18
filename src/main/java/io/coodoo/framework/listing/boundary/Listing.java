@@ -18,7 +18,7 @@ public class Listing {
      * <ul>
      * <li><strong>filter</strong>: The filter value gets applied to every column of the table. Every row where a column matches this filter will be part of the
      * result (disjunctive). It can be used as a sort of global search on a Table.</li>
-     * <li><strong>filter-<i>xxx</i></strong>: filter attributes where <i>xxx</x> is the row name (attribute of the target entity) and the filter value the
+     * <li><strong>filter-<i>xxx</i></strong>: filter attributes where <i>xxx</i> is the row name (attribute of the target entity) and the filter value the
      * filter for that row. Every row where all filter attributes matches will be part of the result (conjunctive).</li>
      * <li><strong>sort</strong>: Given a row name will sort the result in ascending order, to get a descending sorted result a the row name must start with
      * "-"</li>
@@ -30,6 +30,7 @@ public class Listing {
      * <li><strong>index</strong>: Index (default = 0)</li>
      * </ul>
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param parameters defines the listing queue. It contains optional query parameters as described above
@@ -53,6 +54,7 @@ public class Listing {
     /**
      * Gets the list of found instances
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param parameters defines the listing queue. It contains optional query parameters as described above
@@ -84,6 +86,7 @@ public class Listing {
     /**
      * Gets the count of the found instances of the target entity
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param parameters defines the listing queue. It contains optional query parameters as described above
@@ -105,6 +108,7 @@ public class Listing {
     /**
      * Gets the listing result
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
@@ -118,6 +122,7 @@ public class Listing {
     /**
      * Gets the list of found instances
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
@@ -131,6 +136,7 @@ public class Listing {
     /**
      * Gets the count of the found instances of the target entity
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
@@ -144,6 +150,7 @@ public class Listing {
     /**
      * Gets the listing result
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
@@ -158,6 +165,7 @@ public class Listing {
     /**
      * Gets the list of found instances
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
@@ -172,6 +180,7 @@ public class Listing {
     /**
      * Gets the count of the found instances of the target entity
      * 
+     * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
      * @param page Current page (pagination)
