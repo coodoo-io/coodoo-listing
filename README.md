@@ -99,17 +99,17 @@ public void CarService {
 
 ## Filter options
 
-| Option                   | Operator | Example       | Keyword | Example          | Restrictions                              |
-|--------------------------|----------|---------------|---------|------------------|-------------------------------------------|
-| Negation                 | !        | !Mercedes     | NOT     | NOT Mercedes     |                                           |
-| Value disjunction        | |        | Mercedes|Audi | OR      | Mercedes OR Audi |                                           |
-| Less than                | <        | <200          | LT      | LT 200           | Only Numbers and Dates                    |
-| Greater than             | >        | >200          | GT      | GT 200           | Only Numbers and Dates                    |
-| Range                    | -        | 200-400       | TO      | 200 TO 400       | Only Numbers and Dates                    |
-| No Value                 |          |               | NULL    | NULL             |                                           |
-| Like comparison          | ~        | ~200          | LIKE    | LIKE 200         | Only Numbers (Texts does this by default) |
-| Wildcard one character   | ?        | A?di          |         |                  | Only Texts & Numbers                      |
-| Wildcard many characters | *        | A*            |         |                  | Only Texts & Numbers                      |
+| Option                   | Key     | Example          | Key      | Example       | Limitation                           | 
+|--------------------------|---------|------------------|----------|---------------|--------------------------------------|
+| Negation                 | NOT     | NOT BMW          | !        | !BMW          |                                      |
+| Value disjunction        | OR      | BMW OR Audi      | &#124;   | BMW&#124;Audi |                                      |
+| Less than                | LT      | LT 200           | <        | <200          | Numbers, Dates                       |
+| Greater than             | GT      | GT 200           | >        | >200          | Numbers, Dates                       |
+| Range                    | TO      | 200 TO 400       | -        | 200-400       | Numbers, Dates                       |
+| No Value                 | NULL    | NULL             |          |               |                                      |
+| Like comparison          | LIKE    | LIKE 200         | ~        | ~200          | Numbers (Texts does this by default) |
+| Wildcard one character   |         |                  | ?        | A?di          | Texts, Numbers                       |
+| Wildcard many characters |         |                  | *        | A*            | Texts, Numbers                       |
 
 [See examples here](https://github.com/coodoo-io/coodoo-framework-showcase/tree/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples)
 
@@ -156,7 +156,6 @@ It can be used as a sort of global search on a Table.
 ListingParameters listingParameters = new ListingParameters();
 listingParameters.setFilter("150");
 return Listing.getListingResult(entityManager, Car.class, listingParameters);
-}
 ```
 Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?filter=150`
 
