@@ -102,7 +102,7 @@ public void CarService {
 | Option                   | Key       | Example            | Key        | Example         | Limitation     |
 |--------------------------|-----------|--------------------|------------|-----------------|----------------|
 | Negation                 | `NOT`     | `NOT BMW`          | `!`        | `!BMW`          |                |
-| Value disjunction        | `OR`      | `BMW OR Audi`      | `&#124;`   | `BMW&#124;Audi` |                |
+| Value disjunction        | `OR`      | `BMW OR Audi`      | `|`        | `BMW|Audi`      |                |
 | Less than                | `LT`      | `LT 200`           | `<`        | `<200`          | Numbers, Dates |
 | Greater than             | `GT`      | `GT 200`           | `>`        | `>200`          | Numbers, Dates |
 | Range                    | `TO`      | `200 TO 400`       | `-`        | `200-400`       | Numbers, Dates |
