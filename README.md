@@ -99,17 +99,17 @@ public void CarService {
 
 ## Filter options
 
-| Option                   | Key       | Example            | Key        | Example         | Limitation     |
-|--------------------------|-----------|--------------------|------------|-----------------|----------------|
-| Negation                 | `NOT`     | `NOT BMW`          | `!`        | `!BMW`          |                |
-| Value disjunction        | `OR`      | `BMW OR Audi`      | `|`        | `BMW|Audi`      |                |
-| Less than                | `LT`      | `LT 200`           | `<`        | `<200`          | Numbers, Dates |
-| Greater than             | `GT`      | `GT 200`           | `>`        | `>200`          | Numbers, Dates |
-| Range                    | `TO`      | `200 TO 400`       | `-`        | `200-400`       | Numbers, Dates |
-| No Value                 | `NULL`    | `NUL`L             |            |                 |                |
-| Like comparison          | `LIKE`    | `LIKE 200`         | `~`        | `~200`          | Numbers        |
-| Wildcard one character   |           |                    | `?`        | `A?di`          | Texts, Numbers |
-| Wildcard many characters |           |                    | `*`        | `A*`            | Texts, Numbers |
+| Option                   | Key       | Example            | Key                 | Example                    | Limitation     |
+|--------------------------|-----------|--------------------|---------------------|----------------------------|----------------|
+| Negation                 | `NOT`     | `NOT BMW`          | `!`                 | `!BMW`                     |                |
+| Value disjunction        | `OR`      | `BMW OR Audi`      | <code>&#124;</code> | <code>BMW&#124;Audi</code> |                |
+| Less than                | `LT`      | `LT 200`           | `<`                 | `<200`                     | Numbers, Dates |
+| Greater than             | `GT`      | `GT 200`           | `>`                 | `>200`                     | Numbers, Dates |
+| Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
+| No Value                 | `NULL`    | `NUL`L             |                     |                            |                |
+| Like comparison          | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Numbers        |
+| Wildcard one character   |           |                    | `?`                 | `A?di`                     | Texts, Numbers |
+| Wildcard many characters |           |                    | `*`                 | `A*`                       | Texts, Numbers |
 
 [See examples here](https://github.com/coodoo-io/coodoo-framework-showcase/tree/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples)
 
