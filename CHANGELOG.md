@@ -9,6 +9,14 @@
 
 
 
+<a name="1.4.3"></a>
+
+## 1.4.3 (2017-04-25)
+
+### Bug Fixes
+
+ * Removed rebel nature
+
 
 <a name="1.4.2"></a>
 
