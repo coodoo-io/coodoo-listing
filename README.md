@@ -248,9 +248,7 @@ All release changes can be viewed on our [changelog](./CHANGELOG.md).
 
 ## Maintainers
 
-[Markus Kühle](https://github.com/mkuehle)
-
-[Arend Kühle](https://github.com/laugen)
+[coodoo](https://github.com/orgs/coodoo-io/people)
 
 ## Contribute
 
