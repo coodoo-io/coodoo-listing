@@ -9,9 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.Id;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -21,7 +19,6 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
-import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
 import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 
 /**
@@ -55,12 +52,7 @@ public class ListingQuery<T> {
             Map<String, String> filterAttributes = new HashMap<>();
             filterAttributes.put(ListingConfig.FILTER_TYPE_DISJUNCTION, "this just enables an OR-statement for all the fields");
 
-            // go for all fields that are defined as columns except if annotated with @ListingFilterIgnore
-            for (Field field : ListingUtil.getFields(domainClass)) {
-                if ((field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(Id.class)) && !field.isAnnotationPresent(ListingFilterIgnore.class)) {
-                    filterAttributes.put(field.getName(), filter);
-                }
-            }
+            ListingUtil.getFilterFields(domainClass).forEach(field -> filterAttributes.put(field.getName(), filter));
             return filterByAttributes(filterAttributes);
         }
         return this;

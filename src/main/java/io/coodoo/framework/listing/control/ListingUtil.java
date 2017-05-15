@@ -4,14 +4,22 @@ package io.coodoo.framework.listing.control;
  * @author coodoo GmbH (coodoo.io)
  */
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
+import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnoreFields;
 
 public final class ListingUtil {
 
@@ -32,6 +40,32 @@ public final class ListingUtil {
         Class<?> inheritanceClass = targetClass;
         while (inheritanceClass != null) {
             fields.addAll(Arrays.asList(inheritanceClass.getDeclaredFields()));
+            inheritanceClass = inheritanceClass.getSuperclass();
+        }
+        return fields;
+    }
+
+    public static List<Field> getFilterFields(Class<?> targetClass) {
+
+        List<Field> fields = new ArrayList<>();
+        List<String> ignoreFields = new ArrayList<>();
+        Class<?> inheritanceClass = targetClass;
+
+        while (inheritanceClass != null) {
+            if (inheritanceClass.isAnnotationPresent(ListingFilterIgnoreFields.class)) {
+                ignoreFields.addAll(Arrays.asList(inheritanceClass.getAnnotation(ListingFilterIgnoreFields.class).value()));
+            }
+            for (Field field : inheritanceClass.getDeclaredFields()) {
+                // There is no need to check the JPA identifier and transient fields are a irrelevant
+                if (!field.isAnnotationPresent(Id.class) && !field.isAnnotationPresent(Transient.class)
+                // Defined to ignore
+                                && !field.isAnnotationPresent(ListingFilterIgnore.class) && !ignoreFields.contains(field.getName())
+                                // Ignore collections, final and static fields
+                                && !Collection.class.isAssignableFrom(field.getType()) && !Modifier.isFinal(field.getModifiers())
+                                && !Modifier.isStatic(field.getModifiers())) {
+                    fields.add(field);
+                }
+            }
             inheritanceClass = inheritanceClass.getSuperclass();
         }
         return fields;
