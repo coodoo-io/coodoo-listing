@@ -54,9 +54,6 @@ Add the following dependency to your project ([published on Maven Central](http:
 @Path("/cars")
 public class ListingResource {
 
-    @Inject
-    ListingService listingService;
-
     @GET
     public ListingResult<Car> getCarsListing(@BeanParam ListingParameters listingParameters) {
 
