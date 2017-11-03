@@ -103,7 +103,7 @@ public void CarService {
 | Less than                | `LT`      | `LT 200`           | `<`                 | `<200`                     | Numbers, Dates |
 | Greater than             | `GT`      | `GT 200`           | `>`                 | `>200`                     | Numbers, Dates |
 | Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
-| No Value                 | `NULL`    | `NUL`L             |                     |                            |                |
+| No Value                 | `NULL`    | `NULL`             |                     |                            |                |
 | Like comparison          | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Numbers        |
 | Wildcard one character   |           |                    | `?`                 | `A?di`                     | Texts, Numbers |
 | Wildcard many characters |           |                    | `*`                 | `A*`                       | Texts, Numbers |
