@@ -9,6 +9,15 @@
 
 
 
+<a name="1.4.4"></a>
+
+## 1.4.4 (2017-12-18)
+
+### Bug Fixes
+
+ *  Removed useless but problematic null condition in `ListingParameters.getLimit()`
+
+
 <a name="1.4.3"></a>
 
 ## 1.4.3 (2017-04-25)

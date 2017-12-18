@@ -75,8 +75,6 @@ public class ListingParameters {
     public Integer getLimit() {
         if (limit == null) {
             return ListingConfig.DEFAULT_LIMIT;
-        } else if (limit == 0) {
-            return null;
         }
         return limit;
     }
