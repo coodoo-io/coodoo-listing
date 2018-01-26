@@ -96,17 +96,31 @@ public void CarService {
 
 ## Filter options
 
-| Option                   | Key       | Example            | Key                 | Example                    | Limitation     |
+| Option                   | Word      | Example            | Character           | Example                    | Limitation     |
 |--------------------------|-----------|--------------------|---------------------|----------------------------|----------------|
 | Negation                 | `NOT`     | `NOT BMW`          | `!`                 | `!BMW`                     |                |
 | Value disjunction        | `OR`      | `BMW OR Audi`      | <code>&#124;</code> | <code>BMW&#124;Audi</code> |                |
 | Less than                | `LT`      | `LT 200`           | `<`                 | `<200`                     | Numbers, Dates |
 | Greater than             | `GT`      | `GT 200`           | `>`                 | `>200`                     | Numbers, Dates |
 | Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
-| No Value                 | `NULL`    | `NULL`             |                     |                            |                |
+| No value                 | `NULL`    | `NULL`             |                     |                            |                |
+| Value only               | `NOT NULL` | `NOT NULL`        |                     |                            |                |
 | Like comparison          | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Numbers        |
 | Wildcard one character   |           |                    | `?`                 | `A?di`                     | Texts, Numbers |
 | Wildcard many characters |           |                    | `*`                 | `A*`                       | Texts, Numbers |
+
+### Date filter options
+| Option          | Example                 | Description                                              |
+|-----------------|-------------------------|----------------------------------------------------------|
+|One whole day    | `23.03.2015`            | 23.03.2015 (Time range 00:00:00.000 - 23:59:59.999)      |
+|One whole month  | `03.2015`               | From 01.03.2015 to 31.03.2015                            |
+|One whole year   | `2015`                  | From 01.01.2015 to 31.12.2015                            |
+|Period           | `15.01.2018-05.02.2018` | From 15.01.2018 to 05.02.2018                            |
+|Period           | `10.10.2010 TO 2012`    | Specific day up to all of the year 2012                  |
+|Negation         | `!23.03.2015`           | All but that one day                                     |
+|Negated period   | `NOT 2011 TO 2014`      | Everything but no date between 31.12.2013 and 01.01.2015 |
+|After a day      | `>04.10.1983`           | 05.10.1983 and all after                                 |
+|Before a year    | `LT 2000`               | 31.12.1999 and all before                                |
 
 [See examples here](https://github.com/coodoo-io/coodoo-framework-showcase/tree/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples)
 
