@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -543,16 +544,39 @@ public class ListingQuery<T> {
         return this;
     }
 
-    public ListingQuery<T> sort(String attribute, boolean asc) {
-        if (attribute == null) {
-            return this;
-        }
-        if (asc) {
-            query.orderBy(criteriaBuilder.asc(root.get(attribute)));
-        } else {
-            query.orderBy(criteriaBuilder.desc(root.get(attribute)));
+    public ListingQuery<T> sort(String attribute) {
+
+        if (attribute != null && !attribute.isEmpty()) {
+
+            String[] attributes = attribute.split(";");
+
+            if (attributes.length == 1) {
+                query.orderBy(getOrder(attribute));
+            } else {
+                Order[] orders = new Order[attributes.length];
+                for (int i = 0; i < attributes.length; i++) {
+                    orders[i] = getOrder(attributes[i]);
+                }
+                query.orderBy(orders);
+            }
         }
         return this;
+    }
+
+    private Order getOrder(String attribute) {
+
+        String sort = attribute;
+
+        if (sort.startsWith(ListingConfig.SORT_DESC)) {
+            sort = sort.substring(ListingConfig.SORT_DESC.length());
+        }
+        if (sort.startsWith(ListingConfig.SORT_ASC)) {
+            sort = sort.substring(ListingConfig.SORT_ASC.length());
+        }
+        if (attribute.startsWith(ListingConfig.SORT_DESC)) {
+            return criteriaBuilder.desc(root.get(sort));
+        }
+        return criteriaBuilder.asc(root.get(sort));
     }
 
     public CriteriaQuery<T> getQuery() {

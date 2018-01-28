@@ -9,6 +9,15 @@
 
 
 
+<a name="1.4.5"></a>
+
+## 1.4.5 (2017-12-18)
+
+### Features
+
+ *  Multiple sort attributes when using semicolon as separator
+
+
 <a name="1.4.4"></a>
 
 ## 1.4.4 (2017-12-18)

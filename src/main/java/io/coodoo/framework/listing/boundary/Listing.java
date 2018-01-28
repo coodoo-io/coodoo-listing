@@ -65,7 +65,7 @@ public class Listing {
 
         List<T> list = new ListingQuery<>(entityManager, entityClass)
                         // apply sorting
-                        .sort(parameters.getSortAttribute(), parameters.isSortAsc())
+                        .sort(parameters.getSortAttribute())
                         // disjunctive filter on the whole table
                         .filterAllAttributes(parameters.getFilter())
                         // column specific conjunctive filter
