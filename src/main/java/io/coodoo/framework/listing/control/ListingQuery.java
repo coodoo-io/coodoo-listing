@@ -548,7 +548,7 @@ public class ListingQuery<T> {
 
         if (attribute != null && !attribute.isEmpty()) {
 
-            String[] attributes = attribute.split(";");
+            String[] attributes = attribute.trim().split(";");
 
             if (attributes.length == 1) {
                 query.orderBy(getOrder(attribute));
@@ -565,7 +565,7 @@ public class ListingQuery<T> {
 
     private Order getOrder(String attribute) {
 
-        String sort = attribute;
+        String sort = attribute.trim();
 
         if (sort.startsWith(ListingConfig.SORT_DESC)) {
             sort = sort.substring(ListingConfig.SORT_DESC.length());

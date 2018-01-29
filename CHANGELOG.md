@@ -9,9 +9,18 @@
 
 
 
+<a name="1.4.6"></a>
+
+## 1.4.6 (2018-01-29)
+
+### Features
+
+ *  Ascending indicator "+" is removed by URL, so the sort attribute needed to get trimmed
+
+
 <a name="1.4.5"></a>
 
-## 1.4.5 (2017-12-18)
+## 1.4.5 (2018-01-28)
 
 ### Features
 
