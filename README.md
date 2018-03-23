@@ -105,9 +105,12 @@ public void CarService {
 | Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
 | No value                 | `NULL`    | `NULL`             |                     |                            |                |
 | Value only               | `NOT NULL` | `NOT NULL`        |                     |                            |                |
-| Like comparison          | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Numbers        |
+| Like comparison*         | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Texts, Numbers        |
+| Exact match              |           |                    | `"`                 | `"W124"`                   | Texts        |
 | Wildcard one character   |           |                    | `?`                 | `A?di`                     | Texts, Numbers |
 | Wildcard many characters |           |                    | `*`                 | `A*`                       | Texts, Numbers |
+
+*Default for Strings
 
 ### Date filter options
 | Option          | Example                 | Description                                              |
