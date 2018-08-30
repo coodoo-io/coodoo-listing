@@ -1,5 +1,6 @@
 package io.coodoo.framework.listing.boundary;
 
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,13 +124,13 @@ public class ListingParameters {
     }
 
     public void addFilterAttributes(String filter, String value) {
-        filterAttributes.put(filter, value);
+        filterAttributes.put(filter, URLDecoder.decode(value));
     }
 
     public Map<String, String> getFilterAttributes() {
 
         if (uriInfo != null) {
-            MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+            MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters(true);
 
             for (Map.Entry<String, List<String>> queryParam : queryParams.entrySet()) {
                 String queryParamAttribute = queryParam.getKey();
@@ -139,7 +140,7 @@ public class ListingParameters {
                 queryParamAttribute = queryParamAttribute.substring("filter-".length(), queryParamAttribute.length());
                 String filterVal = StringUtils.trimToNull(queryParam.getValue().get(0));
                 if (filterVal != null) {
-                    filterAttributes.put(queryParamAttribute, filterVal);
+                    filterAttributes.put(queryParamAttribute, URLDecoder.decode(filterVal));
                 }
             }
         }
