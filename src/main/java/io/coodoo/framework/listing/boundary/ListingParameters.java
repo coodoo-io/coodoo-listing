@@ -140,7 +140,7 @@ public class ListingParameters {
                 queryParamAttribute = queryParamAttribute.substring("filter-".length(), queryParamAttribute.length());
                 String filterVal = StringUtils.trimToNull(queryParam.getValue().get(0));
                 if (filterVal != null) {
-                    filterAttributes.put(queryParamAttribute, filterVal);
+                    filterAttributes.put(queryParamAttribute, URLDecoder.decode(filterVal));
                 }
             }
         }
