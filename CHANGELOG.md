@@ -7,7 +7,17 @@
 -->
 
 
+<a name="1.4.7"></a>
 
+## 1.4.7 (2018-10-19)
+
+### Features
+
+ *  It is now possible to send FilterAttributes as Uri Encoded String
+
+### Bug Fixes
+
+ * IllegalStateException ("Duplicate key...") in ListingQuery.addToWhereConstraint() fixed
 
 <a name="1.4.6"></a>
 
