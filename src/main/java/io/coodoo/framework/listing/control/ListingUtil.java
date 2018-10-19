@@ -34,18 +34,10 @@ public final class ListingUtil {
     private ListingUtil() {}
 
     public static List<Field> getFields(Class<?> targetClass) {
-
-        List<Field> fields = new ArrayList<>();
-
-        Class<?> inheritanceClass = targetClass;
-        while (inheritanceClass != null) {
-            fields.addAll(Arrays.asList(inheritanceClass.getDeclaredFields()));
-            inheritanceClass = inheritanceClass.getSuperclass();
-        }
-        return fields;
+        return getFields(targetClass, false);
     }
 
-    public static List<Field> getFilterFields(Class<?> targetClass) {
+    public static List<Field> getFields(Class<?> targetClass, boolean allColumnFields) {
 
         List<Field> fields = new ArrayList<>();
         List<String> ignoreFields = new ArrayList<>();
@@ -56,10 +48,11 @@ public final class ListingUtil {
                 ignoreFields.addAll(Arrays.asList(inheritanceClass.getAnnotation(ListingFilterIgnoreFields.class).value()));
             }
             for (Field field : inheritanceClass.getDeclaredFields()) {
+
                 // There is no need to check the JPA identifier and transient fields are a irrelevant
-                if (!field.isAnnotationPresent(Id.class) && !field.isAnnotationPresent(Transient.class)
+                if ((allColumnFields || !field.isAnnotationPresent(Id.class)) && !field.isAnnotationPresent(Transient.class)
                 // Defined to ignore
-                                && !field.isAnnotationPresent(ListingFilterIgnore.class) && !ignoreFields.contains(field.getName())
+                                && (allColumnFields || !field.isAnnotationPresent(ListingFilterIgnore.class) && !ignoreFields.contains(field.getName()))
                                 // Ignore collections, final and static fields
                                 && !Collection.class.isAssignableFrom(field.getType()) && !Modifier.isFinal(field.getModifiers())
                                 && !Modifier.isStatic(field.getModifiers())) {
