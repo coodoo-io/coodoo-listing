@@ -53,7 +53,7 @@ public class ListingQuery<T> {
             Map<String, String> filterAttributes = new HashMap<>();
             filterAttributes.put(ListingConfig.FILTER_TYPE_DISJUNCTION, "this just enables an OR-statement for all the fields");
 
-            ListingUtil.getFilterFields(domainClass).forEach(field -> filterAttributes.put(field.getName(), filter));
+            ListingUtil.getFields(domainClass).forEach(field -> filterAttributes.put(field.getName(), filter));
             return filterByAttributes(filterAttributes);
         }
         return this;
@@ -96,7 +96,8 @@ public class ListingQuery<T> {
 
             Predicate predicate = null;
             List<ListingPredicate> filters = new ArrayList<>();
-            Map<String, Field> fieldMap = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
+            Map<String, Field> fieldMap =
+                            ListingUtil.getFields(domainClass, true).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
 
             if (listingPredicate.hasPredicates()) {
                 filters.addAll(listingPredicate.getPredicates());
