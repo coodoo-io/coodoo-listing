@@ -4,15 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import java.net.URI;
-import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.PathSegment;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +39,19 @@ public class ListingParametersTest {
     }
 
     @Test
+    public void testGetLimit_noLimit() {
+
+        classUnderTest.setLimit(0);
+
+        Integer page = classUnderTest.getPage();
+
+        Integer limit = classUnderTest.getLimit();
+
+        assertThat(page, equalTo(1));
+        assertThat(limit, equalTo(0));
+    }
+
+    @Test
     public void testGetSortAttribute_set() {
 
         classUnderTest.setSortAttribute("fisch");
@@ -55,12 +60,12 @@ public class ListingParametersTest {
 
         assertThat(sortAttribute, equalTo("fisch"));
     }
-    
+
     @Test
     public void testGetDecodedFilterAttributes_get() {
-    	classUnderTest.addFilterAttributes("test", "%2B");
-    	Map<String, String> result = classUnderTest.getFilterAttributes();
-    	assertThat(result.get("test"), equalTo("+"));
+        classUnderTest.addFilterAttributes("test", "%2B");
+        Map<String, String> result = classUnderTest.getFilterAttributes();
+        assertThat(result.get("test"), equalTo("+"));
     }
 
 }

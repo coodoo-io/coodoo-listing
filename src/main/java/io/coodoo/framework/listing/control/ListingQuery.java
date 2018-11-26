@@ -601,7 +601,7 @@ public class ListingQuery<T> {
         if (startPosition != null) {
             typedQuery.setFirstResult(startPosition);
         }
-        if (limit != null) {
+        if (limit != null && limit > 0) {
             typedQuery.setMaxResults(limit);
         }
         return typedQuery.getResultList();
