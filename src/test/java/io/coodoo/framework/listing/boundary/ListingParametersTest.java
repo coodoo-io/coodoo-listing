@@ -68,4 +68,16 @@ public class ListingParametersTest {
         assertThat(result.get("test"), equalTo("+"));
     }
 
+    @Test
+    public void testGetPage() throws Exception {
+
+        classUnderTest.setLimit(0);
+        classUnderTest.setPage(null);
+        classUnderTest.setIndex(1);
+
+        Integer page = classUnderTest.getPage();
+
+        assertThat(page, equalTo(1));
+    }
+
 }
