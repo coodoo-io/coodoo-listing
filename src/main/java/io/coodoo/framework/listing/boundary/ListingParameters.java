@@ -63,12 +63,12 @@ public class ListingParameters {
      * @return index for pagination (position in whole list where current pagination page starts)
      */
     public Integer getIndex() {
-        if (index == null) {
-            // the index can be calculated if page and limit are given
-            if (page != null) {
-                return (page - 1) * getLimit(); // getLimit() finds the given limit or takes the default limit as fallback
-            }
-            // could not calculate the index -> use default
+        // the index can be calculated if page and limit are given
+        if (index == null && page != null) {
+            return (page - 1) * getLimit(); // getLimit() finds the given limit or takes the default limit as fallback
+        }
+        // could not calculate the index -> use default
+        if (index == null || index < 0) {
             return ListingConfig.DEFAULT_INDEX;
         }
         return index;

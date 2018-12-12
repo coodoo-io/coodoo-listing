@@ -69,15 +69,210 @@ public class ListingParametersTest {
     }
 
     @Test
-    public void testGetPage() throws Exception {
+    public void testGetIndex() throws Exception {
+
+        Integer expected = 77;
+        classUnderTest.setIndex(expected);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_DefaultValue() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_INDEX;
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_zero() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_INDEX;
 
         classUnderTest.setLimit(0);
-        classUnderTest.setPage(null);
-        classUnderTest.setIndex(1);
 
-        Integer page = classUnderTest.getPage();
+        Integer result = classUnderTest.getIndex();
 
-        assertThat(page, equalTo(1));
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_negative() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_INDEX;
+
+        classUnderTest.setLimit(-1);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_withPage() throws Exception {
+
+        Integer expected = 820;
+
+        classUnderTest.setPage(83);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_withPage1() throws Exception {
+
+        Integer expected = 0;
+
+        classUnderTest.setPage(1);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_withPageAndLimit() throws Exception {
+
+        Integer expected = 3;
+
+        classUnderTest.setPage(2);
+        classUnderTest.setLimit(3);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetIndex_withPage1AndLimit1() throws Exception {
+
+        Integer expected = 0;
+
+        classUnderTest.setPage(1);
+        classUnderTest.setLimit(1);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testSetIndex() throws Exception {
+
+        Integer expected = 77;
+
+        classUnderTest.setIndex(expected);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testSetIndex_zero() throws Exception {
+
+        Integer expected = 0;
+
+        classUnderTest.setIndex(expected);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testSetIndex_null() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_INDEX;
+
+        classUnderTest.setIndex(null);
+
+        Integer result = classUnderTest.getIndex();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_PAGE;
+
+        classUnderTest.setPage(expected);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage_neagtive() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_PAGE;
+
+        classUnderTest.setPage(-3);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage_withLimitAndIndex() throws Exception {
+
+        Integer expected = 4;
+
+        classUnderTest.setLimit(7);
+        classUnderTest.setIndex(23);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage_withLimitAndIndexNewPage() throws Exception {
+
+        Integer expected = 4;
+
+        classUnderTest.setLimit(7);
+        classUnderTest.setIndex(28);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage_withLimitZeroAndIndex() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_PAGE;
+
+        classUnderTest.setLimit(0);
+        classUnderTest.setIndex(23);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
+    }
+
+    @Test
+    public void testGetPage_withLimitAndIndexZero() throws Exception {
+
+        Integer expected = ListingConfig.DEFAULT_PAGE;
+
+        classUnderTest.setLimit(7);
+        classUnderTest.setIndex(0);
+
+        Integer result = classUnderTest.getPage();
+
+        assertThat(result, equalTo(expected));
     }
 
 }
