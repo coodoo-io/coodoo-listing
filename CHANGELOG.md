@@ -7,6 +7,20 @@
 -->
 
 
+<a name="1.4.8"></a>
+
+## 1.4.8 (2018-12-12)
+
+### Features
+
+ *  To avoid a limitation of the result list you can now set the limit to zero: `listingParameters.setLimit(0)`;
+
+### Bug Fixes
+
+ * Keywords like `AND`, `LIKE`, `NOT`, etc gets escaped before being used in regular expressions. So there is more possibilities when using custom keywords.
+ * Using a page number without limit doesn't start at the first element of the total result list anymore
+ * URI character encoding configurable (default is UTF8)
+
 <a name="1.4.7"></a>
 
 ## 1.4.7 (2018-10-19)

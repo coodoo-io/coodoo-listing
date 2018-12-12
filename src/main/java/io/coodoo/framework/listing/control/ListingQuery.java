@@ -96,8 +96,7 @@ public class ListingQuery<T> {
 
             Predicate predicate = null;
             List<ListingPredicate> filters = new ArrayList<>();
-            Map<String, Field> fieldMap =
-                            ListingUtil.getFields(domainClass, true).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
+            Map<String, Field> fieldMap = ListingUtil.getFields(domainClass, true).stream().collect(Collectors.toMap(field -> field.getName(), field -> field));
 
             if (listingPredicate.hasPredicates()) {
                 filters.addAll(listingPredicate.getPredicates());
@@ -119,10 +118,11 @@ public class ListingQuery<T> {
 
         if (StringUtils.contains(filter, ListingConfig.OPERATOR_OR) || StringUtils.contains(filter, ListingConfig.OPERATOR_OR_WORD)) {
 
-            List<String> orList = ListingUtil.split(filter.replaceAll(ListingConfig.OPERATOR_OR_WORD, ListingConfig.OPERATOR_OR));
+            List<String> orList = ListingUtil.split(filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_OR_WORD), ListingConfig.OPERATOR_OR));
             if (orList.size() > ListingConfig.OR_LIMIT) {
                 // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
-                return new ListingPredicate().in().filter(attribute, filter.replaceAll(ListingConfig.OPERATOR_OR_WORD, ListingConfig.OPERATOR_OR));
+                return new ListingPredicate().in().filter(attribute,
+                                filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_OR_WORD), ListingConfig.OPERATOR_OR));
             }
             return new ListingPredicate().or()
                             .predicates(orList.stream().map(orfilter -> createListingPredicateFilter(attribute, orfilter)).collect(Collectors.toList()));
@@ -601,7 +601,7 @@ public class ListingQuery<T> {
         if (startPosition != null) {
             typedQuery.setFirstResult(startPosition);
         }
-        if (limit != null) {
+        if (limit != null && limit > 0) {
             typedQuery.setMaxResults(limit);
         }
         return typedQuery.getResultList();

@@ -138,6 +138,11 @@ public class ListingConfig {
     public static String SORT_DESC = "-";
 
     /**
+     * URI character encoding
+     */
+    public static String URI_CHARACTER_ENCODING = "UTF8";
+
+    /**
      * Name of the (optional) listing property file
      */
     private static final String listingPropertiesFilename = "coodoo.listing.properties";
@@ -184,6 +189,8 @@ public class ListingConfig {
 
                 SORT_ASC = loadProperty(SORT_ASC, "coodoo.listing.sort.asc");
                 SORT_DESC = loadProperty(SORT_DESC, "coodoo.listing.sort.desc");
+
+                URI_CHARACTER_ENCODING = loadProperty(URI_CHARACTER_ENCODING, "coodoo.listing.uricharacterencoding");
 
             }
         } catch (IOException e) {

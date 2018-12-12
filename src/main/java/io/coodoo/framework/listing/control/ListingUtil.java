@@ -77,7 +77,17 @@ public final class ListingUtil {
     }
 
     public static List<String> split(String value) {
-        return Arrays.asList(value.split("\\|", -1));
+        return Arrays.asList(value.split(escape(ListingConfig.OPERATOR_OR), -1));
+    }
+
+    /**
+     * Escapes all RegEx control characters for the usage like in {@link String#replaceAll(String, String)} or {@link String#split(String)}
+     * 
+     * @param value may containing some RegEx control characters like <code>|</code>, <code>?</code>, or <code>*</code>
+     * @return value with escaped RegEx control characters like <code>\\|</code>, <code>\\?</code>, or <code>\\*</code>
+     */
+    public static String escape(String value) {
+        return value.replaceAll("([\\\\\\.\\[\\{\\(\\*\\+\\?\\^\\$\\|])", "\\\\$1");
     }
 
     public static Date parseDate(String dateString, boolean end) {
@@ -176,9 +186,9 @@ public final class ListingUtil {
         stringBuffer.append("^(");
         stringBuffer.append(valueRegex);
         stringBuffer.append(")(");
-        stringBuffer.append(ListingConfig.OPERATOR_TO);
+        stringBuffer.append(escape(ListingConfig.OPERATOR_TO));
         stringBuffer.append("|");
-        stringBuffer.append(ListingConfig.OPERATOR_TO_WORD);
+        stringBuffer.append(escape(ListingConfig.OPERATOR_TO_WORD));
         stringBuffer.append(")(");
         stringBuffer.append(valueRegex);
         stringBuffer.append(")$");
