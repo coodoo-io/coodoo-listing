@@ -255,6 +255,10 @@ To provide own configuration you need to add a property file named `coodoo.listi
 
 You can find a template [here](https://github.com/coodoo-io/coodoo-listing/tree/master/src/main/resources/example.coodoo.listing.properties)
 
+### Order by - Nulls last
+
+A descending sort will show null values on top. To avoid this you could change this behaviour by adding this hibernate propertiy to your project:
+`hibernate.order_by.default_null_ordering=last`
 
 ## Changelog
 
