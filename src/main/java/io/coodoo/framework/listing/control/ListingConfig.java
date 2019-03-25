@@ -208,6 +208,7 @@ public class ListingConfig {
                 BOOLEAN_TRUE = loadProperty(BOOLEAN_TRUE, "coodoo.listing.boolean.true");
                 BOOLEAN_FALSE = loadProperty(BOOLEAN_FALSE, "coodoo.listing.boolean.false");
 
+                URI_DECODE = loadProperty(URI_DECODE, "coodoo.listing.uri.decode");
                 URI_CHARACTER_ENCODING = loadProperty(URI_CHARACTER_ENCODING, "coodoo.listing.uricharacterencoding");
 
             }
@@ -247,4 +248,15 @@ public class ListingConfig {
         return value;
     }
 
+    private static boolean loadProperty(boolean value, String key) {
+        String property = properties.getProperty(key);
+        if (property != null) {
+            log.info("Listing Property {} loaded: {}", key, property);
+            Boolean booleanValue = Boolean.valueOf(property);
+            if (booleanValue != null) {
+                return booleanValue;
+            }
+        }
+        return value;
+    }
 }
