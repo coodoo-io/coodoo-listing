@@ -7,6 +7,17 @@
 -->
 
 
+<a name="1.4.9"></a>
+
+## 1.4.9 (2019-03-25)
+
+### Features
+
+ * `@ListingFilterAsString` replaced now deprecated `@ListingLikeOnNumber`. This new annotation will cast any type to string to match a filter.
+ * Configurable boolean values `ListingConfig.BOOLEAN_TRUE` and `ListingConfig.BOOLEAN_FALSE` to customize the filter.
+ * New `ListingConfig.URI_DECODE` flag decides if string values that are provided by the URL (`sortAttribute`, `filter`, `filterAttributes`) gets URI decoded (Default: `false`).
+
+
 <a name="1.4.8"></a>
 
 ## 1.4.8 (2018-12-12)

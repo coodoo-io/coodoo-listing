@@ -6,13 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Enables LIKE comparison an numerical values
+ * Independent from the used Type, this annotation will allow filtering as it was a plain old {@link String}
  * 
  * @author coodoo GmbH (coodoo.io)
- * @deprecated use {@link ListingFilterAsString}
  */
-@Deprecated
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ListingLikeOnNumber {
+public @interface ListingFilterAsString {
 }

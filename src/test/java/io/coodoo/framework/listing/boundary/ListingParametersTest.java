@@ -62,10 +62,23 @@ public class ListingParametersTest {
     }
 
     @Test
-    public void testGetDecodedFilterAttributes_get() {
+    public void testGetDecodedFilterAttributes_true() {
+
+        ListingConfig.URI_DECODE = true;
+
         classUnderTest.addFilterAttributes("test", "%2B");
         Map<String, String> result = classUnderTest.getFilterAttributes();
         assertThat(result.get("test"), equalTo("+"));
+    }
+
+    @Test
+    public void testGetDecodedFilterAttributes_false() {
+
+        ListingConfig.URI_DECODE = false;
+
+        classUnderTest.addFilterAttributes("test", "%2B");
+        Map<String, String> result = classUnderTest.getFilterAttributes();
+        assertThat(result.get("test"), equalTo("%2B"));
     }
 
     @Test

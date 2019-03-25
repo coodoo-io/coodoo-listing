@@ -125,7 +125,7 @@ public class ListingParameters {
      * @return name of the attribute the result list gets sorted by (prefix '+' for ascending (default) or '-' for descending order. E.g. '-creationDate')
      */
     public String getSortAttribute() {
-        return sortAttribute;
+        return prepare(sortAttribute);
     }
 
     /**
@@ -140,7 +140,7 @@ public class ListingParameters {
      * @return global filter string that is applied to all attributes
      */
     public String getFilter() {
-        return StringUtils.trimToNull(filter);
+        return prepare(filter);
     }
 
     /**
@@ -158,11 +158,26 @@ public class ListingParameters {
      * @param value filter value
      */
     public void addFilterAttributes(String attribute, String value) {
-        try {
-            filterAttributes.put(attribute, URLDecoder.decode(value, ListingConfig.URI_CHARACTER_ENCODING));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+
+        String preparedValue = prepare(value);
+
+        if (preparedValue != null) {
+            filterAttributes.put(attribute, preparedValue);
         }
+    }
+
+    private String prepare(String value) {
+
+        String trimmedValue = StringUtils.trimToNull(value);
+
+        if (trimmedValue != null && ListingConfig.URI_DECODE) {
+            try {
+                return URLDecoder.decode(trimmedValue, ListingConfig.URI_CHARACTER_ENCODING);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return trimmedValue;
     }
 
     /**
@@ -183,14 +198,7 @@ public class ListingParameters {
                 }
                 filterAttribute = filterAttribute.substring("filter-".length(), filterAttribute.length());
 
-                String filterValue = StringUtils.trimToNull(queryParameter.getValue().get(0));
-                if (filterValue != null) {
-                    try {
-                        filterAttributes.put(filterAttribute, URLDecoder.decode(filterValue, ListingConfig.URI_CHARACTER_ENCODING));
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+                addFilterAttributes(filterAttribute, queryParameter.getValue().get(0));
             }
         }
         return filterAttributes;

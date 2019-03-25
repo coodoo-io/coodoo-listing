@@ -138,6 +138,21 @@ public class ListingConfig {
     public static String SORT_DESC = "-";
 
     /**
+     * Filter value to match boolean true
+     */
+    public static String BOOLEAN_TRUE = "true";
+
+    /**
+     * Filter value to match boolean false
+     */
+    public static String BOOLEAN_FALSE = "false";
+
+    /**
+     * Decode URL encoding
+     */
+    public static boolean URI_DECODE = false;
+
+    /**
      * URI character encoding
      */
     public static String URI_CHARACTER_ENCODING = "UTF8";
@@ -189,6 +204,9 @@ public class ListingConfig {
 
                 SORT_ASC = loadProperty(SORT_ASC, "coodoo.listing.sort.asc");
                 SORT_DESC = loadProperty(SORT_DESC, "coodoo.listing.sort.desc");
+
+                BOOLEAN_TRUE = loadProperty(BOOLEAN_TRUE, "coodoo.listing.boolean.true");
+                BOOLEAN_FALSE = loadProperty(BOOLEAN_FALSE, "coodoo.listing.boolean.false");
 
                 URI_CHARACTER_ENCODING = loadProperty(URI_CHARACTER_ENCODING, "coodoo.listing.uricharacterencoding");
 

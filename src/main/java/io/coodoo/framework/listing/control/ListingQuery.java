@@ -20,6 +20,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
+import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
 import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 
 /**
@@ -192,66 +193,73 @@ public class ListingQuery<T> {
 
     private Predicate createPredicate(String filter, Field field) {
 
+        final String fieldName = field.getName();
+        String simpleName = field.getType().getSimpleName();
+
         // Nulls
         if (filter.matches("^" + ListingConfig.OPERATOR_NULL + "$")) {
-            return criteriaBuilder.isNull(root.get(field.getName()));
+            return criteriaBuilder.isNull(root.get(fieldName));
         }
 
-        switch (field.getType().getSimpleName()) {
+        if (field.isAnnotationPresent(ListingFilterAsString.class) || field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+            simpleName = String.class.getSimpleName();
+        }
+
+        switch (simpleName) {
 
             case "String":
 
                 // quoted values needs an exact match
                 if (ListingUtil.isQuoted(filter)) {
-                    return criteriaBuilder.equal(root.get(field.getName()), ListingUtil.removeQuotes(filter));
+                    return criteriaBuilder.equal(root.get(fieldName).as(String.class), ListingUtil.removeQuotes(filter));
                 }
-                return criteriaBuilder.like(criteriaBuilder.lower(root.get(field.getName())), ListingUtil.likeValue(filter));
+                return criteriaBuilder.like(criteriaBuilder.lower(root.get(fieldName).as(String.class)), ListingUtil.likeValue(filter));
 
             // case "LocalDate": Doesn't work in JPA 2.0...
             case "LocalDateTime":
 
                 if (ListingUtil.validDate(filter)) {
-                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDateTime(filter, false),
-                                    ListingUtil.parseDateTime(filter, true));
+                    return criteriaBuilder.between(root.get(fieldName), ListingUtil.parseDateTime(filter, false), ListingUtil.parseDateTime(filter, true));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validDate(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), ListingUtil.parseDateTime(ltFilter, false));
+                        return criteriaBuilder.lessThan(root.get(fieldName), ListingUtil.parseDateTime(ltFilter, false));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validDate(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), ListingUtil.parseDateTime(gtFilter, true));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), ListingUtil.parseDateTime(gtFilter, true));
                     }
                 }
                 Matcher dateTimeRange = Pattern.compile(ListingUtil.rangePatternDate()).matcher(filter);
                 if (dateTimeRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDateTime(dateTimeRange.group(1), false),
+                    return criteriaBuilder.between(root.get(fieldName), ListingUtil.parseDateTime(dateTimeRange.group(1), false),
                                     ListingUtil.parseDateTime(dateTimeRange.group(8), true));
                 }
                 break;
 
             case "Date":
+
                 if (ListingUtil.validDate(filter)) {
-                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDate(filter, false), ListingUtil.parseDate(filter, true));
+                    return criteriaBuilder.between(root.get(fieldName), ListingUtil.parseDate(filter, false), ListingUtil.parseDate(filter, true));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validDate(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), ListingUtil.parseDate(ltFilter, false));
+                        return criteriaBuilder.lessThan(root.get(fieldName), ListingUtil.parseDate(ltFilter, false));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validDate(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), ListingUtil.parseDate(gtFilter, true));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), ListingUtil.parseDate(gtFilter, true));
                     }
                 }
                 Matcher dateRange = Pattern.compile(ListingUtil.rangePatternDate()).matcher(filter);
                 if (dateRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), ListingUtil.parseDate(dateRange.group(1), false),
+                    return criteriaBuilder.between(root.get(fieldName), ListingUtil.parseDate(dateRange.group(1), false),
                                     ListingUtil.parseDate(dateRange.group(8), true));
                 }
                 break;
@@ -260,32 +268,29 @@ public class ListingQuery<T> {
             case "long":
 
                 if (ListingUtil.validLong(filter)) {
-                    if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
-                    }
-                    return criteriaBuilder.equal(root.get(field.getName()), Long.valueOf(filter));
+                    return criteriaBuilder.equal(root.get(fieldName), Long.valueOf(filter));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
                     String likeFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
                     if (ListingUtil.validLong(likeFilter)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(likeFilter));
+                        return criteriaBuilder.like(root.get(fieldName).as(String.class), ListingUtil.likeValue(likeFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validLong(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), Long.valueOf(ltFilter));
+                        return criteriaBuilder.lessThan(root.get(fieldName), Long.valueOf(ltFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validLong(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), Long.valueOf(gtFilter));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), Long.valueOf(gtFilter));
                     }
                 }
                 Matcher longRange = Pattern.compile(ListingUtil.rangePatternLong()).matcher(filter);
                 if (longRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Long.valueOf(longRange.group(1)), Long.valueOf(longRange.group(3)));
+                    return criteriaBuilder.between(root.get(fieldName), Long.valueOf(longRange.group(1)), Long.valueOf(longRange.group(3)));
                 }
                 break;
 
@@ -293,32 +298,29 @@ public class ListingQuery<T> {
             case "int":
 
                 if (ListingUtil.validInt(filter)) {
-                    if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
-                    }
-                    return criteriaBuilder.equal(root.get(field.getName()), Integer.valueOf(filter));
+                    return criteriaBuilder.equal(root.get(fieldName), Integer.valueOf(filter));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
                     String likeFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
                     if (ListingUtil.validInt(likeFilter)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(likeFilter));
+                        return criteriaBuilder.like(root.get(fieldName).as(String.class), ListingUtil.likeValue(likeFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validInt(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), Integer.valueOf(ltFilter));
+                        return criteriaBuilder.lessThan(root.get(fieldName), Integer.valueOf(ltFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validInt(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), Integer.valueOf(gtFilter));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), Integer.valueOf(gtFilter));
                     }
                 }
                 Matcher intRange = Pattern.compile(ListingUtil.rangePatternInt()).matcher(filter);
                 if (intRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Integer.valueOf(intRange.group(1)), Integer.valueOf(intRange.group(3)));
+                    return criteriaBuilder.between(root.get(fieldName), Integer.valueOf(intRange.group(1)), Integer.valueOf(intRange.group(3)));
                 }
                 break;
 
@@ -326,32 +328,29 @@ public class ListingQuery<T> {
             case "short":
 
                 if (ListingUtil.validShort(filter)) {
-                    if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(filter));
-                    }
-                    return criteriaBuilder.equal(root.get(field.getName()), Short.valueOf(filter));
+                    return criteriaBuilder.equal(root.get(fieldName), Short.valueOf(filter));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
                     String likeFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
                     if (ListingUtil.validShort(likeFilter)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(likeFilter));
+                        return criteriaBuilder.like(root.get(fieldName).as(String.class), ListingUtil.likeValue(likeFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validShort(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), Short.valueOf(ltFilter));
+                        return criteriaBuilder.lessThan(root.get(fieldName), Short.valueOf(ltFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validShort(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), Short.valueOf(gtFilter));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), Short.valueOf(gtFilter));
                     }
                 }
                 Matcher shortRange = Pattern.compile(ListingUtil.rangePatternShort()).matcher(filter);
                 if (shortRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), Short.valueOf(shortRange.group(1)), Short.valueOf(shortRange.group(3)));
+                    return criteriaBuilder.between(root.get(fieldName), Short.valueOf(shortRange.group(1)), Short.valueOf(shortRange.group(3)));
                 }
                 break;
 
@@ -359,32 +358,29 @@ public class ListingQuery<T> {
             case "float":
 
                 if (ListingUtil.validFloat(filter)) {
-                    if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(toFloat(filter).toString()));
-                    }
-                    return criteriaBuilder.equal(root.get(field.getName()), toFloat(filter));
+                    return criteriaBuilder.equal(root.get(fieldName), toFloat(filter));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
                     String likeFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
                     if (ListingUtil.validFloat(likeFilter)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(likeFilter));
+                        return criteriaBuilder.like(root.get(fieldName).as(String.class), ListingUtil.likeValue(likeFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validFloat(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), toFloat(ltFilter));
+                        return criteriaBuilder.lessThan(root.get(fieldName), toFloat(ltFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validFloat(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), toFloat(gtFilter));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), toFloat(gtFilter));
                     }
                 }
                 Matcher floatRange = Pattern.compile(ListingUtil.rangePatternFloat()).matcher(filter);
                 if (floatRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), toFloat(floatRange.group(1)), toFloat(floatRange.group(3)));
+                    return criteriaBuilder.between(root.get(fieldName), toFloat(floatRange.group(1)), toFloat(floatRange.group(3)));
                 }
                 break;
 
@@ -392,42 +388,39 @@ public class ListingQuery<T> {
             case "double":
 
                 if (ListingUtil.validDouble(filter)) {
-                    if (field.isAnnotationPresent(ListingLikeOnNumber.class)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(toDouble(filter).toString()));
-                    }
-                    return criteriaBuilder.equal(root.get(field.getName()), toDouble(filter));
+                    return criteriaBuilder.equal(root.get(fieldName), toDouble(filter));
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LIKE) || filter.startsWith(ListingConfig.OPERATOR_LIKE_WORD)) {
                     String likeFilter = filter.replace(ListingConfig.OPERATOR_LIKE, "").replace(ListingConfig.OPERATOR_LIKE_WORD, "");
                     if (ListingUtil.validDouble(likeFilter)) {
-                        return criteriaBuilder.like(root.get(field.getName()).as(String.class), ListingUtil.likeValue(likeFilter));
+                        return criteriaBuilder.like(root.get(fieldName).as(String.class), ListingUtil.likeValue(likeFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_LT) || filter.startsWith(ListingConfig.OPERATOR_LT_WORD)) {
                     String ltFilter = filter.replace(ListingConfig.OPERATOR_LT, "").replace(ListingConfig.OPERATOR_LT_WORD, "");
                     if (ListingUtil.validDouble(ltFilter)) {
-                        return criteriaBuilder.lessThan(root.get(field.getName()), toDouble(ltFilter));
+                        return criteriaBuilder.lessThan(root.get(fieldName), toDouble(ltFilter));
                     }
                 }
                 if (filter.startsWith(ListingConfig.OPERATOR_GT) || filter.startsWith(ListingConfig.OPERATOR_GT_WORD)) {
                     String gtFilter = filter.replace(ListingConfig.OPERATOR_GT, "").replace(ListingConfig.OPERATOR_GT_WORD, "");
                     if (ListingUtil.validDouble(gtFilter)) {
-                        return criteriaBuilder.greaterThan(root.get(field.getName()), toDouble(gtFilter));
+                        return criteriaBuilder.greaterThan(root.get(fieldName), toDouble(gtFilter));
                     }
                 }
                 Matcher doubleRange = Pattern.compile(ListingUtil.rangePatternDouble()).matcher(filter);
                 if (doubleRange.find()) {
-                    return criteriaBuilder.between(root.get(field.getName()), toDouble(doubleRange.group(1)), toDouble(doubleRange.group(3)));
+                    return criteriaBuilder.between(root.get(fieldName), toDouble(doubleRange.group(1)), toDouble(doubleRange.group(3)));
                 }
                 break;
 
             case "Boolean":
             case "boolean":
 
-                if (filter.toLowerCase().equals("true") || filter.toLowerCase().equals("false")) {
+                if (ListingConfig.BOOLEAN_TRUE.equalsIgnoreCase(filter) || ListingConfig.BOOLEAN_FALSE.equalsIgnoreCase(filter)) {
 
-                    Boolean booleanValue = filter.toLowerCase().equals("true");
-                    return criteriaBuilder.equal(root.get(field.getName()), booleanValue);
+                    Boolean booleanValue = ListingConfig.BOOLEAN_TRUE.equalsIgnoreCase(filter);
+                    return criteriaBuilder.equal(root.get(fieldName), booleanValue);
                 }
                 break;
 
@@ -440,7 +433,7 @@ public class ListingQuery<T> {
                     if (ListingUtil.isQuoted(filter)) {
                         try {
                             Enum enumValue = Enum.valueOf((Class<Enum>) field.getType(), ListingUtil.removeQuotes(filter));
-                            return criteriaBuilder.equal(root.get(field.getName()), enumValue);
+                            return criteriaBuilder.equal(root.get(fieldName), enumValue);
                         } catch (IllegalArgumentException e) {
                         }
                     }
@@ -448,7 +441,7 @@ public class ListingQuery<T> {
                     Predicate possibleEnumValues = criteriaBuilder.disjunction();
                     for (Object enumValue : field.getType().getEnumConstants()) {
                         if (enumValue.toString().toUpperCase().contains(((String) filter).toUpperCase())) {
-                            Predicate possibleEnumValue = criteriaBuilder.equal(root.get(field.getName()), enumValue);
+                            Predicate possibleEnumValue = criteriaBuilder.equal(root.get(fieldName), enumValue);
                             possibleEnumValues = criteriaBuilder.or(possibleEnumValues, possibleEnumValue);
                         }
                     }
