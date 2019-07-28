@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnore;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterIgnoreFields;
 
@@ -50,11 +51,16 @@ public final class ListingUtil {
             for (Field field : inheritanceClass.getDeclaredFields()) {
 
                 // There is no need to check the JPA identifier and transient fields are a irrelevant
-                if ((allColumnFields || !field.isAnnotationPresent(Id.class)) && !field.isAnnotationPresent(Transient.class)
-                // Defined to ignore
+                if ((allColumnFields || !field.isAnnotationPresent(Id.class))
+                                // Transient fields have no database column
+                                && !field.isAnnotationPresent(Transient.class)
+                                // Defined to ignore
                                 && (allColumnFields || !field.isAnnotationPresent(ListingFilterIgnore.class) && !ignoreFields.contains(field.getName()))
-                                // Ignore collections, final and static fields
-                                && !Collection.class.isAssignableFrom(field.getType()) && !Modifier.isFinal(field.getModifiers())
+                                // Ignore collections except they should be treated like Stings (dangerous!)
+                                && (!Collection.class.isAssignableFrom(field.getType()) || field.isAnnotationPresent(ListingFilterAsString.class))
+                                // neither final
+                                && !Modifier.isFinal(field.getModifiers())
+                                // nor static fields
                                 && !Modifier.isStatic(field.getModifiers())) {
                     fields.add(field);
                 }

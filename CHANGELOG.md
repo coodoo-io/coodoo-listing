@@ -6,6 +6,14 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.4.10"></a>
+
+## 1.4.10 (2019-07-28)
+
+### Features
+
+ * Collection fields are now accessible if annotated with `@ListingLikeOnNumber`. This only makes sense, if the database field can be string represented!
+
 
 <a name="1.4.9"></a>
 

@@ -35,13 +35,13 @@ This library gives you easy access to list your JPA entities. All you need to do
 
 ## Install
 
-Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.4.9%7Cjar)):
+Add the following dependency to your project ([published on Maven Central](http://search.maven.org/#artifactdetails%7Cio.coodoo%7Ccoodoo-listing%7C1.4.10%7Cjar)):
 
 ```xml
 <dependency>
     <groupId>io.coodoo</groupId>
     <artifactId>coodoo-listing</artifactId>
-    <version>1.4.9</version>
+    <version>1.4.10</version>
 </dependency>
 ```
 
