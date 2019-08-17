@@ -14,10 +14,7 @@
 
  * Date filter values accept any character now, not only dots, e.g. `04-10-1983`
  * Date filter values accept now also two digit years, e.g. `04-10-83`
-
-<!--
  * Date type now accepts current milliseconds as filter values
--->
 
  
 ### BREAKING CHANGES

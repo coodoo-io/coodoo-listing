@@ -10,6 +10,24 @@ import org.junit.Test;
 public class ListingUtilTest {
 
     @Test
+    public void testParseDateTime_invalid() throws Exception {
+
+        assertNull(ListingUtil.parseDateTime("Bullshit", false));
+    }
+
+    @Test
+    public void testParseDateTime_null() throws Exception {
+
+        assertNull(ListingUtil.parseDateTime(null, false));
+    }
+
+    @Test
+    public void testParseDateTime_nonExistingDate() throws Exception {
+
+        assertNull(ListingUtil.parseDateTime("29.02.50", true));
+    }
+
+    @Test
     public void testParseDateTime() throws Exception {
 
         LocalDateTime result = ListingUtil.parseDateTime("04.10.1983", false);
@@ -63,25 +81,6 @@ public class ListingUtilTest {
 
         LocalDateTime result = ListingUtil.parseDateTime("04/10/83", false);
         assertEquals("1983-10-04T00:00", result.toString());
-    }
-
-    @Test
-    public void testParseDateTime_invalid() throws Exception {
-
-        assertNull(ListingUtil.parseDateTime("Bullshit", false));
-    }
-
-    @Test
-    public void testParseDateTime_null() throws Exception {
-
-        assertNull(ListingUtil.parseDateTime(null, false));
-    }
-
-    @Test
-    public void testParseDateTime_nonExistingDate() throws Exception {
-
-        LocalDateTime result = ListingUtil.parseDateTime("29.02.50", true);
-        assertNull(result);
     }
 
     @Test
@@ -166,6 +165,33 @@ public class ListingUtilTest {
 
         LocalDateTime result = ListingUtil.parseDateTime("28.02.50", true);
         assertEquals("1950-02-28T23:59:59", result.toString());
+    }
+
+    @Test
+    public void testParseDateTime_millis() throws Exception {
+
+        LocalDateTime result = ListingUtil.parseDateTime("1566062185835", true);
+        assertEquals("2019-08-17T17:16:25.835", result.toString());
+    }
+
+    @Test
+    public void testParseDateTime_millis_booleanEndDoesntMatter() throws Exception {
+
+        assertEquals(ListingUtil.parseDateTime("1566062185835", true), ListingUtil.parseDateTime("1566062185835", false));
+    }
+
+    @Test
+    public void testParseDateTime_millis_farFuture() throws Exception {
+
+        LocalDateTime result = ListingUtil.parseDateTime("3132124400000", true);
+        assertEquals("2069-04-02T10:33:20", result.toString());
+    }
+
+    @Test
+    public void testParseDateTime_millis_smallestPossible() throws Exception {
+
+        LocalDateTime result = ListingUtil.parseDateTime("10000", true);
+        assertEquals("1970-01-01T00:00:10", result.toString());
     }
 
 }

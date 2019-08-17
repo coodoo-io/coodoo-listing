@@ -6,6 +6,7 @@ package io.coodoo.framework.listing.control;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -31,8 +32,8 @@ public final class ListingUtil {
     private static final String REGEX_SHORT = "[-+]?\\d{1,5}";
     private static final String REGEX_FLOAT = "[-+]?\\d*[.,]?\\d+";
     private static final String REGEX_DOUBLE = "[-+]?\\d*[.,]?\\d+";
-    // _______________________Group_numbers:__12______________34______________5__________
-    private static final String REGEX_DATE = "((\\d{1,2})\\D)?((\\d{1,2})\\D)?(\\d{2,4})";
+    // _______________________Group_numbers:__12______________34______________5_________
+    private static final String REGEX_DATE = "((\\d{1,2})\\D)?((\\d{1,2})\\D)?(\\d{2,})";
 
     private ListingUtil() {}
 
@@ -107,14 +108,18 @@ public final class ListingUtil {
             Matcher matcher = Pattern.compile(REGEX_DATE).matcher(dateString);
             if (matcher.find()) {
                 if (matcher.group(5) != null) {
-                    Integer year = Integer.valueOf(matcher.group(5));
-                    if (year < 100) { // only two digits of year given
-                        year += 2000; // sum it up
-                        if (year > LocalDate.now(ZoneOffset.UTC).getYear()) {
-                            year -= 100; // if it is in the future, take it back to the 20th century
-                        }
-                    }
                     try {
+                        String value = matcher.group(5);
+                        if (value.length() > 4) { // from 10k we interpret this value as milliseconds
+                            return LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(value)), ZoneOffset.UTC);
+                        }
+                        Integer year = Integer.valueOf(value);
+                        if (year < 100) { // only two digits of year given
+                            year += 2000; // sum it up
+                            if (year > LocalDate.now(ZoneOffset.UTC).getYear()) {
+                                year -= 100; // if it is in the future, take it back to the 20th century
+                            }
+                        }
                         // DD.MM.YYYY
                         if (matcher.group(2) != null && matcher.group(4) != null) {
                             Integer month = Integer.valueOf(matcher.group(4));
