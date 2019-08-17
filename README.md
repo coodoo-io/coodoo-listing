@@ -105,8 +105,8 @@ public void CarService {
 | Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
 | No value                 | `NULL`    | `NULL`             |                     |                            |                |
 | Value only               | `NOT NULL` | `NOT NULL`        |                     |                            |                |
-| Like comparison*         | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Texts, Numbers        |
-| Exact match              |           |                    | `"`                 | `"W124"`                   | Texts        |
+| Like comparison*         | `LIKE`    | `LIKE 200`         | `~`                 | `~200`                     | Texts, Numbers |
+| Exact match              |           |                    | `"`                 | `"W124"`                   | Texts          |
 | Wildcard one character   |           |                    | `?`                 | `A?di`                     | Texts, Numbers |
 | Wildcard many characters |           |                    | `*`                 | `A*`                       | Texts, Numbers |
 
@@ -124,8 +124,16 @@ public void CarService {
 |Negated period   | `NOT 2011 TO 2014`      | Everything but no date between 31.12.2013 and 01.01.2015 |
 |After a day      | `>04.10.1983`           | 05.10.1983 and all after                                 |
 |Before a year    | `LT 2000`               | 31.12.1999 and all before                                |
-
 [See examples here](https://github.com/coodoo-io/coodoo-framework-showcase/tree/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples)
+
+### Time filter options
+To filter exact times you have to use [unix time](https://en.wikipedia.org/wiki/Unix_time) and give [milliseconds since epoch](https://currentmillis.com/). Since these are absolute times it only makes sence combined with an operator like `>`, `<` and `-` (`GT `, `LT ` and ` TO `). 
+| Option          | Example                        | Description                                              |
+|-----------------|--------------------------------|----------------------------------------------------------|
+|Before           | `<1354823100000`               | All before 06.12.2012 20:45:00                           |
+|After            | `>1485862210000`               | All after 31.01.2017 12:30:10                            |
+|Period           | `1354823100000-1485862210000`  | From 06.12.2012 20:45:00 to 31.01.2017 12:30:10          |
+|Negated period   | `!1354823100000-1485862210000` | All but from 06.12.2012 20:45:00 to 31.01.2017 12:30:10  |
 
 
 ## API
