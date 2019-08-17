@@ -2,6 +2,7 @@ package io.coodoo.framework.listing.control;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
 import java.util.Properties;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -156,6 +157,12 @@ public class ListingConfig {
      * URI character encoding
      */
     public static String URI_CHARACTER_ENCODING = "UTF8";
+
+    /**
+     * ZoneId Object time zone for LocalDateTime instance creation. Default is UTC
+     */
+    public static String TIME_ZONE = "UTC";
+    public static ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);
 
     /**
      * Name of the (optional) listing property file

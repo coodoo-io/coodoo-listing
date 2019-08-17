@@ -9,7 +9,6 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -100,7 +99,8 @@ public final class ListingUtil {
     }
 
     public static Date parseDate(String dateString, boolean end) {
-        return Date.from(parseDateTime(dateString, end).toInstant(ZoneOffset.UTC));
+
+        return Date.from(parseDateTime(dateString, end).atZone(ListingConfig.ZONE_ID).toInstant());
     }
 
     public static LocalDateTime parseDateTime(String dateString, boolean end) {
@@ -111,12 +111,12 @@ public final class ListingUtil {
                     try {
                         String value = matcher.group(5);
                         if (value.length() > 4) { // from 10k we interpret this value as milliseconds
-                            return LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(value)), ZoneOffset.UTC);
+                            return LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(value)), ListingConfig.ZONE_ID);
                         }
                         Integer year = Integer.valueOf(value);
                         if (year < 100) { // only two digits of year given
                             year += 2000; // sum it up
-                            if (year > LocalDate.now(ZoneOffset.UTC).getYear()) {
+                            if (year > LocalDate.now(ListingConfig.ZONE_ID).getYear()) {
                                 year -= 100; // if it is in the future, take it back to the 20th century
                             }
                         }
