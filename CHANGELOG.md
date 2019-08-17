@@ -6,6 +6,15 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.5.0"></a>
+
+## 1.5.0 (2019-08-17)
+ 
+### BREAKING CHANGES
+ 
+ * `@ListingLikeOnNumber` got replaced by `@ListingFilterAsString` and is no more
+
+
 <a name="1.4.10"></a>
 
 ## 1.4.10 (2019-07-28)

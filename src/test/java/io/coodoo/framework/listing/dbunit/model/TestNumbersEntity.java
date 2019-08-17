@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
+import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
 
 @Entity
 @Table(name = "TEST_NUMBERS_ENTITY")
@@ -21,8 +21,8 @@ public class TestNumbersEntity {
     @Column(name = "LONG_PRIMITIVE")
     private long longPrimitive;
 
-    @ListingLikeOnNumber
-    @Column(name = "LONG_LIKE")
+    @ListingFilterAsString
+    @Column(name = "LONG_STRING")
     private Long longLike;
 
     @Column(name = "INT_CLASS")
@@ -31,8 +31,8 @@ public class TestNumbersEntity {
     @Column(name = "INT_PRIMITIVE")
     private int intPrimitive;
 
-    @ListingLikeOnNumber
-    @Column(name = "INT_LIKE")
+    @ListingFilterAsString
+    @Column(name = "INT_STRING")
     private Integer intLike;
 
     @Column(name = "SHORT_CLASS")
@@ -41,8 +41,8 @@ public class TestNumbersEntity {
     @Column(name = "SHORT_PRIMITIVE")
     private short shortPrimitive;
 
-    @ListingLikeOnNumber
-    @Column(name = "SHORT_LIKE")
+    @ListingFilterAsString
+    @Column(name = "SHORT_STRING")
     private Short shortLike;
 
     @Override

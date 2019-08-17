@@ -58,13 +58,13 @@ public class NumbersTest extends AbstractDbUnitTest {
             String line = "<TEST_NUMBERS_ENTITY ID='" + id + "'";
             line += " LONG_CLASS='" + id + "'";
             line += " LONG_PRIMITIVE='" + id + "'";
-            line += " LONG_LIKE='" + id + "'";
+            line += " LONG_STRING='" + id + "'";
             line += " INT_CLASS='" + id + "'";
             line += " INT_PRIMITIVE='" + id + "'";
-            line += " INT_LIKE='" + id + "'";
+            line += " INT_STRING='" + id + "'";
             line += " SHORT_CLASS='" + id + "'";
             line += " SHORT_PRIMITIVE='" + id + "'";
-            line += " SHORT_LIKE='" + id + "' />";
+            line += " SHORT_STRING='" + id + "' />";
             lines.add(line);
         }
         lines.add("</dataset>");

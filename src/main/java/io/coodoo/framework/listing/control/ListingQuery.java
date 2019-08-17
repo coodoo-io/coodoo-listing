@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
-import io.coodoo.framework.listing.boundary.annotation.ListingLikeOnNumber;
 
 /**
  * Creates a dynamic JPA query using Criteria API considering optional fields, e.g. a filter for attributes, sorting and result limit.
@@ -201,7 +200,7 @@ public class ListingQuery<T> {
             return criteriaBuilder.isNull(root.get(fieldName));
         }
 
-        if (field.isAnnotationPresent(ListingFilterAsString.class) || field.isAnnotationPresent(ListingLikeOnNumber.class)) {
+        if (field.isAnnotationPresent(ListingFilterAsString.class)) {
             simpleName = String.class.getSimpleName();
         }
 
