@@ -5,6 +5,8 @@ package io.coodoo.framework.listing.control;
  */
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -29,8 +31,8 @@ public final class ListingUtil {
     private static final String REGEX_SHORT = "[-+]?\\d{1,5}";
     private static final String REGEX_FLOAT = "[-+]?\\d*[.,]?\\d+";
     private static final String REGEX_DOUBLE = "[-+]?\\d*[.,]?\\d+";
-    // _______________________Group_numbers:__12______________34______________5________
-    private static final String REGEX_DATE = "((\\d{1,2}).)?((\\d{1,2}).)?(\\d{4})";
+    // _______________________Group_numbers:__12______________34______________5__________
+    private static final String REGEX_DATE = "((\\d{1,2})\\D)?((\\d{1,2})\\D)?(\\d{2,4})";
 
     private ListingUtil() {}
 
@@ -106,31 +108,41 @@ public final class ListingUtil {
             if (matcher.find()) {
                 if (matcher.group(5) != null) {
                     Integer year = Integer.valueOf(matcher.group(5));
-                    // DD.MM.YYYY
-                    if (matcher.group(2) != null && matcher.group(4) != null) {
-                        Integer month = Integer.valueOf(matcher.group(4));
-                        Integer day = Integer.valueOf(matcher.group(2));
-                        LocalDateTime date = LocalDateTime.of(year, month, day, 0, 0, 0);
+                    if (year < 100) { // only two digits of year given
+                        year += 2000; // sum it up
+                        if (year > LocalDate.now(ZoneOffset.UTC).getYear()) {
+                            year -= 100; // if it is in the future, take it back to the 20th century
+                        }
+                    }
+                    try {
+                        // DD.MM.YYYY
+                        if (matcher.group(2) != null && matcher.group(4) != null) {
+                            Integer month = Integer.valueOf(matcher.group(4));
+                            Integer day = Integer.valueOf(matcher.group(2));
+                            LocalDateTime date = LocalDateTime.of(year, month, day, 0, 0, 0);
+                            if (end) {
+                                return date.plusDays(1).minusSeconds(1);
+                            }
+                            return date;
+                        }
+                        // MM.YYYY
+                        if (matcher.group(2) != null) {
+                            Integer month = Integer.valueOf(matcher.group(2));
+                            LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
+                            if (end) {
+                                return date.plusMonths(1).minusSeconds(1);
+                            }
+                            return date;
+                        }
+                        // YYYY
+                        LocalDateTime date = LocalDateTime.of(year, 1, 1, 0, 0, 0);
                         if (end) {
-                            return date.plusDays(1).minusSeconds(1);
+                            return date.plusYears(1).minusSeconds(1);
                         }
                         return date;
+                    } catch (NumberFormatException | DateTimeException e) {
+                        return null;
                     }
-                    // MM.YYYY
-                    if (matcher.group(2) != null) {
-                        Integer month = Integer.valueOf(matcher.group(2));
-                        LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
-                        if (end) {
-                            return date.plusMonths(1).minusSeconds(1);
-                        }
-                        return date;
-                    }
-                    // YYYY
-                    LocalDateTime date = LocalDateTime.of(year, 1, 1, 0, 0, 0);
-                    if (end) {
-                        return date.plusYears(1).minusSeconds(1);
-                    }
-                    return date;
                 }
             }
         }
