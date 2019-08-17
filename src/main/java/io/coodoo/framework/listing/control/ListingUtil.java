@@ -30,7 +30,7 @@ public final class ListingUtil {
     private static final String REGEX_FLOAT = "[-+]?\\d*[.,]?\\d+";
     private static final String REGEX_DOUBLE = "[-+]?\\d*[.,]?\\d+";
     // _______________________Group_numbers:__12______________34______________5________
-    private static final String REGEX_DATE = "((\\d{1,2})\\.)?((\\d{1,2})\\.)?(\\d{4})";
+    private static final String REGEX_DATE = "((\\d{1,2}).)?((\\d{1,2}).)?(\\d{4})";
 
     private ListingUtil() {}
 
@@ -101,16 +101,15 @@ public final class ListingUtil {
     }
 
     public static LocalDateTime parseDateTime(String dateString, boolean end) {
-
-        Matcher matcher = Pattern.compile(REGEX_DATE).matcher(dateString);
-        if (matcher.find()) {
-            if (matcher.group(5) != null) {
-                Integer year = Integer.valueOf(matcher.group(5));
-                if (matcher.group(4) != null) {
-                    Integer month = Integer.valueOf(matcher.group(4));
-                    if (matcher.group(2) != null) {
+        if (dateString != null) {
+            Matcher matcher = Pattern.compile(REGEX_DATE).matcher(dateString);
+            if (matcher.find()) {
+                if (matcher.group(5) != null) {
+                    Integer year = Integer.valueOf(matcher.group(5));
+                    // DD.MM.YYYY
+                    if (matcher.group(2) != null && matcher.group(4) != null) {
+                        Integer month = Integer.valueOf(matcher.group(4));
                         Integer day = Integer.valueOf(matcher.group(2));
-                        // DD.MM.YYYY
                         LocalDateTime date = LocalDateTime.of(year, month, day, 0, 0, 0);
                         if (end) {
                             return date.plusDays(1).minusSeconds(1);
@@ -118,18 +117,21 @@ public final class ListingUtil {
                         return date;
                     }
                     // MM.YYYY
-                    LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
+                    if (matcher.group(2) != null) {
+                        Integer month = Integer.valueOf(matcher.group(2));
+                        LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0, 0);
+                        if (end) {
+                            return date.plusMonths(1).minusSeconds(1);
+                        }
+                        return date;
+                    }
+                    // YYYY
+                    LocalDateTime date = LocalDateTime.of(year, 1, 1, 0, 0, 0);
                     if (end) {
-                        return date.plusMonths(1).minusSeconds(1);
+                        return date.plusYears(1).minusSeconds(1);
                     }
                     return date;
                 }
-                // YYYY
-                LocalDateTime date = LocalDateTime.of(year, 1, 1, 0, 0, 0);
-                if (end) {
-                    return date.plusYears(1).minusSeconds(1);
-                }
-                return date;
             }
         }
         return null;

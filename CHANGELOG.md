@@ -9,10 +9,23 @@
 <a name="1.5.0"></a>
 
 ## 1.5.0 (2019-08-17)
+
+### Features
+
+ * Date filter values accept any character now, not only dots, e.g. `04-10-1983`
+
+<!--
+ * Date type now accepts current milliseconds as filter values
+-->
+
  
 ### BREAKING CHANGES
  
  * `@ListingLikeOnNumber` got replaced by `@ListingFilterAsString` and is no more
+
+### Bug Fixes
+
+ * Made date filter pattern `MM.YYYY` work
 
 
 <a name="1.4.10"></a>
