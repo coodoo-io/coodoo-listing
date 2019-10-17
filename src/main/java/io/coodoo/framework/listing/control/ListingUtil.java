@@ -84,8 +84,12 @@ public final class ListingUtil {
         return value.replaceAll("^\"|\"$", "");
     }
 
-    public static List<String> split(String value) {
+    public static List<String> splitOr(String value) {
         return Arrays.asList(value.split(escape(ListingConfig.OPERATOR_OR), -1));
+    }
+
+    public static List<String> splitAnd(String value) {
+        return Arrays.asList(value.split(escape(ListingConfig.OPERATOR_AND), -1));
     }
 
     /**

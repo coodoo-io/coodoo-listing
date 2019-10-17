@@ -127,12 +127,6 @@ public class ListingPredicate {
         return this.predicates != null && !this.predicates.isEmpty();
     }
 
-    @Override
-    public String toString() {
-        return "ListingPredicate [attribute=" + attribute + ", filter=" + filter + ", in=" + in + ", disjunctive=" + disjunctive + ", negation=" + negation
-                        + ", predicates=" + predicates + "]";
-    }
-
     public String getAttribute() {
         return attribute;
     }
@@ -179,6 +173,25 @@ public class ListingPredicate {
 
     public void setPredicates(List<ListingPredicate> predicates) {
         this.predicates = predicates;
+    }
+
+    @Override
+    public String toString() {
+        final int maxLen = 10;
+        StringBuilder builder = new StringBuilder();
+        builder.append(attribute);
+        builder.append(", filter=");
+        builder.append(filter);
+        builder.append(", in=");
+        builder.append(in);
+        builder.append(", disjunctive=");
+        builder.append(disjunctive);
+        builder.append(", negation=");
+        builder.append(negation);
+        builder.append(", predicates=");
+        builder.append(predicates != null ? predicates.subList(0, Math.min(predicates.size(), maxLen)) : null);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

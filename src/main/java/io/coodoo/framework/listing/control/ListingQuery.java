@@ -72,9 +72,22 @@ public class ListingQuery<T> {
                 String filter = filterAttributes.get(attribute);
 
                 if (StringUtils.contains(attribute, ListingConfig.OPERATOR_OR)) {
-                    // a filter can be applied on many fields, joined by a "|", those get conjuncted
-                    listingPredicate.addPredicate(new ListingPredicate().or().predicates(ListingUtil.split(attribute).stream()
-                                    .map(orAttribute -> createListingPredicate(orAttribute, filter)).collect(Collectors.toList())));
+                    // a filter can be applied on many fields, joined by a "|" (OPERATOR_OR), those get conjuncted
+                    List<String> orAttributes = ListingUtil.splitOr(attribute);
+
+                    // in order to filter conjunctive in different fields with different filters its got to be nasty...
+                    if (StringUtils.contains(filter, ListingConfig.OPERATOR_AND) || StringUtils.contains(filter, ListingConfig.OPERATOR_AND_WORD)) {
+                        List<String> andfilters = ListingUtil
+                                        .splitAnd(filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_AND_WORD), ListingConfig.OPERATOR_AND));
+                        // ...ok, just see it like this: WHERE (fieldA = filter1 OR fieldB = filter1) AND (fieldA = filter2 OR fieldB = filter2)
+                        listingPredicate.addPredicate(new ListingPredicate().and()
+                                        .predicates(andfilters.stream().map(andfilter -> new ListingPredicate().or().predicates(orAttributes.stream()
+                                                        .map(orAttribute -> createListingPredicate(orAttribute, andfilter)).collect(Collectors.toList())))
+                                                        .collect(Collectors.toList())));
+                    } else {
+                        listingPredicate.addPredicate(new ListingPredicate().or().predicates(
+                                        orAttributes.stream().map(orAttribute -> createListingPredicate(orAttribute, filter)).collect(Collectors.toList())));
+                    }
                 } else {
                     // just one attribute for one filter
                     listingPredicate.addPredicate(createListingPredicate(attribute, filter));
@@ -116,16 +129,25 @@ public class ListingQuery<T> {
 
     private ListingPredicate createListingPredicate(String attribute, String filter) {
 
+        // the AND is mightier than the OR, so we check it first and in case there are some, they get put into use, replaced and this method is called
+        // recursively to proceed with the OR
+        if (StringUtils.contains(filter, ListingConfig.OPERATOR_AND) || StringUtils.contains(filter, ListingConfig.OPERATOR_AND_WORD)) {
+
+            List<String> andFilters = ListingUtil.splitAnd(filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_AND_WORD), ListingConfig.OPERATOR_AND));
+            // we don't expect as many AND-Predicates as we do for OR-Predicates, so we don't need a special case here
+            return new ListingPredicate().and()
+                            .predicates(andFilters.stream().map(andfilter -> createListingPredicate(attribute, andfilter)).collect(Collectors.toList()));
+        }
         if (StringUtils.contains(filter, ListingConfig.OPERATOR_OR) || StringUtils.contains(filter, ListingConfig.OPERATOR_OR_WORD)) {
 
-            List<String> orList = ListingUtil.split(filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_OR_WORD), ListingConfig.OPERATOR_OR));
-            if (orList.size() > ListingConfig.OR_LIMIT) {
+            List<String> orFilters = ListingUtil.splitOr(filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_OR_WORD), ListingConfig.OPERATOR_OR));
+            if (orFilters.size() > ListingConfig.OR_LIMIT) {
                 // Too many OR-Predicates can cause a stack overflow, so higher numbers get processed in an IN statement
                 return new ListingPredicate().in().filter(attribute,
                                 filter.replaceAll(ListingUtil.escape(ListingConfig.OPERATOR_OR_WORD), ListingConfig.OPERATOR_OR));
             }
             return new ListingPredicate().or()
-                            .predicates(orList.stream().map(orfilter -> createListingPredicateFilter(attribute, orfilter)).collect(Collectors.toList()));
+                            .predicates(orFilters.stream().map(orfilter -> createListingPredicateFilter(attribute, orfilter)).collect(Collectors.toList()));
         }
         return createListingPredicateFilter(attribute, filter);
     }
@@ -161,7 +183,7 @@ public class ListingQuery<T> {
                     }
                     // add predicate
                     if (listingPredicate.isIn()) {
-                        predicate = createInPredicate(ListingUtil.split(listingPredicate.getFilter()), fieldMap.get(listingPredicate.getAttribute()));
+                        predicate = createInPredicate(ListingUtil.splitOr(listingPredicate.getFilter()), fieldMap.get(listingPredicate.getAttribute()));
                     } else {
                         predicate = createPredicate(listingPredicate.getFilter(), fieldMap.get(listingPredicate.getAttribute()));
                     }

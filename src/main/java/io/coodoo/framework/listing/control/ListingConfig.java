@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class ListingConfig {
 
+    private static final String BLANC = " ";
+
     private static Logger log = LoggerFactory.getLogger(ListingConfig.class);
 
     /**
@@ -56,7 +58,7 @@ public class ListingConfig {
      * NOT operator as word
      */
     private static String OPERATOR_NOT_WORD_BLANK = "NOT";
-    public static String OPERATOR_NOT_WORD = OPERATOR_NOT_WORD_BLANK + " ";
+    public static String OPERATOR_NOT_WORD = OPERATOR_NOT_WORD_BLANK + BLANC;
 
     /**
      * OR operator
@@ -67,7 +69,18 @@ public class ListingConfig {
      * OR operator as word
      */
     private static String OPERATOR_OR_WORD_BLANK = "OR";
-    public static String OPERATOR_OR_WORD = " " + OPERATOR_OR_WORD_BLANK + " ";
+    public static String OPERATOR_OR_WORD = BLANC + OPERATOR_OR_WORD_BLANK + BLANC;
+
+    /**
+     * AND operator
+     */
+    public static String OPERATOR_AND = "&";
+
+    /**
+     * AND operator as word
+     */
+    private static String OPERATOR_AND_WORD_BLANK = "AND";
+    public static String OPERATOR_AND_WORD = BLANC + OPERATOR_AND_WORD_BLANK + BLANC;
 
     /**
      * LIKE operator
@@ -78,7 +91,7 @@ public class ListingConfig {
      * LIKE operator as word
      */
     private static String OPERATOR_LIKE_WORD_BLANK = "LIKE";
-    public static String OPERATOR_LIKE_WORD = OPERATOR_LIKE_WORD_BLANK + " ";
+    public static String OPERATOR_LIKE_WORD = OPERATOR_LIKE_WORD_BLANK + BLANC;
 
     /**
      * LESS THAN operator
@@ -89,7 +102,7 @@ public class ListingConfig {
      * LESS THAN operator as word
      */
     private static String OPERATOR_LT_WORD_BLANK = "LT";
-    public static String OPERATOR_LT_WORD = OPERATOR_LT_WORD_BLANK + " ";
+    public static String OPERATOR_LT_WORD = OPERATOR_LT_WORD_BLANK + BLANC;
 
     /**
      * GREATER THAN operator
@@ -100,7 +113,7 @@ public class ListingConfig {
      * GREATER THAN operator as word
      */
     private static String OPERATOR_GT_WORD_BLANK = "GT";
-    public static String OPERATOR_GT_WORD = OPERATOR_GT_WORD_BLANK + " ";
+    public static String OPERATOR_GT_WORD = OPERATOR_GT_WORD_BLANK + BLANC;
 
     /**
      * TO operator
@@ -111,7 +124,7 @@ public class ListingConfig {
      * TO operator as word
      */
     private static String OPERATOR_TO_WORD_BLANK = "TO";
-    public static String OPERATOR_TO_WORD = " " + OPERATOR_TO_WORD_BLANK + " ";
+    public static String OPERATOR_TO_WORD = BLANC + OPERATOR_TO_WORD_BLANK + BLANC;
 
     /**
      * NULL operator
