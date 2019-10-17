@@ -13,8 +13,8 @@
 ### Features
 
 * New filter operator AND ('&')
- * Ever wondered what German city has double A and double L in its name? Attribute: `city` Filter: `aa&ll` - it's Halle an der Saale
- * Lets see, what Eike did in December 2018! Attribute: `createdBy|createdAt` Filter: `Eike AND 12.2018`
+  * Ever wondered what German city has double A and double L in its name? Attribute: `city` Filter: `aa&ll` - it's Halle an der Saale
+  * Lets see, what Eike did in December 2018! Attribute: `createdBy|createdAt` Filter: `Eike AND 12.2018`
 
 
 <a name="1.5.0"></a>
