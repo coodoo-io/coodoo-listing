@@ -99,8 +99,8 @@ public void CarService {
 | Option                   | Word      | Example            | Character           | Example                    | Limitation     |
 |--------------------------|-----------|--------------------|---------------------|----------------------------|----------------|
 | Negation                 | `NOT`     | `NOT BMW`          | `!`                 | `!BMW`                     |                |
-| Value conjunction        | `AND`     | `M AND B`          | <code>&#38;</code>  | <code>M&#38;B</code>       |                |
-| Value disjunction        | `OR`      | `BMW OR Audi`      | <code>&#124;</code> | <code>BMW&#124;Audi</code> |                |
+| Conjunction              | `AND`     | `M AND B`          | <code>&#38;</code>  | <code>M&#38;B</code>       |                |
+| Disjunction              | `OR`      | `BMW OR Audi`      | <code>&#124;</code> | <code>BMW&#124;Audi</code> |                |
 | Less than                | `LT`      | `LT 200`           | `<`                 | `<200`                     | Numbers, Dates |
 | Greater than             | `GT`      | `GT 200`           | `>`                 | `>200`                     | Numbers, Dates |
 | Range                    | `TO`      | `200 TO 400`       | `-`                 | `200-400`                  | Numbers, Dates |
