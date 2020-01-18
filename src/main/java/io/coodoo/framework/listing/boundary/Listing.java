@@ -61,8 +61,6 @@ public class Listing {
      * @return generic list of found instances
      */
     public static <T> List<T> getListing(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
-        // List<T> list = assambleFilter(entityManager, entityClass, parameters).list(parameters.getIndex(), parameters.getLimit());
-
         List<T> list = new ListingQuery<>(entityManager, entityClass)
                         // apply sorting
                         .sort(parameters.getSortAttribute())
@@ -93,7 +91,6 @@ public class Listing {
      * @return the amount of found instances
      */
     public static <T> Long countListing(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
-        // return assambleFilter(entityManager, entityClass, parameters).count();
         return new ListingQuery<>(entityManager, entityClass)
                         // disjunctive filter on the whole table
                         .filterAllAttributes(parameters.getFilter())

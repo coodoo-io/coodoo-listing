@@ -37,7 +37,7 @@ public class ListingQuery<T> {
     private CriteriaQuery query;
     private Root<T> root;
     private Class<T> domainClass;
-    private List<Predicate> whereConstraints = new ArrayList<>();
+    private List<Predicate> whereConstraints;
 
     public ListingQuery(EntityManager entityManager, Class<T> domainClass) {
         this.entityManager = entityManager;
@@ -45,6 +45,7 @@ public class ListingQuery<T> {
         this.criteriaBuilder = entityManager.getCriteriaBuilder();
         this.query = criteriaBuilder.createQuery();
         this.root = query.from(domainClass);
+        this.whereConstraints = new ArrayList<>();
     }
 
     public ListingQuery<T> filterAllAttributes(String filter) {
@@ -218,7 +219,7 @@ public class ListingQuery<T> {
         String simpleName = field.getType().getSimpleName();
 
         // Nulls
-        if (filter.matches("^" + ListingConfig.OPERATOR_NULL + "$")) {
+        if (ListingUtil.matches(filter, ListingConfig.OPERATOR_NULL)) {
             return criteriaBuilder.isNull(root.get(fieldName));
         }
 
@@ -507,6 +508,9 @@ public class ListingQuery<T> {
                 if (field.getType().isEnum()) {
                     List<Enum> inListEnum = new ArrayList<Enum>();
                     for (String enumString : inList) {
+                        if (ListingUtil.isQuoted(enumString)) {
+                            enumString = ListingUtil.removeQuotes(enumString);
+                        }
                         try {
                             inListEnum.add(Enum.valueOf((Class<Enum>) field.getType(), enumString));
                         } catch (IllegalArgumentException e) {
@@ -516,7 +520,7 @@ public class ListingQuery<T> {
                 }
                 break;
         }
-        if (list != null) {
+        if (list != null && !list.isEmpty()) {
             return criteriaBuilder.isTrue(root.get(field.getName()).in(list));
         }
         return null;

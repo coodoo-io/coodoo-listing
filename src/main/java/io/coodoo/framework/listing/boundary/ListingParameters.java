@@ -204,6 +204,10 @@ public class ListingParameters {
         return filterAttributes;
     }
 
+    public void setFilterAttributes(Map<String, String> filterAttributes) {
+        this.filterAttributes = filterAttributes;
+    }
+
     /**
      * @return root of custom filter condition tree
      */
