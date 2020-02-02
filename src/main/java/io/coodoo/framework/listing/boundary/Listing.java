@@ -1,6 +1,7 @@
 package io.coodoo.framework.listing.boundary;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -47,7 +48,12 @@ public class Listing {
      *         </ul>
      */
     public static <T> ListingResult<T> getListingResult(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
-        return new ListingResult<T>(getListing(entityManager, entityClass, parameters),
+        return new ListingResult<T>(
+                        // results
+                        getListing(entityManager, entityClass, parameters),
+                        // terms
+                        getTerms(entityManager, entityClass, parameters),
+                        // metadata
                         new Metadata(countListing(entityManager, entityClass, parameters), parameters));
     }
 
@@ -103,8 +109,29 @@ public class Listing {
     }
 
     /**
-     * Gets the listing result
+     * Gets the terms (if given in {@link ListingParameters#addTermsAttributes(String, String)}) for the target entity
      * 
+     * @param <T> type of target entity class
+     * @param entityManager entity manager of designated persistence unit
+     * @param entityClass target entity class
+     * @param parameters defines the listing queue. It contains optional query parameters as described above
+     * @return an map of terms as defined
+     */
+    public static <T> Map<String, List<Term>> getTerms(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
+        return new ListingQuery<>(entityManager, entityClass)
+                        // disjunctive filter on the whole table
+                        .filterAllAttributes(parameters.getFilter())
+                        // column specific conjunctive filter
+                        .filterByAttributes(parameters.getFilterAttributes())
+                        // additional filters
+                        .filterByPredicate(parameters.getPredicate())
+                        // terminator
+                        .getTermsMap(parameters.getTermsAttributes());
+    }
+
+    /**
+     * Gets the listing result
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
@@ -118,7 +145,7 @@ public class Listing {
 
     /**
      * Gets the list of found instances
-     * 
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
@@ -132,7 +159,7 @@ public class Listing {
 
     /**
      * Gets the count of the found instances of the target entity
-     * 
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
@@ -146,7 +173,7 @@ public class Listing {
 
     /**
      * Gets the listing result
-     * 
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
@@ -161,7 +188,7 @@ public class Listing {
 
     /**
      * Gets the list of found instances
-     * 
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class
@@ -176,7 +203,7 @@ public class Listing {
 
     /**
      * Gets the count of the found instances of the target entity
-     * 
+     *
      * @param <T> type of target entity class
      * @param entityManager entity manager of designated persistence unit
      * @param entityClass target entity class

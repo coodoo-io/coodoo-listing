@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -20,6 +21,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
+import io.coodoo.framework.listing.boundary.Term;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
 
 /**
@@ -544,7 +546,6 @@ public class ListingQuery<T> {
             Predicate filterConstraint = criteriaBuilder.or(predicates.toArray(new Predicate[predicates.size()]));
             whereConstraints.add(filterConstraint);
         }
-
         return this;
     }
 
@@ -626,8 +627,45 @@ public class ListingQuery<T> {
     }
 
     public Long count() {
-        TypedQuery<Long> q = this.entityManager.createQuery(this.getQueryForCount());
-        return q.getSingleResult();
+        TypedQuery<Long> typedQuery = this.entityManager.createQuery(this.getQueryForCount());
+        return typedQuery.getSingleResult();
+    }
+
+    public List<Term> getTerms(String attribute, int maxResults) {
+
+        Expression<Long> countExpression = criteriaBuilder.count(root.get(attribute));
+
+        query.multiselect(root.get(attribute), countExpression);
+        query.where(criteriaBuilder.and(whereConstraints.toArray(new Predicate[whereConstraints.size()])));
+        query.groupBy(root.get(attribute));
+        query.orderBy(criteriaBuilder.desc(countExpression));
+
+        TypedQuery typedQuery = this.entityManager.createQuery(query);
+        typedQuery.setMaxResults(maxResults);
+
+        return ((List<Object[]>) typedQuery.getResultList()).stream().map(r -> new Term(r[0], (long) r[1])).collect(Collectors.toList());
+    }
+
+    public Map<String, List<Term>> getTermsMap(Map<String, String> termsAttributes) {
+
+        Map<String, List<Term>> terms = new HashMap<>();
+        if (termsAttributes != null && termsAttributes.size() > 0) {
+
+            Map<String, Field> fields = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(f -> f.getName(), f -> f));
+            for (Map.Entry<String, String> termsAttribute : termsAttributes.entrySet()) {
+                String attribute = termsAttribute.getKey();
+                if (!fields.containsKey(attribute)) {
+                    continue;
+                }
+                String value = termsAttribute.getValue();
+                int maxResults = ListingConfig.DEFAULT_LIMIT;
+                if (value != null && ListingUtil.validInt(value)) {
+                    maxResults = Integer.valueOf(value);
+                }
+                terms.put(attribute, getTerms(attribute, maxResults));
+            }
+        }
+        return terms;
     }
 
 }

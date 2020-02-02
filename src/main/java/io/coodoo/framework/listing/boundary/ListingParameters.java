@@ -40,6 +40,8 @@ public class ListingParameters {
 
     private Map<String, String> filterAttributes = new HashMap<>();
 
+    private Map<String, String> termsAttributes = new HashMap<>();
+
     private ListingPredicate predicate;
 
     @Context
@@ -166,6 +168,21 @@ public class ListingParameters {
         }
     }
 
+    /**
+     * Adds a terms aggregation for a specific field
+     * 
+     * @param fieldName target field for the terms aggregation
+     * @param size terms aggregation size
+     */
+    public void addTermsAttributes(String fieldName, String size) {
+
+        String preparedValue = prepare(size.toString());
+
+        if (preparedValue != null) {
+            termsAttributes.put(fieldName, preparedValue);
+        }
+    }
+
     private String prepare(String value) {
 
         String trimmedValue = StringUtils.trimToNull(value);
@@ -206,6 +223,34 @@ public class ListingParameters {
 
     public void setFilterAttributes(Map<String, String> filterAttributes) {
         this.filterAttributes = filterAttributes;
+    }
+
+    /**
+     * @return Map of attribute specific aggregations
+     */
+    public Map<String, String> getTermsAttributes() {
+
+        // collects filter from URI if given
+        if (uriInfo != null) {
+
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
+
+            for (Map.Entry<String, List<String>> queryParameter : queryParameters.entrySet()) {
+
+                String termsAttribute = queryParameter.getKey();
+                if (StringUtils.isBlank(termsAttribute) || !termsAttribute.startsWith("terms-")) {
+                    continue;
+                }
+                termsAttribute = termsAttribute.substring("terms-".length(), termsAttribute.length());
+
+                addTermsAttributes(termsAttribute, queryParameter.getValue().get(0));
+            }
+        }
+        return termsAttributes;
+    }
+
+    public void setTermsAttributes(Map<String, String> termsAttributes) {
+        this.termsAttributes = termsAttributes;
     }
 
     /**

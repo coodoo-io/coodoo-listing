@@ -6,6 +6,15 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.6.0"></a>
+
+## 1.6.0 (2020-02-02)
+
+### Features
+
+* Visual table summary? Want to know what's the most of something? No problem! You can acquire terms by just throwing attribute names into filter.
+
+
 <a name="1.5.1"></a>
 
 ## 1.5.1 (2019-10-18)
