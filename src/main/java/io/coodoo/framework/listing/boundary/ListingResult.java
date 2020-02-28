@@ -15,15 +15,18 @@ public class ListingResult<T> {
 
     private Map<String, List<Term>> terms = new HashMap<>();
 
+    private Map<String, Stats> stats = new HashMap<>();
+
     public ListingResult(List<T> result, Metadata metadata) {
         super();
         this.metadata = metadata;
         this.results = result;
     }
 
-    public ListingResult(List<T> result, Map<String, List<Term>> terms, Metadata metadata) {
+    public ListingResult(List<T> result, Map<String, List<Term>> terms, Map<String, Stats> stats, Metadata metadata) {
         super();
         this.terms = terms;
+        this.stats = stats;
         this.metadata = metadata;
         this.results = result;
     }
@@ -50,6 +53,19 @@ public class ListingResult<T> {
 
     public void setTerms(Map<String, List<Term>> terms) {
         this.terms = terms;
+    }
+
+    public Map<String, Stats> getStats() {
+        return stats;
+    }
+
+    public void setStats(Map<String, Stats> stats) {
+        this.stats = stats;
+    }
+
+    @Override
+    public String toString() {
+        return "ListingResult [metadata=" + metadata + ", results=" + results + ", terms=" + terms + ", stats=" + stats + "]";
     }
 
 }

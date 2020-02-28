@@ -42,6 +42,8 @@ public class ListingParameters {
 
     private Map<String, String> termsAttributes = new HashMap<>();
 
+    private Map<String, String> statsAttributes = new HashMap<>();
+
     private ListingPredicate predicate;
 
     @Context
@@ -183,6 +185,21 @@ public class ListingParameters {
         }
     }
 
+    /**
+     * Adds a stats aggregation for a specific field
+     * 
+     * @param fieldName target field for the stats aggregation
+     * @param size stats aggregation size
+     */
+    public void addStatsAttributes(String fieldName, String size) {
+
+        String preparedValue = prepare(size.toString());
+
+        if (preparedValue != null) {
+            statsAttributes.put(fieldName, preparedValue);
+        }
+    }
+
     private String prepare(String value) {
 
         String trimmedValue = StringUtils.trimToNull(value);
@@ -251,6 +268,34 @@ public class ListingParameters {
 
     public void setTermsAttributes(Map<String, String> termsAttributes) {
         this.termsAttributes = termsAttributes;
+    }
+
+    /**
+     * @return Map of attribute stats aggregations
+     */
+    public Map<String, String> getStatsAttributes() {
+
+        // collects filter from URI if given
+        if (uriInfo != null) {
+
+            MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters(true);
+
+            for (Map.Entry<String, List<String>> queryParameter : queryParameters.entrySet()) {
+
+                String statsAttribute = queryParameter.getKey();
+                if (StringUtils.isBlank(statsAttribute) || !statsAttribute.startsWith("stats-")) {
+                    continue;
+                }
+                statsAttribute = statsAttribute.substring("stats-".length(), statsAttribute.length());
+
+                addStatsAttributes(statsAttribute, queryParameter.getValue().get(0));
+            }
+        }
+        return statsAttributes;
+    }
+
+    public void setStatsAttributes(Map<String, String> statsAttributes) {
+        this.statsAttributes = statsAttributes;
     }
 
     /**

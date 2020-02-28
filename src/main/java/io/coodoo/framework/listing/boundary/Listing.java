@@ -19,8 +19,10 @@ public class Listing {
      * <ul>
      * <li><strong>filter</strong>: The filter value gets applied to every column of the table. Every row where a column matches this filter will be part of the
      * result (disjunctive). It can be used as a sort of global search on a Table.</li>
+     * 
      * <li><strong>filter-<i>xxx</i></strong>: filter attributes where <i>xxx</i> is the row name (attribute of the target entity) and the filter value the
      * filter for that row. Every row where all filter attributes matches will be part of the result (conjunctive).</li>
+     * 
      * <li><strong>sort</strong>: Given a row name will sort the result in ascending order, to get a descending sorted result a the row name must start with
      * "-"</li>
      * </ul>
@@ -53,6 +55,8 @@ public class Listing {
                         getListing(entityManager, entityClass, parameters),
                         // terms
                         getTerms(entityManager, entityClass, parameters),
+                        // stats
+                        getStats(entityManager, entityClass, parameters),
                         // metadata
                         new Metadata(countListing(entityManager, entityClass, parameters), parameters));
     }
@@ -127,6 +131,27 @@ public class Listing {
                         .filterByPredicate(parameters.getPredicate())
                         // terminator
                         .getTermsMap(parameters.getTermsAttributes());
+    }
+
+    /**
+     * Gets statics (if given in {@link ListingParameters#addStatsAttributes(String, String)}) for the target entity
+     * 
+     * @param <T> type of target entity class
+     * @param entityManager entity manager of designated persistence unit
+     * @param entityClass target entity class
+     * @param parameters defines the listing queue. It contains optional query parameters as described above
+     * @return an map of stats as defined
+     */
+    public static <T> Map<String, Stats> getStats(EntityManager entityManager, Class<T> entityClass, ListingParameters parameters) {
+        return new ListingQuery<>(entityManager, entityClass)
+                        // disjunctive filter on the whole table
+                        .filterAllAttributes(parameters.getFilter())
+                        // column specific conjunctive filter
+                        .filterByAttributes(parameters.getFilterAttributes())
+                        // additional filters
+                        .filterByPredicate(parameters.getPredicate())
+                        // statistics
+                        .getStatsMap(parameters.getStatsAttributes());
     }
 
     /**

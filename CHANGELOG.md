@@ -8,11 +8,12 @@
 
 <a name="1.6.0"></a>
 
-## 1.6.0 (2020-02-02)
+## 1.6.0 (2020-02-28)
 
 ### Features
 
-* Visual table summary? Want to know what's the most of something? No problem! You can acquire terms by just throwing attribute names into filter.
+* Visual table summary? Want to know what's the most of something? No problem! You can acquire terms and statistics by just throwing attribute names into filter!
+  * TO FUCKING DO!
 
 
 <a name="1.5.1"></a>

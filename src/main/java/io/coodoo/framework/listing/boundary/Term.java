@@ -54,4 +54,15 @@ public class Term {
         this.valueAsNumber = valueAsNumber;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Term [count=");
+        builder.append(count);
+        builder.append(", value=");
+        builder.append(value);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

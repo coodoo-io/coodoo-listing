@@ -21,6 +21,7 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 
 import io.coodoo.framework.listing.boundary.ListingPredicate;
+import io.coodoo.framework.listing.boundary.Stats;
 import io.coodoo.framework.listing.boundary.Term;
 import io.coodoo.framework.listing.boundary.annotation.ListingFilterAsString;
 
@@ -629,6 +630,87 @@ public class ListingQuery<T> {
     public Long count() {
         TypedQuery<Long> typedQuery = this.entityManager.createQuery(this.getQueryForCount());
         return typedQuery.getSingleResult();
+    }
+
+    public Stats getStats(String attribute, String operation) {
+
+        List<Expression> operations = new ArrayList<>();
+        switch (operation) {
+            case "count":
+                operations.add(criteriaBuilder.count(root.get(attribute)));
+                break;
+            case "min":
+                operations.add(criteriaBuilder.min(root.get(attribute)));
+                break;
+            case "max":
+                operations.add(criteriaBuilder.max(root.get(attribute)));
+                break;
+            case "avg":
+                operations.add(criteriaBuilder.avg(root.get(attribute)));
+                break;
+            case "sum":
+                operations.add(criteriaBuilder.sum(root.get(attribute)));
+                break;
+            default:
+                operations.add(criteriaBuilder.count(root.get(attribute)));
+                operations.add(criteriaBuilder.min(root.get(attribute)));
+                operations.add(criteriaBuilder.max(root.get(attribute)));
+                operations.add(criteriaBuilder.avg(root.get(attribute)));
+                operations.add(criteriaBuilder.sum(root.get(attribute)));
+                break;
+        }
+        query.multiselect(operations);
+        query.where(criteriaBuilder.and(whereConstraints.toArray(new Predicate[whereConstraints.size()])));
+
+        TypedQuery typedQuery = this.entityManager.createQuery(query);
+        typedQuery.setMaxResults(1);
+
+        Stats stats = new Stats();
+        switch (operation) {
+            case "count":
+                stats.setCount((Long) typedQuery.getSingleResult());
+                break;
+            case "min":
+                stats.setMin((Number) typedQuery.getSingleResult());
+                break;
+            case "max":
+                stats.setMax((Number) typedQuery.getSingleResult());
+                break;
+            case "avg":
+                stats.setAvg((Double) typedQuery.getSingleResult());
+                break;
+            case "sum":
+                stats.setSum((Number) typedQuery.getSingleResult());
+                break;
+            default:
+                Object[] result = (Object[]) typedQuery.getSingleResult();
+                stats.setCount((Long) result[0]);
+                stats.setMin((Number) result[1]);
+                stats.setMax((Number) result[2]);
+                stats.setAvg((Double) result[3]);
+                stats.setSum((Number) result[4]);
+                break;
+        }
+        return stats;
+    }
+
+    public Map<String, Stats> getStatsMap(Map<String, String> statsAttributes) {
+
+        Map<String, Stats> stats = new HashMap<>();
+        if (statsAttributes != null && statsAttributes.size() > 0) {
+
+            Map<String, Field> fields = ListingUtil.getFields(domainClass).stream().collect(Collectors.toMap(f -> f.getName(), f -> f));
+            for (Map.Entry<String, String> statsAttribute : statsAttributes.entrySet()) {
+
+                String attribute = statsAttribute.getKey();
+                Field field = fields.get(attribute);
+
+                if (field != null && field.getType().getSuperclass() == Number.class) {
+                    stats.put(attribute, getStats(attribute, statsAttribute.getValue()));
+                }
+            }
+        }
+        return stats;
     }
 
     public List<Term> getTerms(String attribute, int maxResults) {
