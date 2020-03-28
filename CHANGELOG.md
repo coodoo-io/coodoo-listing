@@ -8,13 +8,12 @@
 
 <a name="1.6.0"></a>
 
-## 1.6.0 (2020-02-28)
+## 1.6.0 (2020-03-28)
 
 ### Features
 
-* Visual table summary? Want to know what's the most of something? No problem! You can acquire terms and statistics by just throwing attribute names into filter!
+* Visual table summary? Want to know what's the most of something? No problem! You can acquire terms and statistics by just throwing attribute names into filter! Have a look at *Visual Table Summary* in this [UX Collective article](https://uxdesign.cc/design-better-data-tables-4ecc99d23356).
   * TO FUCKING DO!
-
 
 <a name="1.5.1"></a>
 

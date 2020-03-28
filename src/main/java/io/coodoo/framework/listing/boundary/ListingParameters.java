@@ -189,11 +189,11 @@ public class ListingParameters {
      * Adds a stats aggregation for a specific field
      * 
      * @param fieldName target field for the stats aggregation
-     * @param size stats aggregation size
+     * @param operation stats aggregation operation
      */
-    public void addStatsAttributes(String fieldName, String size) {
+    public void addStatsAttributes(String fieldName, String operation) {
 
-        String preparedValue = prepare(size.toString());
+        String preparedValue = prepare(operation.toString());
 
         if (preparedValue != null) {
             statsAttributes.put(fieldName, preparedValue);

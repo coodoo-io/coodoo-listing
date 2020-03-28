@@ -17,6 +17,8 @@
     - [Filter attributes](#filter-attributes)
     - [Pagination](#pagination)
     - [Sort](#sort)
+    - [Terms](#terms)
+    - [Stats](#stats)
     - [Additional predicates](additional-predicates)
   - [Metadata](#metadata)
 - [Configuration](#configuration)
@@ -204,7 +206,7 @@ Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?filter-se
 
 #### Pagination
 
-The `ListingParameters` object accepts a page number and a limit of results per page to provide you a the current page sublist. With the result list in the `ListingResult`object there comes `Metadata` object for all the other details. 
+The `ListingParameters` object accepts a page number and a limit of results per page to provide you a the current page sublist. With the result list in the `ListingResult` object there comes `Metadata` object for all the other details. 
 
 ```java
 ListingParameters listingParameters = new ListingParameters();
@@ -229,6 +231,25 @@ return Listing.getListingResult(entityManager, Car.class, listingParameters);
 Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?sort=-hp`
 
 [Examples](https://github.com/coodoo-io/coodoo-framework-showcase/blob/master/src/main/java/io/coodoo/framework/showcase/listing/boundary/examples/ListingSortService.java)
+
+
+#### Terms
+
+You can get a term aggregation (count on groups) for every attribute in your targeted entity class. Therefore you just have to pass the attribute name and a limit `ListingParameters` using `addTermsAttributes()`.
+
+```java
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.addTermsAttributes("manufactor", "3");
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
+```
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?terms-manufactor=3`
+
+There will be a map named `terms` in the `ListingResult` object that contains a key `manufactor`. 
+
+
+#### Stats
+
+TODO
 
 
 #### Additional predicates

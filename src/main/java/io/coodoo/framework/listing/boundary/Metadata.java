@@ -24,8 +24,8 @@ public class Metadata {
     private Integer startIndex;
     private Integer endIndex;
 
-    public Metadata(Long count, ListingParameters listingQueryParams) {
-        this(count, listingQueryParams.getPage(), listingQueryParams.getLimit(), listingQueryParams.getSortAttribute());
+    public Metadata(Long count, ListingParameters listingParameters) {
+        this(count, listingParameters.getPage(), listingParameters.getLimit(), listingParameters.getSortAttribute());
     }
 
     public Metadata(Long count, Integer currentPage, Integer itemsPerPage) {
