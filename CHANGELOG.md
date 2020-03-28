@@ -14,6 +14,7 @@
 
 * Visual table summary? Want to know what's the most of something? No problem! You can acquire terms and statistics by just throwing attribute names into filter! Have a look at *Visual Table Summary* in this [UX Collective article](https://uxdesign.cc/design-better-data-tables-4ecc99d23356).
   * TO FUCKING DO!
+* Fetch size optimization can be applied by `ListingConfig.ORG_HIBERNATE_FETCHSIZE`, witch will add `typedQuery.setHint("org.hibernate.fetchSize", ListingConfig.ORG_HIBERNATE_FETCHSIZE);` to the query if set.
 
 <a name="1.5.1"></a>
 

@@ -178,6 +178,19 @@ public class ListingConfig {
     public static ZoneId ZONE_ID = ZoneId.of(TIME_ZONE);
 
     /**
+     * <code>org.hibernate.fetchSize</code> tells the JDBC driver how many rows to return in one chunk, for large queries.<br>
+     * If this is set to <code>0</code> (default) it will not be applied. <br>
+     * <br>
+     * <i><code>org.hibernate.fetchSize</code> will do nothing if your driver does not support it!</i> <br>
+     * <br>
+     * Say you want 1000 rows. If you set the fetch size to 100, the database will return 100, then another 100 when you want more, and so on. <br>
+     * <br>
+     * You can also set this globally by adding <code>&lt;property name="hibernate.jdbc.fetch_size" value="100"/&gt; </code> to your options in
+     * <code>persitence.xml</code>
+     */
+    public static int ORG_HIBERNATE_FETCHSIZE = 0;
+
+    /**
      * Name of the (optional) listing property file
      */
     private static final String listingPropertiesFilename = "coodoo.listing.properties";
@@ -231,6 +244,7 @@ public class ListingConfig {
                 URI_DECODE = loadProperty(URI_DECODE, "coodoo.listing.uri.decode");
                 URI_CHARACTER_ENCODING = loadProperty(URI_CHARACTER_ENCODING, "coodoo.listing.uricharacterencoding");
 
+                ORG_HIBERNATE_FETCHSIZE = loadProperty(ORG_HIBERNATE_FETCHSIZE, "coodoo.listing.org.hibernate.fetchSize");
             }
         } catch (IOException e) {
             log.info("Couldn't read {}!", listingPropertiesFilename, e);
