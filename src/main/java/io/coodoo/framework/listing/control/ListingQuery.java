@@ -624,8 +624,8 @@ public class ListingQuery<T> {
         if (limit != null && limit > 0) {
             typedQuery.setMaxResults(limit);
         }
-        if (ListingConfig.ORG_HIBERNATE_FETCHSIZE != 0) {
-            typedQuery.setHint("org.hibernate.fetchSize", ListingConfig.ORG_HIBERNATE_FETCHSIZE);
+        if (ListingConfig.FETCHSIZE != 0) {
+            typedQuery.setHint("org.hibernate.fetchSize", ListingConfig.FETCHSIZE);
         }
         return typedQuery.getResultList();
     }
