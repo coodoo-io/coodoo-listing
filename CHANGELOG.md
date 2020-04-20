@@ -8,12 +8,13 @@
 
 <a name="1.6.0"></a>
 
-## 1.6.0 (2020-03-28)
+## 1.6.0 (2020-04-20)
 
 ### Features
 
 * Visual table summary? Want to know what's the most of something? No problem! You can acquire terms and statistics by just throwing attribute names into filter! Have a look at *Visual Table Summary* in this [UX Collective article](https://uxdesign.cc/design-better-data-tables-4ecc99d23356).
 * Fetch size optimization can be applied by `ListingConfig.FETCHSIZE`, witch will add `typedQuery.setHint("org.hibernate.fetchSize", ListingConfig.FETCHSIZE);` to the query if set.
+* Convenient new `ListingParameters` constructors with parameters `page` & `limit` and only `limit`
 
 <a name="1.5.1"></a>
 

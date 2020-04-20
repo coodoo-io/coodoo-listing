@@ -64,6 +64,21 @@ public class ListingParameters {
     }
 
     /**
+     * @param page number for pagination
+     * @param limit of results per page for pagination
+     */
+    public ListingParameters(Integer page, Integer limit) {
+        this(page, limit, null);
+    }
+
+    /**
+     * @param limit of results per page for pagination
+     */
+    public ListingParameters(Integer limit) {
+        this(null, limit, null);
+    }
+
+    /**
      * @return index for pagination (position in whole list where current pagination page starts)
      */
     public Integer getIndex() {
