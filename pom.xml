@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.coodoo</groupId>
     <artifactId>coodoo-listing</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
     <inceptionYear>2017</inceptionYear>
     <organization>
