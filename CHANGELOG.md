@@ -6,6 +6,14 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.6.1"></a>
+
+## 1.6.1 (2020-11-07)
+
+### Features
+* `ListingParameters.addFilterAttributes()` isn't limited to `String` anymore. So you don't have to stringify numeric or enum values anymore.
+
+
 <a name="1.6.0"></a>
 
 ## 1.6.0 (2020-04-20)

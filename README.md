@@ -249,7 +249,16 @@ There will be a map named `terms` in the `ListingResult` object that contains a 
 
 #### Stats
 
-TODO
+You can get the minimum, maximum, average, sum and count for every attribute in your targeted entity class. One by one or all together the result is delivered in a Stats-Object. Therefore you just have to pass the attribute name and a limit `ListingParameters` using `addStatsAttributes()`.
+
+```java
+ListingParameters listingParameters = new ListingParameters();
+listingParameters.addStatsAttributes("price", "min");
+return Listing.getListingResult(entityManager, Car.class, listingParameters);
+```
+Or via Rest Resource: `curl http://localhost:8080/showcase/api/listing?stats-price=min`
+
+There will be a map named `stats` in the `ListingResult` object that contains a key `price`. 
 
 
 #### Additional predicates

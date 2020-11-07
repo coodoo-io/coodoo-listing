@@ -173,12 +173,12 @@ public class ListingParameters {
     /**
      * Adds a filter to a specific attribute
      * 
-     * @param attribute attribute name
+     * @param attribute attribute name (<code>toString()</code> is used on this parameter)
      * @param value filter value
      */
-    public void addFilterAttributes(String attribute, String value) {
+    public void addFilterAttributes(String attribute, Object value) {
 
-        String preparedValue = prepare(value);
+        String preparedValue = prepare(value.toString());
 
         if (preparedValue != null) {
             filterAttributes.put(attribute, preparedValue);
@@ -187,6 +187,10 @@ public class ListingParameters {
 
     /**
      * Adds a terms aggregation for a specific field
+     * 
+     * You can get a term aggregation (count on groups) for every attribute in your targeted entity class. Therefore you just have to pass the attribute name
+     * and a limit `ListingParameters` using `addTermsAttributes()`.
+     * 
      * 
      * @param fieldName target field for the terms aggregation
      * @param size terms aggregation size
@@ -203,8 +207,19 @@ public class ListingParameters {
     /**
      * Adds a stats aggregation for a specific field
      * 
+     * You can get the minimum, maximum, average, sum and count for every attribute in your targeted entity class. One by one or all together the result is
+     * delivered in a Stats-Object. Therefore you just have to pass the attribute name and a limit `ListingParameters` using `addStatsAttributes()`.
+     * 
      * @param fieldName target field for the stats aggregation
      * @param operation stats aggregation operation
+     *        <ul>
+     *        <li><code>"count"</code></li>
+     *        <li><code>"min"</code></li>
+     *        <li><code>"max"</code></li>
+     *        <li><code>"avg"</code></li>
+     *        <li><code>"sum"</code></li>
+     *        <li>Everything else will get you all aggregation operations</li>
+     *        </ul>
      */
     public void addStatsAttributes(String fieldName, String operation) {
 
