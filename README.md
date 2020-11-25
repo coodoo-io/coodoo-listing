@@ -1,3 +1,5 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.coodoo/coodoo-listing/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.coodoo/coodoo-listing)
+
 # coodoo-listing
 
 > A generic JPA/JAX-RS listing mechanism for easy paging, filtering, sorting and searching on entities.
