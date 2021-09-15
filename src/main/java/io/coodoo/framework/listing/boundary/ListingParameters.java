@@ -172,6 +172,19 @@ public class ListingParameters {
 
     /**
      * Adds a filter to a specific attribute
+     * <p>
+     * <i>Legacy support for systems that are unable to match {@link #addFilterAttributes(String, Object)}</i>
+     * </p>
+     * 
+     * @param attribute attribute name (<code>toString()</code> is used on this parameter)
+     * @param value filter value as String
+     */
+    public void addFilterAttributes(String attribute, String value) {
+        addFilterAttributes(attribute, (Object) value);
+    }
+
+    /**
+     * Adds a filter to a specific attribute
      * 
      * @param attribute attribute name (<code>toString()</code> is used on this parameter)
      * @param value filter value

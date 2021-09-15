@@ -6,6 +6,15 @@
 ### BREAKING CHANGES
 -->
 
+<a name="1.6.2"></a>
+
+## 1.6.2 (2021-09-15)
+
+### Features
+* Legacy support for systems that are unable to match `ListingParamters.addFilterAttributes(String, Object)` anymore.
+* Happy 1st Birthday Simon! 🥳
+
+
 <a name="1.6.1"></a>
 
 ## 1.6.1 (2021-07-30)
